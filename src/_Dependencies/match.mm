@@ -1,0 +1,2 @@
+﻿#PS Dummy
+**/nd*.txt
