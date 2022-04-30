@@ -3,27 +3,26 @@
 using mollycoddle;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
+using Plisky.Plumbing;
 
 internal class Program {
     static int Main(string[] args) {
+        
+        var clas = new CommandArgumentSupport();
+        clas.ArgumentPrefix = "-";
+        clas.ArgumentPostfix = "=";
+        var mo = clas.ProcessArguments<MollyCommandLine>(args).GetOptions();
+
         Bilge.SetConfigurationResolver( (x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
-        Bilge b = new Bilge("mollycoddle");
+        var b = new Bilge("mollycoddle");
         b.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
-
         Bilge.Alert.Online("mollycoddle");
 
-        string masterFolder = @"C:\Files\OneDrive\Dev\Templates";
+        
+        string directoryToTarget = mo.DirectoryToTarget;
 
-
-        string directoryToTarget;
-        if (args.Length == 0) {
-            Console.WriteLine("You need to pass a directory");
-            return -1;            
-        } else {
-            directoryToTarget = args[0];
-        }
         b.Verbose.Log($"targetting {directoryToTarget}");
         ValidateDirectory(directoryToTarget);
 
@@ -32,7 +31,8 @@ internal class Program {
         ps.Root = directoryToTarget;
         ps.PopulateProjectStructure();
 
-        var dst = new DirectoryStructureChecker(ps);
+        var dst = new DirectoryStructureChecker(ps,mo);
+        var fst = new FileStructureChecker(ps,mo);
 
         var mrf = new MollyRuleFactory();
 
@@ -41,19 +41,19 @@ internal class Program {
 
             foreach (var n in x.Validators) {
                 dst.AddRuleRequirement(n);
+                fst.AddRuleRequirement(n);
             }
         }
 
-        var cr = dst.CheckDirectories();
-
+        var cr = dst.Check();
+        cr = fst.Check(cr);
 
         foreach (var l in cr.ViolationsFound) {
             Console.WriteLine($"Violation {l.RuleName} ({l.Additional})");
         }
 
         Console.WriteLine($"Total Violations {cr.DefectCount}");
-        //dst.CheckDirectories(directoryToTarget, dirs);
-
+        
         b.Flush();
         return cr.DefectCount;
     }

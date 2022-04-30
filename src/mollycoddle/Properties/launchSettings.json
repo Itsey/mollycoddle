@@ -2,7 +2,7 @@
   "profiles": {
     "mollycoddle": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Files\\Code\\git\\PliskyDiagnostics"
+      "commandLineArgs": "C:\\Files\\Code\\git\\PliskyDiagnostics -masterRoot=C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\TestMasterPath\\"
     }
   }
 }

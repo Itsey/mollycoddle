@@ -11,75 +11,34 @@
     /// <summary>
     /// The job here is to actually check the directory structure for failures.
     /// </summary>
-    public class DirectoryStructureChecker  {
-        protected Bilge b = new Bilge("molly-directorycheck");
-        private Options o = new Options() { AllowWindowsPaths = true, IgnoreCase = true };
+    public class DirectoryStructureChecker : StructureCheckerBase {
+        private Dictionary<string, CheckEntity> directoriesThatMustExist = new Dictionary<string, CheckEntity>();
 
-        protected List<ValidatorBase> validators = new List<ValidatorBase>();
-        protected List<Tuple<string,Func<string,bool>>> prohibitors = new List<Tuple<string,Func<string,bool>>>();
-        protected string ReplaceRoot(string prohibited) {
-            if (ps == null) {
-                throw new InvalidOperationException("The root must be set in the validator prior to calling ReplaceRoot");
+        public DirectoryStructureChecker(ProjectStructure ps, MollyOptions mo) :base(ps,mo) {
+         
+        }
+
+        
+        protected override void AddDirectoryValidator(DirectoryValidationChecks dc) {
+            base.AddDirectoryValidator(dc);
+
+            foreach (var l in dc.MustExistExactly()) {
+                string nl = l.Replace("%ROOT%", ps.Root).ToLowerInvariant();
+                directoriesThatMustExist.Add(nl, new CheckEntity(dc.TriggeringRule) {
+                    Passed = false
+                });
             }
-            return prohibited.Replace("%ROOT%", ps.Root);
-        }
-
-        public void AddRuleRequirement(ValidatorBase n) {
-            validators.Add(n);
-        }
-
-        private ProjectStructure ps;
-
-        public DirectoryStructureChecker(ProjectStructure ps) {
-            this.ps = ps;
-        }
-
-        public void AddProhibitedPatternFinder(string ruleName, string prohibited, params string[] exceptions) {
-            prohibited = ReplaceRoot(prohibited);
-            b.Verbose.Log($"Creating prohibition {ruleName}");
-
-            var flt = Minimatcher.CreateFilter(prohibited, o);
-            List<Minimatcher> exceptFor = new List<Minimatcher>();
-            foreach (string exception in exceptions) {
-                var ne = ReplaceRoot(exception);
-                var m = new Minimatcher(ne, o);
-                exceptFor.Add(m);
+            foreach (var l in dc.GetProhibitedPaths()) {
+                AddProhibitedPatternFinder(dc.TriggeringRule, l.ProhibitedPattern, l.ExceptionsList);
             }
-            Func<string, bool> isProhibited = (pat) => {
-                if (flt(pat)) {
-                    foreach (var n in exceptFor) {
-                        if (n.IsMatch(pat)) {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                return false;
-            };
-            prohibitors.Add(new Tuple<string, Func<string, bool>>(ruleName,isProhibited));
 
         }
 
-        public CheckResult CheckDirectories() {
+        
+        
+
+        protected override CheckResult ActualExecuteChecks(CheckResult result) {
             b.Info.Flow();
-
-            var result = new CheckResult();
-
-            Dictionary<string, CheckEntity> directoriesThatMustExist = new Dictionary<string, CheckEntity>();
-
-            foreach (var f in validators) {
-                if (f is DirectoryValidationChecks dc) {
-
-                    foreach (var l in dc.MustExistExactly()) {
-                        var nl = l.Replace("%ROOT%", ps.Root).ToLowerInvariant();
-                        directoriesThatMustExist.Add(nl, new CheckEntity(dc.TriggeringRule));
-                    }
-                    foreach(var l in dc.GetProhibitedPaths()) {
-                        AddProhibitedPatternFinder(dc.TriggeringRule,l.ProhibitedPattern,l.ExceptionsList);
-                    }
-                }
-            }
-
 
             foreach (var l in ps.AllFolders) {
                 var j = l.ToLowerInvariant();

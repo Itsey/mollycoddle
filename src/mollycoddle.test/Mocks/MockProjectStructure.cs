@@ -8,16 +8,19 @@
 
     internal class MockProjectStructure : ProjectStructure {
         public static string DUMMYRULENAME = "testrule";
-        protected Dictionary<string, string> testFileContents = new Dictionary<string, string>();
+        public Dictionary<string, string> testFileContents = new Dictionary<string, string>();
 
         internal MockProjectStructure WithRoot(string v) {
             base.Root = v;
             return this;
         }
 
-        internal void WithFile(string v1, string v2) {
-            throw new NotImplementedException();
+        internal void WithFile(string fullFileName, string fileContents) {
+            AllFiles.Add(fullFileName);
+            testFileContents.Add(fullFileName,fileContents);
         }
+
+
 
         internal MockProjectStructure WithRootedFolder(params string[] rootedFolders) {
             foreach (var tp in rootedFolders) {

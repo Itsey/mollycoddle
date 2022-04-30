@@ -6,5 +6,7 @@
     using System.Threading.Tasks;
 
     public abstract class CheckerBase : ICheckStuff {
+
+
     }
 }
