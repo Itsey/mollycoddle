@@ -1,0 +1,20 @@
+{
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "All of your editor config belong to us.",
+            "RuleReference": "MC0100",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.editorconfig"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\src\\.editorconfig",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

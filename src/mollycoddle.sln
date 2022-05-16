@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mollycoddle.test", "mollyco
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mollycoddle.support", "mollycoddle.support\mollycoddle.support.csproj", "{3CDA3E4C-0199-4F33-9D35-E56EDD0C5C76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "signatus", "signatus\signatus.csproj", "{DCF8D28C-6328-4F8B-A7B1-DF5DD17B78A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "signatus", "signatus\signatus.csproj", "{DCF8D28C-6328-4F8B-A7B1-DF5DD17B78A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_Dependencies", "_Dependencies\_Dependencies.csproj", "{01562595-0CEC-4A00-9ABB-996BAC4A9393}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_Dependencies", "_Dependencies\_Dependencies.csproj", "{01562595-0CEC-4A00-9ABB-996BAC4A9393}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mollycoddle.testdata", "mollycoddle.testdata\mollycoddle.testdata.csproj", "{B83DB30B-8548-4796-B0FF-696F627B0DF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{01562595-0CEC-4A00-9ABB-996BAC4A9393}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01562595-0CEC-4A00-9ABB-996BAC4A9393}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01562595-0CEC-4A00-9ABB-996BAC4A9393}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B83DB30B-8548-4796-B0FF-696F627B0DF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B83DB30B-8548-4796-B0FF-696F627B0DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B83DB30B-8548-4796-B0FF-696F627B0DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B83DB30B-8548-4796-B0FF-696F627B0DF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

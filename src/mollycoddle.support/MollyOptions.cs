@@ -1,22 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Plisky.Plumbing;
-using System.Threading.Tasks;
+﻿namespace mollycoddle {
 
-namespace mollycoddle {
+    /// <summary>
+    /// MollyOptions are cross cutting options relating to how the program works.
+    /// </summary>
     public class MollyOptions {
 
-        public string MasterPath { get; set; }
-        
-        public string DirectoryToTarget { get; set; }
-
-        public string RulesFile { get; set; }
-
         public MollyOptions() {
-            DirectoryToTarget = @"C:\Files\Code\git\PliskyDiagnostics";
-            MasterPath = @"C:\Files\Code\git\mollycoddle\src\_Dependencies\TestMasterPath\";
+
         }
+
+        /// <summary>
+        /// The directory against which the analysis is run.
+        /// </summary>
+        public string DirectoryToTarget { get; set; }
+        /// <summary>        
+        /// The Path to the master files for any master comparisons that need to be made
+        /// </summary>
+        public string MasterPath { get; set; }
+        /// <summary>
+        /// The rulesfile that is to be loaded, either a rules set or a single rules file.
+        /// </summary>
+        public string RulesFile { get; set; }
     }
 }

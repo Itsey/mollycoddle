@@ -1,0 +1,20 @@
+{
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "All of your gitignore belong to us.",
+            "RuleReference": "MC0101",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.gitignore"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\.gitignore",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

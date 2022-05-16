@@ -1,25 +1,16 @@
 ﻿namespace mollycoddle.test {
+
     using System;
 
-    internal class MockFileStructureChecker: FileStructureChecker {
+    internal class MockFileStructureChecker : FileStructureChecker {
         protected MockProjectStructure mps;
 
-        protected override string ValidateMasterPath(string pathToMaster) {
-            // Remove all validation which would hit the disk.
-            return pathToMaster;
+        public MockFileStructureChecker(MockProjectStructure ps) : base(ps, new MollyOptions()) {
+            mps = ps;
         }
 
-        protected override string GetFileContents(string path) {
-            // Dont hit the disk, isntead return mock file contents.
-            if (mps.AllFiles.Contains(path)) {
-                return  mps.testFileContents[path] ;
-            } else {
-                return null;
-            }
-        }
-
-        protected override Action<FileCheckEntity, string> GetContentsCheckerAction(string masterContentsPath) {
-            return new Action<FileCheckEntity, string>((fca,fn) => {
+        protected override Action<MinMatchActionChecker, string> GetContentsCheckerAction(string masterContentsPath) {
+            return new Action<MinMatchActionChecker, string>((fca, fn) => {
                 var f = GetFileContents(masterContentsPath);
                 var z = GetFileContents(fn);
                 if (f != z) {
@@ -27,21 +18,35 @@
                     fca.AdditionalInfo = fn;
                 }
             });
-
-          
         }
 
-        protected override Action<FileCheckEntity, string> GetMustExistChecker() {
-            return new Action<FileCheckEntity, string>((fca, fn) => {
-                if (mps.AllFiles.Contains(fn)) {
+        protected override string GetFileContents(string path) {
+            // Dont hit the disk, isntead return mock file contents.
+            if (mps.AllFiles.Contains(path)) {
+                return mps.testFileContents[path];
+            } else {
+                return null;
+            }
+        }
+
+        protected override Action<MinMatchActionChecker, string> GetFileExistChecker(bool shouldExist = true)  {
+            return new Action<MinMatchActionChecker, string>((fca, fn) => {
+
+                if (mps.AllFiles.Contains(fn) == shouldExist) {
                     fca.Passed = true;
+                } else {
+                    fca.IsInViolation = true;
+                    fca.AdditionalInfo = fn;
                 }
+
             });
         }
 
-        public MockFileStructureChecker(MockProjectStructure ps):base(ps, new MollyOptions()) {
-            mps = ps;
+        protected override string ValidateMasterPath(string pathToMaster) {
+            // Remove all validation which would hit the disk.
+            return pathToMaster;
         }
 
+       
     }
 }

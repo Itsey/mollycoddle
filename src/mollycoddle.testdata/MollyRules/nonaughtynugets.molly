@@ -1,0 +1,83 @@
+{
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "No Naughty Nugets Needed.",
+            "RuleReference": "MC0200",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "banned.package",
+                        "log4net",
+                        "serilog.extensions.logging",
+                        "serilog",
+                        "nlog",
+                        "nlog.extensions.logging",
+                        "nunit",
+                        "nunit3testadapter",
+                        "nunit.consolerunner",
+                        "nunit.console",
+                        "specflow.nunit",
+                        "nunittestadapter",
+                        "common.logging",
+                        "common.logging.core",
+                        "loggly-csharp",
+                        "loggly-csharp-config",
+                        "logentries.core",
+                        "junitxml.testlogger",
+                        "elmah.corelibrary",
+                        "enterpriselibrary.semanticlogging",
+                        "microsoft.practices.objectbuilder.dll",
+                        "castle.core",
+                        "ninject",
+                        "ninject.web.common",
+                        "ninject.extensions.factory",
+                        "elmah",
+                        "masstransit.extensions.logging",
+                        "rocklob.logging",
+                        "logentries.core",
+                        "liblog",
+                        "jsnlog",
+                        "thor.core"
+                    ],
+                    "Control": "ProhibitedPackagesList",
+                    "PatternMatch": "**\\*.csproj",
+                    "ValidatorName": "NugetValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "One language to rule them all.",
+            "RuleReference": "MC0001",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/*.vb",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/*.vbproj",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/*.java",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/*.py",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+        
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

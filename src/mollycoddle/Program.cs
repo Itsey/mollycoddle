@@ -6,61 +6,55 @@ using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
 internal class Program {
-    static int Main(string[] args) {
-        
+
+    private static int Main(string[] args) {
         var clas = new CommandArgumentSupport();
         clas.ArgumentPrefix = "-";
         clas.ArgumentPostfix = "=";
-        var mo = clas.ProcessArguments<MollyCommandLine>(args).GetOptions();
+        var ma = clas.ProcessArguments<MollyCommandLine>(args);
+        if (ma.Disabled) {
+            return 0;
+        }
 
-        Bilge.SetConfigurationResolver( (x, y) => {
+        var mo = ma.GetOptions();
+        
+        // TODO: Currently hardcoded trace, move this to configuration.
+        Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
         var b = new Bilge("mollycoddle");
         b.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
         Bilge.Alert.Online("mollycoddle");
 
-        
         string directoryToTarget = mo.DirectoryToTarget;
 
         b.Verbose.Log($"targetting {directoryToTarget}");
         ValidateDirectory(directoryToTarget);
 
-
         var ps = new ProjectStructure();
         ps.Root = directoryToTarget;
         ps.PopulateProjectStructure();
-
-        var dst = new DirectoryStructureChecker(ps,mo);
-        var fst = new FileStructureChecker(ps,mo);
-
+      
         var mrf = new MollyRuleFactory();
+        var m = new Molly(mo);
+        m.AddProjectStructure(ps);
+        m.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
 
-        foreach (var x in mrf.GetRules()) {
-            b.Info.Log($"Rule {x.Name} loaded");
-
-            foreach (var n in x.Validators) {
-                dst.AddRuleRequirement(n);
-                fst.AddRuleRequirement(n);
-            }
-        }
-
-        var cr = dst.Check();
-        cr = fst.Check(cr);
-
+        var cr = m.ExecuteAllChecks();
+       
         foreach (var l in cr.ViolationsFound) {
             Console.WriteLine($"Violation {l.RuleName} ({l.Additional})");
         }
 
         Console.WriteLine($"Total Violations {cr.DefectCount}");
-        
+
         b.Flush();
         return cr.DefectCount;
     }
-    static void ValidateDirectory(string pathToCheck) {
+
+    private static void ValidateDirectory(string pathToCheck) {
         if (!Directory.Exists(pathToCheck)) {
             throw new FileNotFoundException(pathToCheck);
         }
     }
-
 }

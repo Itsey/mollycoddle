@@ -2,11 +2,12 @@
 using System.Text;
 using Minimatch;
 using Plisky.Diagnostics;
-using signatus;
 using Plisky.Plumbing;
+using signatus;
+
 internal class Program {
-    static async Task<int> Main(string[] args) {
-               
+
+    private static async Task<int> Main(string[] args) {
         CommandArgumentSupport clas = new CommandArgumentSupport();
         var o = clas.ProcessArguments<SignatusOptions>(args);
 
@@ -15,7 +16,7 @@ internal class Program {
 
         var scriptExecution = @"C:\Files\Code\nosccm\mollycoddle\_Dependencies\test.ps1";
         Options mo = new Options() { AllowWindowsPaths = true, IgnoreCase = true };
-        
+
         List<Func<string, bool>> checks = new List<Func<string, bool>>();
 
         if (!File.Exists(o.InputFile)) {
@@ -32,18 +33,12 @@ internal class Program {
             checks.Add(Minimatcher.CreateFilter(m, mo));
         }
 
-
-
-
-       
-
         var to = new StringBuilder();
 
         var fso = Directory.GetFileSystemEntries(o.Directory);
         foreach (var f in fso) {
-
             bool shouldScan = false;
-            foreach(var l in checks) {
+            foreach (var l in checks) {
                 if (l(f)) {
                     shouldScan = true;
                     break;
@@ -76,7 +71,7 @@ internal class Program {
             using var reader = p.StandardOutput;
             p.EnableRaisingEvents = true;
             var stdOutput = reader.ReadToEnd();
-            to.Append(stdOutput);            
+            to.Append(stdOutput);
             await p.WaitForExitAsync();
             if (p.ExitCode != 0) {
                 Console.WriteLine("Non zero exit code");
@@ -89,4 +84,3 @@ internal class Program {
         return 0;
     }
 }
-

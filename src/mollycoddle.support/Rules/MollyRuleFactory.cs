@@ -1,96 +1,145 @@
 ﻿namespace mollycoddle {
+
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+    using System.Text.Json;
+    using Plisky.Diagnostics;
 
     public class MollyRuleFactory {
-        public MollyRuleFactory() { }
+        Bilge b = new Bilge("molly-rules");
 
-        public IEnumerable<MollyRule> GetRules() {
-            var rl =  new MollyRule() {
-                Identifier = "M0001",
-                Name = "Root must contain one folder called src.",
-                Link = "http://xxxx",
-            };
+ 
 
-            var dv = new DirectoryValidationChecks(rl.Identifier);
+        public MollyRuleFactory() {
+        }
 
-            dv.MustExist("%ROOT%\\src");
-            dv.MustNotExist("%ROOT%\\src\\src");
-            rl.AddValidator(dv);
+        public IEnumerable<MollyRule> LoadRulesFromFile(string filename) {
+            b.Info.Log($"Loading {filename}");
+            
+            if (!File.Exists(filename)) {
+                b.Error.Log($"File {filename} not found, about to error");
+                throw new FileNotFoundException("molly rules file was not found.", filename);                
+            } else {
+                string xtn = Path.GetExtension(filename).ToLowerInvariant();
+                if (xtn == ".molly") {
+                    b.Info.Log($"Rule File Loaded {filename}");
+                    foreach (var r in LoadAllMollyRules(filename)) {
+                        b.Verbose.Log($"File Loaded Rule {r.Identifier}");
+                        yield return r;
+                    }
+                } else if (xtn == ".mollyset"){
+                    b.Info.Log($"Rule Collection File Loaded {filename}");
+                    foreach (string mfile in File.ReadAllLines(filename)) {
+                        string mfile2 = Path.Combine(Path.GetDirectoryName(filename), mfile);
+                        b.Verbose.Log($"Parsing Single Rulefile {mfile2}");
+                        foreach (var r in LoadAllMollyRules(mfile2)) {
+                            b.Verbose.Log($"File Loaded Rule {r.Identifier}");
+                            yield return r;
+                        }
+                    }
+                } else {
+                    b.Error.Log($"File extension {xtn} is neither molly, nor mollyset therefore erroring");
+                    throw new InvalidOperationException("The ruleset file type is not known and can not be loaded");
+                }
 
-            yield return rl;
+            }
 
+        }
 
-            rl = new MollyRule() {
-                Identifier = "M0002",
-                Name = "Root must only contain known foldernames",
-                Link = "http://yyyyy"
-            };
+        private IEnumerable<MollyRule> LoadAllMollyRules(string filename) {
+            string json = File.ReadAllText(filename);
+            var mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
 
-            dv = new DirectoryValidationChecks(rl.Identifier);
-            dv.AddProhibitedPattern(@"%ROOT%\*", @"%ROOT%\src", @"%ROOT%\build", @"%ROOT%\test", @"%ROOT%\doc", @"%ROOT%\res");
-            rl.AddValidator(dv);
+            if (mrs == null) {
+                throw new InvalidOperationException($"Json did not result in valid MollyRuleStorage - Check [{filename}]");
+            }
+            if (mrs.Rules == null) {
+                b.Warning.Log($"The file {filename} was loaded but no rules were returned");
+                yield break;
+            }
 
-            yield return rl;
+            foreach (var m in mrs.Rules) {
+                var result = new MollyRule() {
+                    Identifier = m.RuleReference,
+                    Name = m.Name,
+                    Link = m.Link
+                };
+                foreach(var vl in m.Validators) {
+                    result.AddValidator(LoadValidatorStep(m.Name, vl));
+                }
+                yield return result;
+            }
+            b.Verbose.Log("Rules file load completed");
+        }
 
-            rl = new MollyRule() {
-                Identifier = "M0030",
-                Name = "Master editorconfig file must be used",
-                Link = "http://yyyyy"
-            };
+        public ValidatorBase LoadValidatorStep(string ruleName, MollyRuleStepStorage nextRuleStep) {
+            if (nextRuleStep.ValidatorName == "DirectoryValidationChecks") {
+                var vs = new DirectoryValidationChecks(ruleName);
+                b.Verbose.Log($"Loading validator step {nextRuleStep.Control}");
+                switch (nextRuleStep.Control) {
+                    case "MustNotExist":
+                        vs.AddProhibitedPattern(nextRuleStep.PatternMatch);
+                        break;
 
+                    case "MustExist":
+                        vs.MustExist(nextRuleStep.PatternMatch);
+                        break;
 
-            var fv = new FileValidationChecks(rl.Identifier);
-            fv.MustMatchMaster(@"%ROOT%\src\.editorconfig",@"%MASTERROOT%\master.editorconfig");            
-            rl.AddValidator(fv);
+                    case "ProhibitedExcept":
+                        vs.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                        break;
+                    default:
+                        b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
+                        throw new InvalidOperationException("Json data is invalid for directory validation Mollyrule");
+                }
+                return vs;
+            } else if (nextRuleStep.ValidatorName == "FileValidationChecks") {
+                var vv = new FileValidationChecks(ruleName);
+                switch (nextRuleStep.Control) {
+                    case "MustExist":
+                        vv.MustExist(nextRuleStep.PatternMatch);
+                        break;
 
-            yield return rl;
+                    case "MustNotExist":
+                        vv.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                        break;
 
-            rl = new MollyRule() {
-                Identifier = "M0050",
-                Name = "Master gitignore file must be used",
-                Link = "http://yyyyy"
-            };
+                    case "MatchWithMaster":
+                        if (nextRuleStep.AdditionalData == null || !nextRuleStep.AdditionalData.Any()) {
+                            throw new InvalidOperationException("Require additional data for master match rule in mollyrule file");
+                        }
+                        vv.MustMatchMaster(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData.First());
+                        break;
 
+                    default:
+                        b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
+                        throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file MollyRule");
+                }
+                return vv;
+            } else if (nextRuleStep.ValidatorName == "NugetValidationChecks") {
+                var vv = new NugetPackageValidator(ruleName);
+                switch (nextRuleStep.Control) {
+                    case "ProhibitedPackagesList":
+                        vv.AddProhibitedPackageList(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                        break;
 
-            fv = new FileValidationChecks(rl.Identifier);
-            fv.MustMatchMaster(@"%ROOT%\.gitignore", @"%MASTERROOT%\master.gitignore");
-            rl.AddValidator(fv);
+                    default:
+                        b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
+                        throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for nuget MollyRule");
+                }
+                return vv;
+            }
+            throw new InvalidOperationException($"The validator [{nextRuleStep.ValidatorName}] was not recognised from the MollyRule file.");
+        }
+        public ValidatorBase LoadValidatorStep(string ruleName, string jsonContent) {
+            var valstep = JsonSerializer.Deserialize<MollyRuleStepStorage>(jsonContent);
+            if (valstep == null) {
+                throw new InvalidOperationException("The Json Step Cant Not Be Loaded");
+            }
+            return LoadValidatorStep(ruleName, valstep);
 
-            yield return rl;
-
-
-
-            rl = new MollyRule() {
-                Identifier = "M0010",
-                Name = "Supply A Readme File",
-                Link = "http://yyyyy"
-            };
-
-
-            fv = new FileValidationChecks(rl.Identifier);
-            fv.MustExist(@"%ROOT%\readme.md");
-            rl.AddValidator(fv);
-
-            yield return rl;
-
-
-
-            rl = new MollyRule() {
-                Identifier = "M-0006",
-                Name = "Put the solution under src",
-                Link = "http://yyyyy"
-            };
-
-
-            fv = new FileValidationChecks(rl.Identifier);
-            fv.MustExist(@"%ROOT%\src\*.sln");
-            rl.AddValidator(fv);
-
-            yield return rl;
+            
         }
     }
 }

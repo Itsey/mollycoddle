@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MollyRules\alledconfig.molly" />
+    <None Remove="MollyRules\allgitignore.molly" />
+    <None Remove="MollyRules\allnugetconfig.molly" />
+    <None Remove="MollyRules\goodroots.molly" />
+    <None Remove="MollyRules\hotsauce.molly" />
+    <None Remove="MollyRules\nonaughtynugets.molly" />
+    <None Remove="MollyRules\onelanguage.molly" />
+    <None Remove="MollyRules\penbemighty.molly" />
+    <None Remove="NugetFiles\bannedcsproj.txt" />
+    <None Remove="NugetFiles\simplecsproj.txt" />
+    <None Remove="NugetFiles\testproject_withoutxunit.txt" />
+    <None Remove="NugetFiles\testproject_withxunit.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="MollyRules\alledconfig.molly" />
+    <EmbeddedResource Include="MollyRules\allgitignore.molly" />
+    <EmbeddedResource Include="MollyRules\allnugetconfig.molly" />
+    <EmbeddedResource Include="MollyRules\goodroots.molly" />
+    <EmbeddedResource Include="MollyRules\hotsauce.molly" />
+    <EmbeddedResource Include="MollyRules\nonaughtynugets.molly" />
+    <EmbeddedResource Include="MollyRules\onelanguage.molly" />
+    <EmbeddedResource Include="MollyRules\penbemighty.molly" />
+    <EmbeddedResource Include="NugetFiles\bannedcsproj.txt" />
+    <EmbeddedResource Include="NugetFiles\simplecsproj.txt" />
+    <EmbeddedResource Include="NugetFiles\testproject_withoutxunit.txt" />
+    <EmbeddedResource Include="NugetFiles\testproject_withxunit.txt" />
+  </ItemGroup>
+
+</Project>

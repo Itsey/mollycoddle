@@ -1,0 +1,134 @@
+{
+    "RulesetName": "Basic Quality Rules",
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "All of your editor config belong to us.",
+            "RuleReference": "MC0100",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.editorconfig"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\src\\.editorconfig",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "All of your gitignore belong to us.",
+            "RuleReference": "MC0101",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.gitignore"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\.gitignore",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "All of your nuget config belong to us.",
+            "RuleReference": "MC0102",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.nuget.config"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\src\\nuget.config",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "Good Code has Good Roots.",
+            "RuleReference": "MC0065",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%ROOT%\\src",
+                        "%ROOT%\\build",
+                        "%ROOT%\\test",
+                        "%ROOT%\\doc",
+                        "%ROOT%\\res"
+                    ],
+                    "Control": "ProhibitedExcept",
+                    "PatternMatch": "%ROOT%\\*",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "Hot Source Must Live In Hot Src.",
+            "RuleReference": "MC0060",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "MustExist",
+                    "PatternMatch": "%ROOT%\\src",
+                    "ValidatorName": "DirectoryValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "%ROOT%\\src\\src",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        },
+        {
+            "Link": "http://xxxx",
+            "Name": "No Naughty Nugets Needed.",
+            "RuleReference": "MC0200",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "banned.package",
+                        "log4net",
+                        "serilog.extensions.logging",
+                        "serilog",
+                        "nlog",
+                        "nlog.extensions.logging",
+                        "nunit",
+                        "nunit3testadapter",
+                        "nunit.consolerunner",
+                        "nunit.console",
+                        "specflow.nunit",
+                        "nunittestadapter",
+                        "common.logging",
+                        "common.logging.core",
+                        "loggly-csharp",
+                        "loggly-csharp-config",
+                        "logentries.core",
+                        "junitxml.testlogger",
+                        "elmah.corelibrary",
+                        "enterpriselibrary.semanticlogging",
+                        "microsoft.practices.objectbuilder.dll",
+                        "castle.core",
+                        "ninject",
+                        "ninject.web.common",
+                        "ninject.extensions.factory",
+                        "elmah",
+                        "masstransit.extensions.logging",
+                        "rocklob.logging",
+                        "logentries.core",
+                        "liblog",
+                        "jsnlog",
+                        "thor.core"
+                    ],
+                    "Control": "ProhibitedPackagesList",
+                    "PatternMatch": "**\\*.csproj",
+                    "ValidatorName": "NugetValidationChecks"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "Good Code has Good Roots.",
+            "RuleReference": "MC0065",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%ROOT%\\src",
+                        "%ROOT%\\build",
+                        "%ROOT%\\test",
+                        "%ROOT%\\doc",
+                        "%ROOT%\\res"
+                    ],
+                    "Control": "ProhibitedExcept",
+                    "PatternMatch": "%ROOT%\\*",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

@@ -1,17 +1,12 @@
 ﻿namespace mollycoddle.test {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+
     using Xunit;
 
     public class CheckResultTests {
 
         [Fact]
         public void Violations_HaveRulenames() {
-         
-            var mps = MockProjectStructure.Get().WithRoot(@"C:\temp\source");
+            var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
 
             var dst = new DirectoryStructureChecker(mps, new MollyOptions());
             var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
@@ -22,7 +17,5 @@
 
             Assert.Equal(MockProjectStructure.DUMMYRULENAME, sut.ViolationsFound[0].RuleName);
         }
-
-
     }
 }
