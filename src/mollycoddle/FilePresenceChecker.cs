@@ -7,7 +7,7 @@
         public CheckResult Check(string rootPath, string[] dirs) {
             rootPath = rootPath.ToLower();
 
-            Dictionary<string, bool> filesThatMustExist = new Dictionary<string, bool>();
+            var filesThatMustExist = new Dictionary<string, bool>();
             filesThatMustExist.Add(Path.Combine(rootPath, ".gitignore"), false);
 
             foreach (var l in dirs) {

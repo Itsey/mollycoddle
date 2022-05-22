@@ -157,11 +157,13 @@
         }
 
         protected virtual string ValidateMasterPath(string pathToMaster) {
+            b.Info.Flow(pathToMaster);
             ArgumentNullException.ThrowIfNull(pathToMaster);
 
             pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
-
+            b.Verbose.Log($"resolved master path {pathToMaster} using {mo.MasterPath}");
             if (!ps.DoesFileExist(pathToMaster)) {
+                b.Error.Log($"Error, master path file is not found {pathToMaster}");
                 throw new FileNotFoundException($"Master path ({pathToMaster}) must be present.", pathToMaster);
             }
 

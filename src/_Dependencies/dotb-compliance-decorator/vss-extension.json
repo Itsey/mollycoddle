@@ -1,0 +1,39 @@
+{
+    "manifestVersion": 1,
+    "id": "molly-decorator",
+    "name": "Plisky Pipeline Decorator",
+    "version": "0.0.3",
+    "publisher": "plisky-net",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "This is a pipeline decorator designed to inject quality checks after checkout and before the end of the build.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "plisky-molly-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-checkout-tasks",
+                "ms.azure-pipelines-agent-job.post-job-tasks"
+            ],
+            "properties": {
+                "template": "molly-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "molly-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}

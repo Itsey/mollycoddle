@@ -6,18 +6,24 @@ using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
 internal class Program {
+    
+    private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
 
     private static int Main(string[] args) {
+        int exitCode = 0;
         var clas = new CommandArgumentSupport();
         clas.ArgumentPrefix = "-";
         clas.ArgumentPostfix = "=";
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
+        
         if (ma.Disabled) {
+            WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
             return 0;
         }
-
+       
         var mo = ma.GetOptions();
         
+
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
@@ -25,14 +31,25 @@ internal class Program {
         var b = new Bilge("mollycoddle");
         b.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
         Bilge.Alert.Online("mollycoddle");
+        b.Verbose.Dump(args, "command line arguments");
 
         string directoryToTarget = mo.DirectoryToTarget;
 
         b.Verbose.Log($"targetting {directoryToTarget}");
-        ValidateDirectory(directoryToTarget);
+        if (!ValidateDirectory(directoryToTarget)) {
+            WriteOutput($"InvalidCommand - Directory Was Not Correct [{mo.DirectoryToTarget}]",OutputType.Error);
+            exitCode = -1;
+            goto TheEndIsNigh;
+        }
+        if (!ValidateRulesFile(mo.RulesFile)) {
+            WriteOutput($"InvalidCommand - RulesFile was not correct [{mo.RulesFile}]", OutputType.Error);
+            exitCode = - 2;
+            goto TheEndIsNigh;
+        }
 
-        var ps = new ProjectStructure();
-        ps.Root = directoryToTarget;
+        var ps = new ProjectStructure {
+            Root = directoryToTarget
+        };
         ps.PopulateProjectStructure();
       
         var mrf = new MollyRuleFactory();
@@ -40,21 +57,57 @@ internal class Program {
         m.AddProjectStructure(ps);
         m.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
 
-        var cr = m.ExecuteAllChecks();
-       
-        foreach (var l in cr.ViolationsFound) {
-            Console.WriteLine($"Violation {l.RuleName} ({l.Additional})");
+        CheckResult cr;
+        try {
+            cr = m.ExecuteAllChecks();
+            exitCode = cr.DefectCount;
+        } catch (Exception ex) {
+            WriteOutput(ex.ToString(),OutputType.Error);
+            exitCode = - 3;
+            goto TheEndIsNigh;
         }
 
-        Console.WriteLine($"Total Violations {cr.DefectCount}");
+        foreach (var l in cr.ViolationsFound) {
+            WriteOutput($"{l.RuleName} ({l.Additional})",OutputType.Violation);
+        }
 
+        WriteOutput($"Total Violations {cr.DefectCount}",OutputType.Info);
+
+    TheEndIsNigh:  // Who doesnt love a good goto, secretly.
+        b.Verbose.Log("Mollycoddle, Exit");
         b.Flush();
-        return cr.DefectCount;
+        return exitCode;
     }
 
-    private static void ValidateDirectory(string pathToCheck) {
-        if (!Directory.Exists(pathToCheck)) {
-            throw new FileNotFoundException(pathToCheck);
+    
+
+    private static void WriteOutputDefault(string v, OutputType ot) {
+        string pfx = "";
+        switch (ot) {
+            case OutputType.Violation: pfx = "Violation"; break;
+            case OutputType.Error: pfx = "Error"; break;
+            case OutputType.Info: pfx = "Info"; break;
         }
+        Console.WriteLine($"{pfx} - {v}");
+    }
+
+    private static bool ValidateRulesFile(string rulesFile) {
+        if (string.IsNullOrWhiteSpace(rulesFile)) {
+            return false;
+        }
+        if (!File.Exists(rulesFile)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static bool ValidateDirectory(string pathToCheck) {
+        if (string.IsNullOrWhiteSpace(pathToCheck)) {
+            return false;
+        }
+        if (!Directory.Exists(pathToCheck)) {
+            return false;
+        }
+        return true;
     }
 }
