@@ -15,6 +15,7 @@
     <None Remove="MollyRules\nonaughtynugets.molly" />
     <None Remove="MollyRules\onelanguage.molly" />
     <None Remove="MollyRules\penbemighty.molly" />
+    <None Remove="MollyRules\thesolution.molly" />
     <None Remove="NugetFiles\bannedcsproj.txt" />
     <None Remove="NugetFiles\simplecsproj.txt" />
     <None Remove="NugetFiles\testproject_withoutxunit.txt" />
@@ -30,6 +31,7 @@
     <EmbeddedResource Include="MollyRules\nonaughtynugets.molly" />
     <EmbeddedResource Include="MollyRules\onelanguage.molly" />
     <EmbeddedResource Include="MollyRules\penbemighty.molly" />
+    <EmbeddedResource Include="MollyRules\thesolution.molly" />
     <EmbeddedResource Include="NugetFiles\bannedcsproj.txt" />
     <EmbeddedResource Include="NugetFiles\simplecsproj.txt" />
     <EmbeddedResource Include="NugetFiles\testproject_withoutxunit.txt" />

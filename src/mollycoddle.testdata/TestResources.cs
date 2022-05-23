@@ -15,7 +15,8 @@ namespace mollycoddle.test {
         MollyRule_EditorConfigMaster,
         MollyRule_GitIgnoreMaster,
         MollyRule_NugetConfigMaster,
-        MollyRule_NoNaughtyNugets
+        MollyRule_NoNaughtyNugets,
+        MollyRule_thesolution,
     }
 
 
@@ -36,6 +37,7 @@ namespace mollycoddle.test {
                 case TestResourcesReferences.MollyRule_GitIgnoreMaster: return "allgitignore.molly";
                 case TestResourcesReferences.MollyRule_NugetConfigMaster: return "allnugetconfig.molly";
                 case TestResourcesReferences.MollyRule_NoNaughtyNugets: return "nonaughtynugets.molly";
+                case TestResourcesReferences.MollyRule_thesolution: return "thesolution.molly";
             }
             return null;
         }

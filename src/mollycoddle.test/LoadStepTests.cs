@@ -56,7 +56,7 @@
             var rule = new MollyRuleFactory();
             var rl = (DirectoryValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
 
-            Assert.NotNull(rl.GetProhibitedPaths().First(x => x.ProhibitedPattern == pattern));
+            Assert.NotNull(rl.GetProhibitedPaths().First(x => x.PrimaryPattern == pattern));
         }
 
         [Fact]
@@ -70,9 +70,9 @@
             var rule = new MollyRuleFactory();
             var rl = (DirectoryValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
 
-            Assert.True(rl.GetProhibitedPaths().First().ProhibitedPattern == pattern);
-            Assert.Contains(additional1, rl.GetProhibitedPaths().First().ExceptionsList);
-            Assert.Contains(additional2, rl.GetProhibitedPaths().First().ExceptionsList);
+            Assert.True(rl.GetProhibitedPaths().First().PrimaryPattern == pattern);
+            Assert.Contains(additional1, rl.GetProhibitedPaths().First().SecondaryList);
+            Assert.Contains(additional2, rl.GetProhibitedPaths().First().SecondaryList);
         }
 
         [Fact]
@@ -86,8 +86,8 @@
             var rule = new MollyRuleFactory();
             var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
 
-            Assert.Contains(additional1, rl.FilesThatMustNotExist().First().ExceptionsList);
-            Assert.Contains(additional2, rl.FilesThatMustNotExist().First().ExceptionsList);
+            Assert.Contains(additional1, rl.FilesThatMustNotExist().First().SecondaryList);
+            Assert.Contains(additional2, rl.FilesThatMustNotExist().First().SecondaryList);
         }
 
         [Fact]
@@ -99,7 +99,7 @@
             var rule = new MollyRuleFactory();
             var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
 
-            Assert.Equal(rl.FilesThatMustNotExist().First().ProhibitedPattern, pattern);
+            Assert.Equal(rl.FilesThatMustNotExist().First().PrimaryPattern, pattern);
         }
 
         [Fact]

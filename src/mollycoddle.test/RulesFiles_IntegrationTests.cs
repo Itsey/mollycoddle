@@ -316,5 +316,58 @@ namespace mollycoddle.test {
             Assert.Equal(1, cr.DefectCount);
         }
 
+
+        [Integration]
+        [Build(BuildType.Nightly)]
+        [Fact]
+        public void PreciseLocationTests_DetectsNestedCSProj() {
+
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");
+            mps.WithRootedFile("src\\bob.sln");   // Forced Pass
+            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");    // pass
+            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");   // pass
+            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
+
+            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_thesolution), "mollycoddle.testdata", "*.molly");
+
+            var sut = new MollyRuleFactory();
+            var rls = sut.LoadRulesFromFile(js);
+
+            var m = new Molly(new MollyOptions());
+            m.AddProjectStructure(mps);
+            m.ImportRules(rls);
+
+            var cr = m.ExecuteAllChecks();
+
+            Assert.Equal(1, cr.DefectCount);
+        }
+
+
+        [Integration]
+        [Build(BuildType.Nightly)]
+        [Fact]
+        public void PreciseLocationTests_RequiresSolutionFile() {
+
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");   // FAIL no solution file
+
+
+            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_thesolution), "mollycoddle.testdata", "*.molly");
+
+            var sut = new MollyRuleFactory();
+            var rls = sut.LoadRulesFromFile(js);
+
+            var m = new Molly(new MollyOptions());
+            m.AddProjectStructure(mps);
+            m.ImportRules(rls);
+
+            var cr = m.ExecuteAllChecks();
+
+            Assert.Equal(1, cr.DefectCount);
+        }
+
     }
 }

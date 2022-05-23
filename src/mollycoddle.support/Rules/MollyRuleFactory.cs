@@ -111,10 +111,15 @@
                         }
                         vv.MustMatchMaster(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData.First());
                         break;
-
+                    case "IfExistMustBeHere":
+                        if (nextRuleStep.AdditionalData == null || !nextRuleStep.AdditionalData.Any()) {
+                            throw new InvalidOperationException("Require additional data for precise position rule in mollyrule file");
+                        }
+                        vv.MustBeInSpecificLocation(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                        break;
                     default:
                         b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
-                        throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file MollyRule");
+                        throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file validation6 MollyRule");
                 }
                 return vv;
             } else if (nextRuleStep.ValidatorName == "NugetValidationChecks") {

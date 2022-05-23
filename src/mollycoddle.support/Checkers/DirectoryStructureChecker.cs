@@ -51,8 +51,8 @@
             }
 
             foreach (var l in dc.GetProhibitedPaths()) {
-                b.Verbose.Log($"{dc.TriggeringRule} Loading prohibited path : {l.ProhibitedPattern} with {l.ExceptionsList.Length} exceptions");
-                AddProhibitedPatternFinder(dc.TriggeringRule, l.ProhibitedPattern, l.ExceptionsList);
+                b.Verbose.Log($"{dc.TriggeringRule} Loading prohibited path : {l.PrimaryPattern} with {l.SecondaryList.Length} exceptions");
+                AddProhibitedPatternFinder(dc.TriggeringRule, l.PrimaryPattern, l.SecondaryList);
             }
         }
     }

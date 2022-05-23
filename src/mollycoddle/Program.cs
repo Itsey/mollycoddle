@@ -15,7 +15,11 @@ internal class Program {
         clas.ArgumentPrefix = "-";
         clas.ArgumentPostfix = "=";
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
-        
+       
+        if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
+            WriteOutput = WriteOutputAzDo;
+        }
+
         if (ma.Disabled) {
             WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
             return 0;
@@ -87,6 +91,16 @@ internal class Program {
             case OutputType.Violation: pfx = "Violation"; break;
             case OutputType.Error: pfx = "Error"; break;
             case OutputType.Info: pfx = "Info"; break;
+        }
+        Console.WriteLine($"{pfx} - {v}");
+    }
+
+    private static void WriteOutputAzDo(string v, OutputType ot) {
+        string pfx = "";
+        switch (ot) {
+            case OutputType.Violation: pfx = "##[warning] Violation"; break;
+            case OutputType.Error: pfx = "##[error] Error"; break;
+            case OutputType.Info: pfx = "##[command]"; break;
         }
         Console.WriteLine($"{pfx} - {v}");
     }

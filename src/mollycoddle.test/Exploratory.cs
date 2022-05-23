@@ -24,45 +24,56 @@ namespace mollycoddle.test {
         }
 
 
+        
+        [Fact]
+        public void Exploratory_1a() {
       
 
-
-       
+        }
 
         [Fact]
-        public void Exploratory_NoUserSettings2() {
-            // .vbproj.user  
-            // .userprefs
-            // .suo
-            //var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
-            //mps.WithRootedFile("src\\project.test\\project.test.csproj", File.ReadAllText(s));
+        public void Exploratory_1b() {
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");
+            mps.WithRootedFolder("pickle");
+            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
+            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
+            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
+            
+            var sut = new MockFileStructureChecker(mps);
+            string[] secondary = new string[] { "**/src*/*/*.csproj" };
+            sut.AssignIfItExistsItMustBeHereAction(dummyRuleName, new MatchWithSecondaryMatches("**/*.csproj") {  SecondaryList = secondary });
+            var cr = sut.Check();
+
+            Assert.Equal(1, cr.DefectCount);
 
         }
 
         [Fact]
-        public void Exploratory_NoDuffDirs() {
-            // .vs
-            // .git
-            // .bin
-            // obj
-        }
+        public void Exploratory_1c() {
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");
+            mps.WithRootedFolder("pickle");
+            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
+            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass            
+            mps.WithRootedFile("pickle\\testproj2\\testproj.csproj", "basil was here");  // Fail - not under src
 
-        [Fact]
-        public void Exploratory_NoUserSettings() {
-            // .vbproj.user  
-            // .userprefs
-            // .suo
+            var sut = new MockFileStructureChecker(mps);
+            string[] secondary = new string[] { "**/src*/*/*.csproj" };
+            sut.AssignIfItExistsItMustBeHereAction("dummyrule", new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+            var cr = sut.Check();
+
+
+            Assert.Equal(1, cr.DefectCount);
+
         }
 
         [Fact]
         public void Exploratory_OneLanguageToRuleThemAll() {
             b.Info.Flow();
-            // .vbproj
-            // .vb
-            // .java
-            // 
-            // .py
-             // .rst
+      
           
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);

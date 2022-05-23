@@ -11,18 +11,18 @@
     public class DirectoryValidationChecks : ValidatorBase {
         private List<string> mustExistPaths = new List<string>();
         
-        private List<ProhibitedPathSet> prohibittions = new List<ProhibitedPathSet>();
+        private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();
 
         public DirectoryValidationChecks(string owningRuleName) : base(owningRuleName) {
         }
 
         public void AddProhibitedPattern(string prohibited, params string[] exceptions) {
-            prohibittions.Add(new ProhibitedPathSet(prohibited) {
-                ExceptionsList = exceptions
+            prohibittions.Add(new MatchWithSecondaryMatches(prohibited) {
+                SecondaryList = exceptions
             });
         }
 
-        public IEnumerable<ProhibitedPathSet> GetProhibitedPaths() {
+        public IEnumerable<MatchWithSecondaryMatches> GetProhibitedPaths() {
             return prohibittions;
         }
 

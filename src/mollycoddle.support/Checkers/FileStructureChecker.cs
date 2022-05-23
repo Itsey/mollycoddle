@@ -30,6 +30,20 @@
             Actions.Add(fca);
         }
 
+        /// <summary>
+        /// If the primary pattern exists it must match one of the patterns in the secondary patterns. Not supplying any secondary patterns is an error.
+        /// </summary>
+        /// <param name="ruleName">The name of the owning rule</param>
+        /// <param name="patternForFiles">A primary / secondary combo describing the rules</param>
+        public void AssignIfItExistsItMustBeHereAction(string ruleName, MatchWithSecondaryMatches patternForFiles) {
+            var fca = new MinMatchActionChecker(ruleName);
+            fca.PerformCheck = GetMustMatchOneOfTheseChecker(patternForFiles.SecondaryList);
+            fca.DoesMatch = new Minimatcher(patternForFiles.PrimaryPattern, o);
+            Actions.Add(fca);
+        }
+
+
+
         public void AssignMustExistAction(string ruleName, string patternForFile) {
             var fca = new MinMatchActionChecker(ruleName);
             // Must Exist defaults to having not passed.  It passes if the file is then found.
@@ -41,10 +55,10 @@
 
             Actions.Add(fca);
         }
-        public void AssignMustNotExistAction(string ruleName, ProhibitedPathSet patternForFile) {
+        public void AssignMustNotExistAction(string ruleName, MatchWithSecondaryMatches patternForFile) {
             var fca = new MinMatchActionChecker(ruleName);
             // Must Exist defaults to having not passed.  It passes if the file is then found.
-            var pff = ValidateActualPath(patternForFile.ProhibitedPattern);
+            var pff = ValidateActualPath(patternForFile.PrimaryPattern);
             fca.Passed = true;
             fca.AdditionalInfo = $"{patternForFile} must not exist.";
             fca.PerformCheck = GetFileExistChecker(false);
@@ -54,7 +68,7 @@
         }
 
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
-            
+
             if (Actions.Count == 0) {
                 b.Warning.Log("There are no loaded actions for the file structure checker, no file based checks occur.");
                 return result;
@@ -110,13 +124,16 @@
             foreach (var lnn in fs.FilesThatMustNotExist()) {
                 AssignMustNotExistAction(fs.TriggeringRule, lnn);
             }
+            foreach(var lnnn in fs.FilesThatIfTheyDoExistMustBeInTheRightPlace()) {
+                AssignIfItExistsItMustBeHereAction(fs.TriggeringRule, lnnn);
+            }
         }
 
         protected virtual Action<MinMatchActionChecker, string> GetContentsCheckerAction(string masterContentsPath) {
-        
-            var masterLengthAndHash= ps.GetFileHashAndLength(masterContentsPath);
 
-            var act = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
+            var masterLengthAndHash = ps.GetFileHashAndLength(masterContentsPath);
+
+            var result = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
 
                 var targetLengthAndHasn = ps.GetFileHashAndLength(filenameToCheck);
 
@@ -131,17 +148,47 @@
                     resultant.AdditionalInfo = $"{filenameToCheck} does not match master.";
                 }
             });
-            return act;
+            return result;
         }
 
         protected virtual string GetFileContents(string path) {
             return File.ReadAllText(path);
         }
 
-        protected virtual Action<MinMatchActionChecker, string> GetFileExistChecker(bool shouldExist=true) {
+        private Action<MinMatchActionChecker, string> GetMustMatchOneOfTheseChecker(string[] secondaryList) {
+            if ((secondaryList == null) || (secondaryList.Length == 0)) {
+                throw new InvalidOperationException("The rule is invalid, you must have a match for a forced match rule.");
+            }
 
-            var act = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
-                
+            var possiblePatterns = new List<Minimatcher>();
+            foreach (string l in secondaryList) {
+                possiblePatterns.Add(new Minimatcher(l, o));
+            }
+
+            var result = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
+                bool hasMatched = false;
+                foreach (var mtch in possiblePatterns) {
+                    if (mtch.IsMatch(filenameToCheck)) {
+                        hasMatched = true;
+                        break;
+                    }
+                }
+
+                b.Verbose.Log($"MustMatchOneOfThese for {filenameToCheck} result {hasMatched}");
+
+                if (!hasMatched) {
+                    resultant.Passed = false;
+                    resultant.IsInViolation = true;
+                    resultant.AdditionalInfo = filenameToCheck;
+                }
+            });
+            return result;
+        }
+
+        protected virtual Action<MinMatchActionChecker, string> GetFileExistChecker(bool shouldExist = true) {
+
+            var result = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
+
                 if (ps.DoesFileExist(filenameToCheck) == shouldExist) {
                     resultant.Passed = true;
                 } else {
@@ -149,7 +196,7 @@
                     resultant.AdditionalInfo = filenameToCheck;
                 }
             });
-            return act;
+            return result;
         }
 
         protected virtual string ValidateActualPath(string pathToActual) {

@@ -21,6 +21,9 @@ namespace mollycoddle {
         [CommandLineArg("rulesfile")]
         public string RulesFile { get; set; }
 
+        [CommandLineArg("formatter")]
+        public string OutputFormat { get; set; }
+
         public MollyOptions GetOptions() {
             var result = new MollyOptions();
             result.MasterPath = MasterPath;
@@ -29,7 +32,7 @@ namespace mollycoddle {
             } else {
                 result.DirectoryToTarget = DirectoryToTarget;
             }
-
+            OutputFormat = "default";
             result.RulesFile = RulesFile;
             return result;
         }
