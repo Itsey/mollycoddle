@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "molly-decorator",
     "name": "Plisky Pipeline Decorator",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "publisher": "plisky-net",
     "targets": [
         {

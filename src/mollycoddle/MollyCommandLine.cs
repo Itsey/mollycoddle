@@ -6,7 +6,7 @@ namespace mollycoddle {
     public class MollyCommandLine {
 
         public MollyCommandLine() {
-            // MasterPath = @"C:\Files\Code\git\mollycoddle\src\_Dependencies\TestMasterPath\";
+            
         }
 
         [CommandLineArg("disabled")]
@@ -24,8 +24,13 @@ namespace mollycoddle {
         [CommandLineArg("formatter")]
         public string OutputFormat { get; set; }
 
+        [CommandLineArg("warnonly")]
+        public bool WarningMode { get; set; }
+
+
         public MollyOptions GetOptions() {
             var result = new MollyOptions();
+            WarningMode = false;
             result.MasterPath = MasterPath;
             if (DirectoryToTarget.EndsWith("\\")) {
                 result.DirectoryToTarget = DirectoryToTarget.Substring(0, DirectoryToTarget.Length - 1);

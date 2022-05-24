@@ -6,16 +6,18 @@ using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
 internal class Program {
-    
-    private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
 
+    private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
+    private static bool WarningMode = false;
     private static int Main(string[] args) {
         int exitCode = 0;
         var clas = new CommandArgumentSupport();
         clas.ArgumentPrefix = "-";
         clas.ArgumentPostfix = "=";
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
-       
+
+        WarningMode = ma.WarningMode;
+
         if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
             WriteOutput = WriteOutputAzDo;
         }
@@ -24,9 +26,9 @@ internal class Program {
             WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
             return 0;
         }
-       
+
         var mo = ma.GetOptions();
-        
+
 
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver((x, y) => {
@@ -41,13 +43,13 @@ internal class Program {
 
         b.Verbose.Log($"targetting {directoryToTarget}");
         if (!ValidateDirectory(directoryToTarget)) {
-            WriteOutput($"InvalidCommand - Directory Was Not Correct [{mo.DirectoryToTarget}]",OutputType.Error);
+            WriteOutput($"InvalidCommand - Directory Was Not Correct [{mo.DirectoryToTarget}]", OutputType.Error);
             exitCode = -1;
             goto TheEndIsNigh;
         }
         if (!ValidateRulesFile(mo.RulesFile)) {
             WriteOutput($"InvalidCommand - RulesFile was not correct [{mo.RulesFile}]", OutputType.Error);
-            exitCode = - 2;
+            exitCode = -2;
             goto TheEndIsNigh;
         }
 
@@ -55,7 +57,7 @@ internal class Program {
             Root = directoryToTarget
         };
         ps.PopulateProjectStructure();
-      
+
         var mrf = new MollyRuleFactory();
         var m = new Molly(mo);
         m.AddProjectStructure(ps);
@@ -66,16 +68,25 @@ internal class Program {
             cr = m.ExecuteAllChecks();
             exitCode = cr.DefectCount;
         } catch (Exception ex) {
-            WriteOutput(ex.ToString(),OutputType.Error);
-            exitCode = - 3;
+            WriteOutput(ex.ToString(), OutputType.Error);
+            exitCode = -3;
             goto TheEndIsNigh;
         }
 
         foreach (var l in cr.ViolationsFound) {
-            WriteOutput($"{l.RuleName} ({l.Additional})",OutputType.Violation);
+            WriteOutput($"{l.RuleName} ({l.Additional})", OutputType.Violation);
         }
 
-        WriteOutput($"Total Violations {cr.DefectCount}",OutputType.Info);
+        if (cr.DefectCount == 0) {
+            WriteOutput($"No Violations, Mollycoddle Pass.", OutputType.EndSuccess);
+        } else {           
+            WriteOutput($"Total Violations {cr.DefectCount}", WarningMode?OutputType.EndSuccess:OutputType.EndFailure);
+        }
+
+        if (WarningMode) {
+            b.Info.Log("Warning mode, resetting exit code to zero");
+            exitCode = 0;
+        }
 
     TheEndIsNigh:  // Who doesnt love a good goto, secretly.
         b.Verbose.Log("Mollycoddle, Exit");
@@ -83,26 +94,38 @@ internal class Program {
         return exitCode;
     }
 
-    
+
 
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
         switch (ot) {
-            case OutputType.Violation: pfx = "Violation"; break;
-            case OutputType.Error: pfx = "Error"; break;
-            case OutputType.Info: pfx = "Info"; break;
+            case OutputType.Violation: pfx = "Violation: "; break;
+            case OutputType.Error: pfx = "Error: "; break;
+            case OutputType.Info: pfx = "Info: "; break;
+            case OutputType.EndSuccess:
+            case OutputType.EndFailure: pfx = "Completed."; break;
         }
-        Console.WriteLine($"{pfx} - {v}");
+        Console.WriteLine($"{pfx}{v}");
     }
 
     private static void WriteOutputAzDo(string v, OutputType ot) {
         string pfx = "";
+        string errType = WarningMode?"warning":"error";
+
         switch (ot) {
-            case OutputType.Violation: pfx = "##[warning] Violation"; break;
-            case OutputType.Error: pfx = "##[error] Error"; break;
+            case OutputType.Violation: pfx = $"##vso[task.logissue type={errType}]Violation: "; break;
+            case OutputType.Error: pfx = $"##vso[task.logissue type={errType}]Error: "; break;
             case OutputType.Info: pfx = "##[command]"; break;
+            case OutputType.EndSuccess:
+                Console.WriteLine($"{v}");
+                pfx = "##vso[task.complete result=Succeeded;]"; 
+                break;
+            case OutputType.EndFailure:
+                Console.WriteLine($"{v}");
+                pfx = "##vso[task.complete result=Failed;]"; 
+                break;
         }
-        Console.WriteLine($"{pfx} - {v}");
+        Console.WriteLine($"{pfx}{v}");
     }
 
     private static bool ValidateRulesFile(string rulesFile) {

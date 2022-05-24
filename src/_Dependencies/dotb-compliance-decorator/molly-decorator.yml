@@ -1,6 +1,7 @@
 steps:
 - task: PowerShell@2
   inputs:
+    displayName: Toolset Compliance
     targetType: 'filePath'
     filePath: '$(DOTB_BUILDTOOLS)\compliance\precheck.ps1'
     arguments: $(build.sourcesDirectory)

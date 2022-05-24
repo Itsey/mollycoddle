@@ -1,1 +1,33 @@
-{"Rules":[{"Link":"http://xxxx","Name":"Everything, precisely, where it should be.","RuleReference":"MC0070","Validators":[{"AdditionalData":null,"Control":"MustExist","PatternMatch":"**/src*/*.sln","ValidatorName":"FileValidationChecks"},{"AdditionalData":null,"Control":"MustNotExist","PatternMatch":"**/src*/*.csproj","ValidatorName":"FileValidationChecks"},{"AdditionalData":["**/src*/*/*.csproj"],"Control":"IfExistMustBeHere","PatternMatch":"**/*.csproj","ValidatorName":"FileValidationChecks"}]}],"RulesetName":"Basic Quality Rules"}
+{
+    "Rules": [
+        {
+            "Link": "http://xxxx",
+            "Name": "Everything, precisely, where it should be.",
+            "RuleReference": "MC0070",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "MustExist",
+                    "PatternMatch": "**/src*/*.sln",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/src*/*.csproj",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": [
+                        "**/src*/*/*.csproj",
+                        "**/src*/**/FrameworkVersions/**/*.csproj"
+                    ],
+                    "Control": "IfExistMustBeHere",
+                    "PatternMatch": "**/*.csproj",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}
