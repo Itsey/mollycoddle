@@ -1,8 +1,8 @@
 {
     "Rules": [
         {
-            "Link": "http://xxxx",
-            "Name": "The Pen is mightier than the compiler.",
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0050",
+            "Name": "The pen is mightier than the compiler.",
             "RuleReference": "MC0050",
             "Validators": [
                 {

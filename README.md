@@ -19,3 +19,10 @@ When mollycoddle executes violations will be returned to standard output.  The n
 Violation M-0004 (c:\files\code\git\mollycoddle\.gitignore does not match master.)
 Total Violations 1
 ```
+
+
+### Documentation
+
+The main documentation is here: https://itsey.github.io/mollycoddle/
+
+This includes information relating to the rules and how to run it as part of a pipeline.

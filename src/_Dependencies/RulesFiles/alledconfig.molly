@@ -1,8 +1,8 @@
 {
     "Rules": [
         {
-            "Link": "http://xxxx",
-            "Name": "All of your editor config belong to us.",
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0100",
+            "Name": "All your editor config are belong to us.",
             "RuleReference": "MC0100",
             "Validators": [
                 {

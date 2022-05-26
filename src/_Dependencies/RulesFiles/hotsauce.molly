@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "http://xxxx",
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0060",
             "Name": "Hot Source Must Live In Hot Src.",
             "RuleReference": "MC0060",
             "Validators": [

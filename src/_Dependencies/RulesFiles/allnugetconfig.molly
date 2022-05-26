@@ -1,8 +1,8 @@
 {
     "Rules": [
         {
-            "Link": "http://xxxx",
-            "Name": "All of your nuget config belong to us.",
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0102",
+            "Name": "All your nuget config are belong to us.",
             "RuleReference": "MC0102",
             "Validators": [
                 {

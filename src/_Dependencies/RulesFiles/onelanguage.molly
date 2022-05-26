@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "http://xxxx",
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0001",
             "Name": "One language to rule them all.",
             "RuleReference": "MC0001",
             "Validators": [
