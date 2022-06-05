@@ -1,10 +1,12 @@
 ﻿namespace mollycoddle.test {
-
+    using Plisky.Test;
     using Xunit;
 
     public class CheckResultTests {
 
         [Fact]
+        [Build(BuildType.Any)]
+        [Integration]
         public void Violations_HaveRulenames() {
             var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
 

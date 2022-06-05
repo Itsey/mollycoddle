@@ -124,7 +124,7 @@
             foreach (var lnn in fs.FilesThatMustNotExist()) {
                 AssignMustNotExistAction(fs.TriggeringRule, lnn);
             }
-            foreach(var lnnn in fs.FilesThatIfTheyDoExistMustBeInTheRightPlace()) {
+            foreach(var lnnn in fs.FilesInSpecificPlaces()) {
                 AssignIfItExistsItMustBeHereAction(fs.TriggeringRule, lnnn);
             }
         }

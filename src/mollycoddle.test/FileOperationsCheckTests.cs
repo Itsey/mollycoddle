@@ -1,4 +1,5 @@
 ﻿using Plisky.Diagnostics;
+using Plisky.Test;
 using Xunit;
 
 namespace mollycoddle.test {
@@ -8,6 +9,7 @@ namespace mollycoddle.test {
         private const string DUMMYRULE = "dummy";
 
         [Fact]
+        [Integration]
         public void MustExistInSpecificLocation_PassesIfValid() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
@@ -25,6 +27,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Integration]
         public void MustExistInSpecificLocation_FailsIfNotMatchSecondary() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
@@ -46,6 +49,7 @@ namespace mollycoddle.test {
    
 
         [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+        [Integration]
         public void CompareWithMasterFile_RuleWorks() {
             b.Info.Flow();
 
@@ -56,7 +60,7 @@ namespace mollycoddle.test {
             mps.WithFile("%MASTEROOT%\\master.gitignore", "gitignorefilecontents");
 
             var sut = new MockFileStructureChecker(mps);
-            sut.AssignCompareWithMasterAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", "DummyRule");
+            sut.AssignCompareWithMasterAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", DUMMYRULE);
 
             var cr = sut.Check();
 
@@ -64,6 +68,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Integration]
         public void FileMustExist_FailsIfFileDoesNotExist() {
             b.Info.Flow();
 
@@ -80,6 +85,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Integration]
         public void FileMustNotExist_PassesIfFileDoesNotExist() {
             b.Info.Flow();
 
@@ -96,6 +102,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Integration]
         public void FileMustNotExist_FailsIfFileExists() {
             b.Info.Flow();
 
@@ -115,6 +122,7 @@ namespace mollycoddle.test {
 
 
         [Fact]
+        [Integration]
         public void FileMustExist_PassesIfFileExists() {
             b.Info.Flow();
 
@@ -131,6 +139,7 @@ namespace mollycoddle.test {
         }
 
         [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+        [Integration]
         public void FileMustNotContain_RuleWorks() {
             b.Info.Flow();
 

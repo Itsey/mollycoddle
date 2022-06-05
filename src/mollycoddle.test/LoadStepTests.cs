@@ -12,6 +12,7 @@
         private UnitTestHelper u = new UnitTestHelper();
 
         [Fact]
+        [Integration]
         public void LoadStep_BadValidator_Throws() {
             b.Info.Flow();
 
@@ -19,11 +20,12 @@
             var sut = new MollyRuleFactory();
 
             Assert.Throws<InvalidOperationException>(() => {
-                var rl = (NugetPackageValidator)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+                var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
             });
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_DirectoryValidator_CorrectlyLoads() {
             b.Info.Flow();
 
@@ -36,6 +38,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_Dv_MustExist_CorrectlyLoads() {
             b.Info.Flow();
 
@@ -48,6 +51,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_Dv_MustNotExist_CorrectlyLoads() {
             b.Info.Flow();
 
@@ -60,6 +64,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_Dv_ProhibitedExcept_CorrectlyLoads() {
             b.Info.Flow();
 
@@ -76,6 +81,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_FileCheck_MustNotExist_HasExceptions() {
             b.Info.Flow();
 
@@ -91,6 +97,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_FileCheck_MustNotExist_Works() {
             b.Info.Flow();
 
@@ -103,6 +110,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_FileChecks_MasterMatch_Loads() {
             b.Info.Flow();
 
@@ -116,6 +124,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_FileChecks_MasterMatch_RequiresAdditionalData() {
             b.Info.Flow();
 
@@ -129,6 +138,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_FileChecks_MustExist_Works() {
             b.Info.Flow();
 
@@ -141,6 +151,7 @@
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_NugetBadControl_Throws() {
             b.Info.Flow();
 
@@ -148,11 +159,12 @@
             var sut = new MollyRuleFactory();
 
             Assert.Throws<InvalidOperationException>(() => {
-                var rl = (NugetPackageValidator)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+                var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
             });
         }
 
         [Fact]
+        [Integration]
         public void LoadStep_NugetBanned_Loads() {
             b.Info.Flow();
 
@@ -162,7 +174,7 @@
             string jsonvalidatorstep = "{\"ValidatorName\":\"NugetValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"ProhibitedPackagesList\",\"AdditionalData\":[\"" + bannedEntry1 + "\",\"" + bannedEntry2 + "\"]}";
             var sut = new MollyRuleFactory();
 
-            var rl = (NugetPackageValidator)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
 
             var l = rl.GetProhibitedPackagesLists().First();
             Assert.NotNull(l.ProhibitedPackages.First(p => p == bannedEntry1));

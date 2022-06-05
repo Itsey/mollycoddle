@@ -37,7 +37,7 @@ namespace mollycoddle {
         protected virtual void AddFileValidator(FileValidationChecks fs) {
         }
 
-        protected virtual void AddNugetValidator(NugetPackageValidator nu) {
+        protected virtual void AddNugetValidator(NugetValidationChecks nu) {
         }
 
         protected void AddProhibitedPatternFinder(string ruleName, string prohibited, params string[] exceptions) {
@@ -77,7 +77,7 @@ namespace mollycoddle {
                     b.Verbose.Log($"FileSystem Validator Load {fs.TriggeringRule}");
                     AddFileValidator(fs);
                 }
-                if (f is NugetPackageValidator nu) {
+                if (f is NugetValidationChecks nu) {
                     b.Verbose.Log($"Nuget Validator Load {nu.TriggeringRule}");
                     AddNugetValidator(nu);
                 }

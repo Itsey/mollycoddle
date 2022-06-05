@@ -5,6 +5,7 @@ namespace mollycoddle.test {
     using Plisky.Test;
     using Xunit;
 
+    
     public class Exploratory {
         private Bilge b = new Bilge();
         private string dummyRuleName = "drn";
@@ -26,12 +27,14 @@ namespace mollycoddle.test {
 
         
         [Fact]
+        [Fresh]
         public void Exploratory_1a() {
       
 
         }
 
         [Fact]
+        [Fresh]
         public void Exploratory_1b() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
@@ -51,6 +54,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Fresh]
         public void Exploratory_1c() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
@@ -71,6 +75,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Fresh]
         public void Exploratory_OneLanguageToRuleThemAll() {
             b.Info.Flow();
       
@@ -88,6 +93,7 @@ namespace mollycoddle.test {
         }
 
         [Fact]
+        [Fresh]
         public void Exploratory_NubMistakes() {
             string root = @"c:\MadeUpPath";
             // .csproj.user

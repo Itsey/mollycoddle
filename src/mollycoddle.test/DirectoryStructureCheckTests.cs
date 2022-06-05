@@ -1,9 +1,12 @@
 ﻿namespace mollycoddle.test {
-
+    using Plisky.Test;
     using Xunit;
 
     public class DirectoryStructureCheckTests {
 
+        
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void BugRepro_MustExist_Src_Works() {
             string root = @"C:\Files\Code\git\PliskyDiagnostics";
@@ -22,6 +25,8 @@
             Assert.Equal(0, cr.DefectCount);
         }
 
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void MustExistFolder_FailsIfNotFound() {
             var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
@@ -36,6 +41,8 @@
             Assert.Equal(1, cr.DefectCount);
         }
 
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void MustExistFolder_PassIfFound() {
             var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
@@ -47,6 +54,8 @@
             Assert.Equal(0, cr.DefectCount);
         }
 
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void ProhibitedPattern_Basic_Works() {
             string root = @"c:\MadeUpPath";
@@ -55,7 +64,7 @@
             mps.WithRootedFolder("doc");
             mps.WithRootedFolder("project1");
 
-            DirectoryStructureChecker sut = new DirectoryStructureChecker(mps, new MollyOptions());
+            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
             var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPattern($"{root}\\*");
             sut.AddRuleRequirement(dv);
@@ -64,6 +73,8 @@
             Assert.Equal(3, cr.DefectCount);
         }
 
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void ProhibitedPattern_ExceptionsWork() {
             string root = @"c:\MadeUpPath";
@@ -84,6 +95,8 @@
             Assert.Contains("project1", cr.ViolationsFound[0].Additional);
         }
 
+        [Build(BuildType.Any)]
+        [Integration]
         [Fact]
         public void ProhibitedPattern_RootReplacement_Works() {
             string root = @"c:\MadeUpPath";
@@ -91,7 +104,7 @@
             mps.WithRootedFolder("project1");
             mps.WithRootedFolder("src");
 
-            DirectoryStructureChecker sut = new DirectoryStructureChecker(mps, new MollyOptions());
+            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
             var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPattern(@"%ROOT%\*", $"%ROOT%\\src");
             sut.AddRuleRequirement(dv);

@@ -73,7 +73,7 @@
             return result;
         }
 
-        protected override void AddNugetValidator(NugetPackageValidator nu) {
+        protected override void AddNugetValidator(NugetValidationChecks nu) {
             base.AddNugetValidator(nu);
 
             foreach (var l in nu.GetProhibitedPackagesLists()) {

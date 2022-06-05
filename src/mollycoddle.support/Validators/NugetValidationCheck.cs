@@ -1,6 +1,7 @@
 ﻿namespace mollycoddle {
 
     public class NugetValidationCheck {
+        
         public string Pattern { get; internal set; }
         public string[] ProhibitedPackages { get; internal set; }
 

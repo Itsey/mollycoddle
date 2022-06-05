@@ -13,8 +13,8 @@ namespace mollycoddle.test {
             u = new UnitTestHelper();
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_ReadMe_WorksIfExists() {
             // readme.md must exist
@@ -38,8 +38,8 @@ namespace mollycoddle.test {
             Assert.Equal(0, cr.DefectCount);
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_ReadMe_ViolationIfNotExists() {
 
@@ -63,8 +63,8 @@ namespace mollycoddle.test {
         }
 
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_OneLanguageToRuleThemAll_Works() {
               
@@ -96,8 +96,8 @@ namespace mollycoddle.test {
         }
 
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_HotSauce_DetectsBadPath() {
 
@@ -121,8 +121,8 @@ namespace mollycoddle.test {
             Assert.Equal(1, cr.DefectCount);
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_HotSauce_PassesCorrectPath() {
 
@@ -145,8 +145,8 @@ namespace mollycoddle.test {
         }
 
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_GoodRoots_DetectsBadRoots() {
 
@@ -172,8 +172,8 @@ namespace mollycoddle.test {
             Assert.Equal(2, cr.DefectCount);
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Fact]
         public void RulesFile_GoodRoots_PassesWithGoodRoots() {
 
@@ -197,8 +197,8 @@ namespace mollycoddle.test {
             Assert.Equal(0, cr.DefectCount);
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Theory]
         [InlineData("mock-editorconfig-contents", 0)]
         [InlineData("invalid-contents", 1)]
@@ -228,8 +228,8 @@ namespace mollycoddle.test {
             Assert.Equal(defectCount, cr.DefectCount);
         }
 
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Theory]
         [InlineData("mock-gitignore-contents", 0)]
         [InlineData("invalid-contents", 1)]
@@ -260,8 +260,9 @@ namespace mollycoddle.test {
         }
 
 
+        
+        [Build(BuildType.Release)]
         [Integration]
-        [Build(BuildType.Nightly)]
         [Theory]
         [InlineData("mock-nugetconfig-contents", 0)]
         [InlineData("invalid-contents", 1)]
@@ -292,7 +293,8 @@ namespace mollycoddle.test {
         }
 
         [Integration]
-        [Build(BuildType.Nightly)]
+        [Build(BuildType.Release)]
+        [Integration]
         [Fact]
         public void RulesFile_NoNaughtyNugets_Works() {
 
@@ -318,7 +320,8 @@ namespace mollycoddle.test {
 
 
         [Integration]
-        [Build(BuildType.Nightly)]
+        [Build(BuildType.Release)]
+        [Integration]
         [Fact]
         public void PreciseLocationTests_DetectsNestedCSProj() {
 
@@ -346,7 +349,8 @@ namespace mollycoddle.test {
 
 
         [Integration]
-        [Build(BuildType.Nightly)]
+        [Build(BuildType.Release)]
+        [Integration]
         [Fact]
         public void PreciseLocationTests_RequiresSolutionFile() {
 

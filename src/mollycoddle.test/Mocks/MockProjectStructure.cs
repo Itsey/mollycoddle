@@ -5,7 +5,7 @@
     using System.Text;
 
     internal class MockProjectStructure : ProjectStructure {
-        public static string DUMMYRULENAME = "testrule";
+        public const string DUMMYRULENAME = "testrule";
         public Dictionary<string, string> testFileContents = new Dictionary<string, string>();
 
         public override string GetFileContents(string filename) {

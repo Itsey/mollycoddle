@@ -9,6 +9,10 @@
     /// </summary>
     [DebuggerDisplay("Validator For {TriggeringRule}")]
     public class DirectoryValidationChecks : ValidatorBase {
+        /// <summary>
+        /// This is the name of the validator, it must be specified exactly in the rules files.  It does not use nameof to prevent accidental refactoring.
+        /// </summary>
+        public const string VALIDATORNAME = "DirectoryValidationChecks";   
         private List<string> mustExistPaths = new List<string>();
         
         private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();

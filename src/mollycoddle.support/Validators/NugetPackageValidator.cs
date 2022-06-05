@@ -8,11 +8,15 @@
     /// know how to do the validations just what the validations must be.
     /// </summary>
     [DebuggerDisplay("Validator For {TriggeringRule}")]
-    public class NugetPackageValidator : ValidatorBase {
+    public class NugetValidationChecks : ValidatorBase {
+        /// <summary>
+        /// This is the name of the validator, it must be specified exactly in the rules files.  It does not use nameof to prevent accidental refactoring.
+        /// </summary>
+        public const string VALIDATORNAME = "NugetValidationChecks";
         public List<NugetValidationCheck> valcheck = new List<NugetValidationCheck>();
         
 
-        public NugetPackageValidator(string owningRuleName) : base(owningRuleName) {
+        public NugetValidationChecks(string owningRuleName) : base(owningRuleName) {
         }
 
         public void AddProhibitedPackageList(string v1, params string[] v2) {

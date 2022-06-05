@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Plisky.Diagnostics;
+﻿namespace mollycoddle {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Plisky.Diagnostics;
 
-namespace mollycoddle {
     public class Molly {
-        protected Bilge b = new Bilge("molly-main");
-        protected MollyOptions mo;
-        protected DirectoryStructureChecker? dst;
-        protected FileStructureChecker? fst;
-        protected NugetPackageChecker? nst;
-        protected bool ProjectStructureLoaded = false;
+        private Bilge b = new Bilge("molly-main");
+        private MollyOptions mo;
+        private DirectoryStructureChecker? dst;
+        private FileStructureChecker? fst;
+        private NugetPackageChecker? nst;
+        private bool ProjectStructureLoaded = false;
 
         public Molly(MollyOptions mo) {
             this.mo = mo;

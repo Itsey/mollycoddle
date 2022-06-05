@@ -11,8 +11,8 @@
         private UnitTestHelper u = new UnitTestHelper();
 
         [Fact(DisplayName = nameof(NugetMustContainPackage_NoErrorIfFound))]
-        [Trait(Traits.Age, Traits.Fresh)]
-        [Trait(Traits.Style, Traits.Unit)]
+        [Build(BuildType.Release)]
+        [Integration]
         public void NugetMustContainPackage_NoErrorIfFound() {
             b.Info.Flow();
 
@@ -21,7 +21,7 @@
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
             mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
-            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
 
             var sut = new NugetPackageChecker(mps, new MollyOptions());
@@ -33,8 +33,8 @@
         }
 
         [Fact(DisplayName = nameof(NugetMustContainPackage_ErrorsIfNotFound))]
-        [Trait(Traits.Age, Traits.Fresh)]
-        [Trait(Traits.Style, Traits.Unit)]
+        [Build(BuildType.Release)]
+        [Integration]
         public void NugetMustContainPackage_ErrorsIfNotFound() {
             b.Info.Flow();
 
@@ -43,7 +43,7 @@
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithoutXunit));
             mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
-            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
 
             var sut = new NugetPackageChecker(mps, new MollyOptions());
@@ -55,13 +55,15 @@
         }
 
         [Fact]
+        [Build(BuildType.Release)]
+        [Integration]
         public void BannedPackageRule_ResultsInViolation() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage));
             mps.WithRootedFile("bob.csproj", File.ReadAllText(s));
-            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPackageList(@"**\*.csproj", "banned.package");
 
             var sut = new NugetPackageChecker(mps, new MollyOptions());
@@ -73,6 +75,8 @@
         }
 
         [Fact]
+        [Build(BuildType.Release)]
+        [Integration]
         public void NugetPackageLoad_DoesNotFindDuffData() {
             b.Info.Flow();
 
@@ -90,6 +94,8 @@
         }
 
         [Fact]
+        [Build(BuildType.Release)]
+        [Integration]
         public void NugetPackageLoad_FindsPackageNames() {
             b.Info.Flow();
 
@@ -108,6 +114,7 @@
         }
 
         [Fact]
+        [Build(BuildType.Release)][Integration]
         public void NugetPackageLoad_FindsPackageVersions() {
             b.Info.Flow();
 

@@ -1,6 +1,5 @@
-﻿using Plisky.Plumbing;
-
-namespace mollycoddle {
+﻿namespace mollycoddle {
+    using Plisky.Plumbing;
 
     [CommandLineArguments]
     public class MollyCommandLine {
