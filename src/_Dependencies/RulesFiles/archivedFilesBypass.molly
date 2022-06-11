@@ -1,0 +1,25 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0001",
+            "Name": "Archive Is As Archive Does.",
+            "RuleReference": "MC0001",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\Archive\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\Archive**",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        }
+       
+    ],
+    "RulesetName": "Archive Enablement"
+}

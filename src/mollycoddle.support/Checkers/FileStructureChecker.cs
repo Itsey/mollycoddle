@@ -58,7 +58,7 @@
         public void AssignMustNotExistAction(string ruleName, MatchWithSecondaryMatches patternForFile) {
             var fca = new MinMatchActionChecker(ruleName);
             // Must Exist defaults to having not passed.  It passes if the file is then found.
-            var pff = ValidateActualPath(patternForFile.PrimaryPattern);
+            string pff = ValidateActualPath(patternForFile.PrimaryPattern);
             fca.Passed = true;
             fca.AdditionalInfo = $"{patternForFile} must not exist.";
             fca.PerformCheck = GetFileExistChecker(false);
@@ -75,7 +75,21 @@
             }
 
             b.Info.Log($"File System  Check {ps.AllFiles.Count} files to check");
-            foreach (var fn in ps.AllFiles) {
+            foreach (string fn in ps.AllFiles) {
+
+                bool bypassActive = false;
+                foreach (var bp in bypassMatch) {
+                    if (bp(fn)) {
+                        bypassActive = true;
+                        break;
+                    }
+                }
+
+                if (bypassActive) {
+                    b.Verbose.Log($"bypass filter activated for {fn}");
+                    continue;
+                }
+
                 int i = 0;
                 while (i < Actions.Count) {
                     var chk = Actions[i];
@@ -115,6 +129,9 @@
         protected override void AddFileValidator(FileValidationChecks fs) {
             base.AddFileValidator(fs);
 
+            foreach(string l in fs.FullBypasses()) {
+                AddFullbypassActions(l);
+            }
             foreach (var l in fs.FilesThatMustMatchTheirMaster()) {
                 AssignCompareWithMasterAction(ValidateActualPath(l.PatternForSourceFile), l.FullPathForMasterFile, fs.TriggeringRule);
             }
@@ -124,9 +141,13 @@
             foreach (var lnn in fs.FilesThatMustNotExist()) {
                 AssignMustNotExistAction(fs.TriggeringRule, lnn);
             }
-            foreach(var lnnn in fs.FilesInSpecificPlaces()) {
+            foreach (var lnnn in fs.FilesInSpecificPlaces()) {
                 AssignIfItExistsItMustBeHereAction(fs.TriggeringRule, lnnn);
             }
+        }
+
+        private void AddFullbypassActions(string l) {
+            AddMasterByPass(l.Replace("%ROOT%", ps.Root).ToLowerInvariant());
         }
 
         protected virtual Action<MinMatchActionChecker, string> GetContentsCheckerAction(string masterContentsPath) {
@@ -151,7 +172,7 @@
             return result;
         }
 
-        protected virtual string GetFileContents(string path) {
+        protected virtual string? GetFileContents(string path) {
             return File.ReadAllText(path);
         }
 
@@ -218,12 +239,13 @@
         }
 
         private Action<MinMatchActionChecker, string> GetFileContentsMustChecker(string text, bool mustOrMustNot) {
-            var act = new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
-                var f = GetFileContents(filenameToCheck);
-                resultant.IsInViolation = f.Contains(text, StringComparison.OrdinalIgnoreCase) != mustOrMustNot;
-                resultant.AdditionalInfo = filenameToCheck;
+            return new Action<MinMatchActionChecker, string>((resultant, filenameToCheck) => {
+                string? f = GetFileContents(filenameToCheck);
+                if (f != null) {
+                    resultant.IsInViolation = f.Contains(text, StringComparison.OrdinalIgnoreCase) != mustOrMustNot;
+                    resultant.AdditionalInfo = filenameToCheck;
+                }
             });
-            return act;
         }
     }
 }

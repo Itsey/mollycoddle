@@ -10,6 +10,7 @@ internal class Program {
     private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
     private static bool WarningMode = false;
     private static int Main(string[] args) {
+        var b = new Bilge("mollycoddle");
         int exitCode = 0;
         var clas = new CommandArgumentSupport();
         clas.ArgumentPrefix = "-";
@@ -24,24 +25,28 @@ internal class Program {
 
         if (ma.Disabled) {
             WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
-            return 0;
+            exitCode = 0;
+            goto TheEndIsNigh;
         }
 
         var mo = ma.GetOptions();
+        ConfigureTrace();
 
-
-        // TODO: Currently hardcoded trace, move this to configuration.
-        Bilge.SetConfigurationResolver((x, y) => {
-            return System.Diagnostics.SourceLevels.Verbose;
-        });
-        var b = new Bilge("mollycoddle");
-        b.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
         Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");
 
         string directoryToTarget = mo.DirectoryToTarget;
 
         b.Verbose.Log($"targetting {directoryToTarget}");
+
+        if ((directoryToTarget == "?") || (directoryToTarget == "/?") || (directoryToTarget == "/help")) {
+            Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
+            Console.WriteLine(clas.GenerateHelp(ma, "MollyCoddle"));
+            exitCode = 0;
+            goto TheEndIsNigh;
+        }
+
+
         if (!ValidateDirectory(directoryToTarget)) {
             WriteOutput($"InvalidCommand - Directory Was Not Correct [{mo.DirectoryToTarget}]", OutputType.Error);
             exitCode = -1;
@@ -61,7 +66,18 @@ internal class Program {
         var mrf = new MollyRuleFactory();
         var m = new Molly(mo);
         m.AddProjectStructure(ps);
-        m.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
+        try {
+            m.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
+        } catch (InvalidOperationException iox) {
+            WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
+            Exception? eox = iox;
+            while (eox != null) {
+                WriteOutput($"Error: {eox.Message}", OutputType.Error);
+                eox = eox.InnerException;
+            }
+            exitCode = -90;
+            goto TheEndIsNigh;
+        }
 
         CheckResult cr;
         try {
@@ -79,8 +95,8 @@ internal class Program {
 
         if (cr.DefectCount == 0) {
             WriteOutput($"No Violations, Mollycoddle Pass.", OutputType.EndSuccess);
-        } else {           
-            WriteOutput($"Total Violations {cr.DefectCount}", WarningMode?OutputType.EndSuccess:OutputType.EndFailure);
+        } else {
+            WriteOutput($"Total Violations {cr.DefectCount}", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
         }
 
         if (WarningMode) {
@@ -94,6 +110,15 @@ internal class Program {
         return exitCode;
     }
 
+    private static void ConfigureTrace() {
+        // TODO: Currently hardcoded trace, move this to configuration.
+        Bilge.SetConfigurationResolver((x, y) => {
+            return System.Diagnostics.SourceLevels.Verbose;
+        });
+#if DEBUG
+        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
+#endif
+    }
 
 
     private static void WriteOutputDefault(string v, OutputType ot) {

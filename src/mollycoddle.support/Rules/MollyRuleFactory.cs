@@ -15,6 +15,10 @@
         }
 
         public IEnumerable<MollyRule> LoadRulesFromFile(string filename) {
+            if (string.IsNullOrWhiteSpace(filename)) {
+                throw new FileNotFoundException("The filename passed to load a molly file was empty or null.", filename);
+            }
+
             b.Info.Log($"Loading {filename}");
             
             if (!File.Exists(filename)) {
@@ -49,9 +53,16 @@
 
         private IEnumerable<MollyRule> LoadAllMollyRules(string filename) {
             string json = File.ReadAllText(filename);
-            var mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
+            MollyRuleStorage? mrs;
+            try {
+                mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
+            } catch (JsonException js) {
+                b.Warning.Log($"File {filename} did not cleanly come out of jsondeserialise, likely invalid json in file.",js.Message);
+                throw new InvalidOperationException($"Invalid Json - Check [{filename}]",js);
+            }
 
             if (mrs == null) {
+                b.Warning.Log($"File {filename} did not cleanly come out of jsondeserialise, likely invalid json in file.");
                 throw new InvalidOperationException($"Json did not result in valid MollyRuleStorage - Check [{filename}]");
             }
             if (mrs.Rules == null) {
@@ -134,9 +145,12 @@
                     }
                     vv.MustBeInSpecificLocation(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
                     break;
+                case "FullBypass":
+                    vv.AddBypass(nextRuleStep.PatternMatch);
+                    break;
                 default:
                     b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
-                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file validation6 MollyRule");
+                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file validation MollyRule");
             }
 
             return vv;
@@ -157,9 +171,12 @@
                 case "ProhibitedExcept":
                     vs.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
                     break;
+                case "FullBypass":
+                    vs.AddBypass(nextRuleStep.PatternMatch);
+                    break;
                 default:
                     b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
-                    throw new InvalidOperationException("Json data is invalid for directory validation Mollyrule");
+                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for directory validation MollyRule");
             }
             return vs;
         }

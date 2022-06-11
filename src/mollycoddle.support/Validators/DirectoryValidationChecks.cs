@@ -14,10 +14,23 @@
         /// </summary>
         public const string VALIDATORNAME = "DirectoryValidationChecks";   
         private List<string> mustExistPaths = new List<string>();
-        
+        private List<string> completeBypasses = new List<string>();
+
         private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();
 
         public DirectoryValidationChecks(string owningRuleName) : base(owningRuleName) {
+        }
+
+        /// <summary>
+        /// Adds a bypass that prevents any rules checking for this match
+        /// </summary>
+        /// <param name="bypassPattern"></param>
+        public void AddBypass(string bypassPattern) {
+            completeBypasses.Add(bypassPattern);
+        }
+
+        public IEnumerable<string> FullBypasses() {
+            return completeBypasses;
         }
 
         public void AddProhibitedPattern(string prohibited, params string[] exceptions) {

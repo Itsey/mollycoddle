@@ -9,6 +9,27 @@ namespace mollycoddle.test {
         private const string DUMMYRULE = "dummy";
 
         [Fact]
+        [Build(BuildType.CI)]
+        public void FileSystem_MasterBypass_Works() {
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");
+            mps.WithRootedFolder("pickle");
+            mps.WithRootedFile("src\\testproj\\xx\\testproj.csproj", "basil was here");   // fail
+            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
+            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
+
+            var sut = new MockFileStructureChecker(mps);
+            sut.AddMasterByPass("**");
+            string[] secondary = new string[] { "**/src*/*/*.csproj" };
+            sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+            var cr = sut.Check();
+
+            Assert.Equal(0, cr.DefectCount);
+
+        }
+
+        [Fact]
         [Integration]
         public void MustExistInSpecificLocation_PassesIfValid() {
             string root = @"C:\MadeUpFolder";

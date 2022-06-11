@@ -10,10 +10,16 @@ namespace mollycoddle {
         protected List<Tuple<string, Func<string, bool>>> prohibitors = new List<Tuple<string, Func<string, bool>>>();
         protected ProjectStructure ps;
         protected List<ValidatorBase> validators = new List<ValidatorBase>();
+        protected List<Func<string,bool>> bypassMatch = new List<Func<string, bool>>();
 
         public StructureCheckerBase(ProjectStructure ps, MollyOptions mopts) {
             this.ps = ps;
             mo = mopts;
+        }
+
+        public void AddMasterByPass(string v) {
+            b.Verbose.Log($"Master Bypass {v}");
+            bypassMatch.Add(Minimatcher.CreateFilter(v, o));
         }
 
         public void AddRuleRequirement(ValidatorBase n) {

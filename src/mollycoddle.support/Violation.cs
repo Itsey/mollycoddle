@@ -8,6 +8,7 @@
 
         public Violation(string owningRuleIdentity) {
             RuleName = owningRuleIdentity;
+            Additional = string.Empty;
         }
 
         /// <summary>

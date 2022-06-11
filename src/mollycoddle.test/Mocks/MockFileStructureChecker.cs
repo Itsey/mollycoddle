@@ -11,8 +11,8 @@
 
         protected override Action<MinMatchActionChecker, string> GetContentsCheckerAction(string masterContentsPath) {
             return new Action<MinMatchActionChecker, string>((fca, fn) => {
-                var f = GetFileContents(masterContentsPath);
-                var z = GetFileContents(fn);
+                string f = GetFileContents(masterContentsPath);
+                string z = GetFileContents(fn);
                 if (f != z) {
                     fca.IsInViolation = true;
                     fca.AdditionalInfo = fn;
@@ -20,7 +20,7 @@
             });
         }
 
-        protected override string GetFileContents(string path) {
+        protected override string? GetFileContents(string path) {
             // Dont hit the disk, isntead return mock file contents.
             if (mps.AllFiles.Contains(path)) {
                 return mps.testFileContents[path];
@@ -47,6 +47,6 @@
             return pathToMaster;
         }
 
-       
+        
     }
 }

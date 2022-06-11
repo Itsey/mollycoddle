@@ -23,7 +23,7 @@ namespace mollycoddle.test {
     public static class TestResources {
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static string GetIdentifiers(TestResourcesReferences refNo) {
+        public static string? GetIdentifiers(TestResourcesReferences refNo) {
             switch (refNo) {
                 case TestResourcesReferences.CsProjSimpleNugetReferences: return "simplecsproj.txt";
                 case TestResourcesReferences.CsProjBandPackage: return "bannedcsproj.txt";

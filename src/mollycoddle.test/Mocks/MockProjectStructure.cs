@@ -8,7 +8,7 @@
         public const string DUMMYRULENAME = "testrule";
         public Dictionary<string, string> testFileContents = new Dictionary<string, string>();
 
-        public override string GetFileContents(string filename) {
+        public override string? GetFileContents(string filename) {
             if (this.AllFiles.Contains(filename)) {
                 return testFileContents[filename];
             }

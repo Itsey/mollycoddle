@@ -1,5 +1,6 @@
 namespace mollycoddle.test {
     using System.IO;
+    using System.Linq;
     using Plisky.Diagnostics;
     using Plisky.Diagnostics.Listeners;
     using Plisky.Test;
@@ -33,25 +34,8 @@ namespace mollycoddle.test {
 
         }
 
-        [Fact]
-        [Fresh]
-        public void Exploratory_1b() {
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFolder("pickle");
-            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
-            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
-            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
-            
-            var sut = new MockFileStructureChecker(mps);
-            string[] secondary = new string[] { "**/src*/*/*.csproj" };
-            sut.AssignIfItExistsItMustBeHereAction(dummyRuleName, new MatchWithSecondaryMatches("**/*.csproj") {  SecondaryList = secondary });
-            var cr = sut.Check();
+      
 
-            Assert.Equal(1, cr.DefectCount);
-
-        }
 
         [Fact]
         [Fresh]

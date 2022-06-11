@@ -19,26 +19,39 @@ public class ProjectStructure {
     public List<string> GetAllDirectories(string path, string searchPattern = "*") {
         b.Verbose.Log($"Working on {path}");
 
-        var d = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
-        var dir = new List<string>(d);
+        string[] directoryList = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
+        var dir = new List<string>(directoryList);
 
-        foreach (var dl in d) {
-            if (dl.EndsWith("\\.git") || dl.EndsWith("\\.vs")) {
+        foreach (string directoryToCheck in directoryList) {
+            if (directoryToCheck.EndsWith("\\.git") || directoryToCheck.EndsWith("\\.vs")) {
                 continue;
             }
-            dir.AddRange(GetAllDirectories(dl, searchPattern));
+            dir.AddRange(GetAllDirectories(directoryToCheck, searchPattern));
         }
 
         return dir;
     }
 
-    
+    /// <summary>
+    /// Returns true if the file exists, false otherwise.  This is used to abstract out File.Exists for simpler
+    /// unit testing.
+    /// </summary>
+    /// <param name="filename">The filename to check for whether it exists.</param>
+    /// <returns>true if the file exists, false otherwise.</returns>
     public virtual bool DoesFileExist(string filename) {
         // Method used to abstract the file system so mock project structure can replace these methods
         return File.Exists(filename);
     }
-    public virtual string GetFileContents(string filename) {
-        // Method used to abstract the file system so mock project structure can replace these methods
+
+    /// <summary>
+    /// Gets a file contents by reading it from the disk, returns null if the file isnt found.
+    /// </summary>
+    /// <param name="filename">The filename to read the contents from</param>
+    /// <returns>The contents of the file, or null if the file is not found</returns>
+    public virtual string? GetFileContents(string filename) {
+        // Method is used so that the mock project structure can remove the dependency on the file system.
+        if (!DoesFileExist(filename)) { return null;  }
+
         return File.ReadAllText(filename);
     }
     public virtual Tuple<long, byte[]> GetFileHashAndLength(string masterContentsPath) {
@@ -50,17 +63,17 @@ public class ProjectStructure {
 
     public void PopulateProjectStructure() {
         b.Verbose.Log("Getting Directories");
-        var dirs = GetAllDirectories(Root);
+        var directoriesInRoot = GetAllDirectories(Root);
 
-        foreach (var l in dirs) {
-            AllFolders.Add(l.ToLowerInvariant());
+        foreach (string topLevelDirectory in directoriesInRoot) {
+            AllFolders.Add(topLevelDirectory.ToLowerInvariant());
         }
 
         b.Verbose.Log($"{AllFolders.Count} folders, now getting files");
 
-        var fls = Directory.EnumerateFileSystemEntries(Root, "*.*", SearchOption.AllDirectories);
-        foreach (var f in fls) {
-            AllFiles.Add(f.ToLowerInvariant());
+        var allFilesUnderRoot = Directory.EnumerateFileSystemEntries(Root, "*.*", SearchOption.AllDirectories);
+        foreach (string nextFile in allFilesUnderRoot) {
+            AllFiles.Add(nextFile.ToLowerInvariant());
         }
 
         b.Verbose.Log($"{AllFiles.Count} files");

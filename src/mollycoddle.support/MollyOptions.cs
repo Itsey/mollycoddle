@@ -6,7 +6,7 @@
     public class MollyOptions {
 
         public MollyOptions() {
-
+            DirectoryToTarget = RulesFile = string.Empty;
         }
 
         /// <summary>
@@ -16,7 +16,7 @@
         /// <summary>        
         /// The Path to the master files for any master comparisons that need to be made
         /// </summary>
-        public string MasterPath { get; set; }
+        public string? MasterPath { get; set; }
         /// <summary>
         /// The rulesfile that is to be loaded, either a rules set or a single rules file.
         /// </summary>

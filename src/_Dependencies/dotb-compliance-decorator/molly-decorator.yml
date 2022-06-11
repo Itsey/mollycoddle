@@ -4,4 +4,4 @@ steps:
   inputs:    
     targetType: 'filePath'
     filePath: '$(DOTB_BUILDTOOLS)\compliance\precheck.ps1'
-    arguments: $(build.sourcesDirectory)
+    arguments: $(build.sourcesDirectory) 

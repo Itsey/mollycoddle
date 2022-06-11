@@ -18,6 +18,11 @@
                 var j = l.ToLowerInvariant();
                 b.Verbose.Log($"checking {j}");
 
+                if (IsByPassActive(j)) {
+                    b.Verbose.Log($"bypass filter activated for {j}");
+                    continue;
+                }
+
                 if (directoriesThatMustExist.ContainsKey(j)) {
                     directoriesThatMustExist[j].Passed = true;
                 }
@@ -39,8 +44,24 @@
             return result;
         }
 
+        private bool IsByPassActive(string j) {
+            bool bypassActive = false;
+
+            foreach (var bp in bypassMatch) {
+                if (bp(j)) {
+                    bypassActive = true;
+                    break;
+                }
+            }
+            return bypassActive;
+        }
+
         protected override void AddDirectoryValidator(DirectoryValidationChecks dc) {
             base.AddDirectoryValidator(dc);
+
+            foreach (string masterBypassPattern in dc.FullBypasses()) {
+                AddMasterByPass(masterBypassPattern.Replace("%ROOT%", ps.Root).ToLowerInvariant());
+            }
 
             foreach (var l in dc.MustExistExactly()) {
                 string nl = l.Replace("%ROOT%", ps.Root).ToLowerInvariant();

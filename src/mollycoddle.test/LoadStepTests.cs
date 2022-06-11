@@ -180,5 +180,41 @@
             Assert.NotNull(l.ProhibitedPackages.First(p => p == bannedEntry1));
             Assert.NotNull(l.ProhibitedPackages.First(p => p == bannedEntry2));
         }
+
+        [Fact]
+        [Build(BuildType.Any)]
+        public void LoadStep_FileBypass_Loads() {
+            b.Info.Flow();
+
+
+            string allowAllPattern = "bungleTheFirst";
+
+            string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + allowAllPattern + "\",\"Control\":\"FullBypass\",\"AdditionalData\":null}";
+            var sut = new MollyRuleFactory();
+
+            var rl = (FileValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+
+
+            Assert.NotNull(rl.FullBypasses());
+            Assert.NotNull(rl.FullBypasses().First(p => p == allowAllPattern));
+        }
+
+        [Fact]
+        [Build(BuildType.Any)]
+        public void LoadStep_DirectoryBypass_Loads() {
+            b.Info.Flow();
+
+            string allowAllPattern = "bungleTheFirst"; ;
+            string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"" + allowAllPattern + "\",\"Control\":\"FullBypass\",\"AdditionalData\":null}";
+            var sut = new MollyRuleFactory();
+
+            var rl = (DirectoryValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+
+
+            Assert.NotNull(rl.FullBypasses());
+            Assert.NotNull(rl.FullBypasses().First(p => p == allowAllPattern));
+        }
+
+
     }
 }
