@@ -11,7 +11,8 @@
                         "%ROOT%\\build",
                         "%ROOT%\\test",
                         "%ROOT%\\doc",
-                        "%ROOT%\\res"
+                        "%ROOT%\\res",
+                        "%ROOT%\\src*"
                     ],
                     "Control": "ProhibitedExcept",
                     "PatternMatch": "%ROOT%\\*",
