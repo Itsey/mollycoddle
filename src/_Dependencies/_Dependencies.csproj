@@ -10,4 +10,8 @@
     <None Include="nDepend\mollycoddle.ndproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+
 </Project>

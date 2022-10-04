@@ -48,12 +48,12 @@ internal class Program {
 
 
         if (!ValidateDirectory(directoryToTarget)) {
-            WriteOutput($"InvalidCommand - Directory Was Not Correct [{mo.DirectoryToTarget}]", OutputType.Error);
+            WriteOutput($"InvalidCommand - Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
             exitCode = -1;
             goto TheEndIsNigh;
         }
         if (!ValidateRulesFile(mo.RulesFile)) {
-            WriteOutput($"InvalidCommand - RulesFile was not correct [{mo.RulesFile}]", OutputType.Error);
+            WriteOutput($"InvalidCommand - RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
             exitCode = -2;
             goto TheEndIsNigh;
         }
@@ -89,7 +89,14 @@ internal class Program {
             goto TheEndIsNigh;
         }
 
-        foreach (var l in cr.ViolationsFound) {
+        string lastWrittenRule = string.Empty;
+        foreach (var l in cr.ViolationsFound.OrderBy( p => p.RuleName)) {
+            if (mo.AddHelpText) {
+                if (l.RuleName != lastWrittenRule) {
+                    Console.WriteLine($"{l.RuleName} Further help:  {m.GetRuleSupportingInfo(l.RuleName)}");
+                    lastWrittenRule = l.RuleName;
+                }
+            }
             WriteOutput($"{l.RuleName} ({l.Additional})", OutputType.Violation);
         }
 
@@ -104,6 +111,7 @@ internal class Program {
             exitCode = 0;
         }
 
+        Console.ReadLine();
     TheEndIsNigh:  // Who doesnt love a good goto, secretly.
         b.Verbose.Log("Mollycoddle, Exit");
         b.Flush();

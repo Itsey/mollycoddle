@@ -20,7 +20,8 @@
                 {
                     "AdditionalData": [
                         "**/src*/*/*.csproj",
-                        "**/src*/**/FrameworkVersions/**/*.csproj"
+                        "**/src*/**/FrameworkVersions/**/*.csproj",
+                        "**/test/*/*.test.csproj"
                     ],
                     "Control": "IfExistMustBeHere",
                     "PatternMatch": "**/*.csproj",

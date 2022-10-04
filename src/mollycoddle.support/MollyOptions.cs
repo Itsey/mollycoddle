@@ -21,5 +21,10 @@
         /// The rulesfile that is to be loaded, either a rules set or a single rules file.
         /// </summary>
         public string RulesFile { get; set; }
+
+        /// <summary>
+        /// Decides if links are written out alongside the list of violations
+        /// </summary>
+        public bool AddHelpText { get; set; }
     }
 }

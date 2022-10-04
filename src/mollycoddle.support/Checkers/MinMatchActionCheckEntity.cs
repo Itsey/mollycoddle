@@ -13,6 +13,7 @@
         public MinMatchActionChecker(string owningRuleName) : base(owningRuleName) {
         }
 
+        public string HelpUrl { get; set; }
         public string AdditionalInfo { get; set; }
         public Minimatcher DoesMatch { get; internal set; }
         public Action<MinMatchActionChecker, string> PerformCheck { get; set; }

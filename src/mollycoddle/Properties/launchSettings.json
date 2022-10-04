@@ -6,7 +6,7 @@
     },
     "testDir": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\Scratch\\deletemollydir\" -rulesfile=\"C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\testarchive.mollyset\""
+      "commandLineArgs": "\"C:\\Files\\Code\\git\\JSBSite\" -rulesfile=\"C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\testarchive.mollyset\" -addrulehelp"
     }
   }
 }

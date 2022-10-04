@@ -135,7 +135,7 @@
             foreach (var l in fs.FilesThatMustMatchTheirMaster()) {
                 AssignCompareWithMasterAction(ValidateActualPath(l.PatternForSourceFile), l.FullPathForMasterFile, fs.TriggeringRule);
             }
-            foreach (var ln in fs.FilesThatMustExist()) {
+            foreach (string ln in fs.FilesThatMustExist()) {
                 AssignMustExistAction(fs.TriggeringRule, ln);
             }
             foreach (var lnn in fs.FilesThatMustNotExist()) {

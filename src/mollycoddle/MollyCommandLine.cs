@@ -5,7 +5,8 @@
     public class MollyCommandLine {
 
         public MollyCommandLine() {
-            
+            WarningMode = false;
+            WarningsIncludeLinks = false;
         }
 
         [CommandLineArg("disabled", FullDescription = "If Disabled is set the mollycoddle will not execute but will return 0 instead.")]
@@ -26,10 +27,12 @@
         [CommandLineArg("warnonly", FullDescription = "If set then MollyCoddle will return zero even if faults are found, but the faults will be outputted")]
         public bool WarningMode { get; set; }
 
+        [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages")]
+        public bool WarningsIncludeLinks { get; set; }
 
         public MollyOptions GetOptions() {
             var result = new MollyOptions();
-            WarningMode = false;
+            result.AddHelpText = WarningsIncludeLinks;
             result.MasterPath = MasterPath;
             if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
                 if (DirectoryToTarget.EndsWith("\\")) {
