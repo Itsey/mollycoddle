@@ -37,9 +37,9 @@ internal class Program {
 
         string directoryToTarget = mo.DirectoryToTarget;
 
-        b.Verbose.Log($"targetting {directoryToTarget}");
+        b.Verbose.Log($"Targeting Directory ]{directoryToTarget}");
 
-        if ((directoryToTarget == "?") || (directoryToTarget == "/?") || (directoryToTarget == "/help")) {
+        if ((directoryToTarget == "?") || (directoryToTarget == "/?") || (directoryToTarget.ToLower() == "/help")) {
             Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
             Console.WriteLine(clas.GenerateHelp(ma, "MollyCoddle"));
             exitCode = 0;
@@ -64,10 +64,10 @@ internal class Program {
         ps.PopulateProjectStructure();
 
         var mrf = new MollyRuleFactory();
-        var m = new Molly(mo);
-        m.AddProjectStructure(ps);
+        var molly = new Molly(mo);
+        molly.AddProjectStructure(ps);
         try {
-            m.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
+            molly.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
         } catch (InvalidOperationException iox) {
             WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
             Exception? eox = iox;
@@ -81,23 +81,26 @@ internal class Program {
 
         CheckResult cr;
         try {
-            cr = m.ExecuteAllChecks();
+            cr = molly.ExecuteAllChecks();
             exitCode = cr.DefectCount;
         } catch (Exception ex) {
-            WriteOutput(ex.ToString(), OutputType.Error);
+            WriteOutput(ex.Message, OutputType.Error);
             exitCode = -3;
             goto TheEndIsNigh;
         }
 
         string lastWrittenRule = string.Empty;
-        foreach (var l in cr.ViolationsFound.OrderBy( p => p.RuleName)) {
+        foreach (var l in cr.ViolationsFound.OrderBy(p => p.RuleName)) {
             if (mo.AddHelpText) {
                 if (l.RuleName != lastWrittenRule) {
-                    Console.WriteLine($"{l.RuleName} Further help:  {m.GetRuleSupportingInfo(l.RuleName)}");
+                    Console.WriteLine($"❓ {l.RuleName} Further help:  {molly.GetRuleSupportingInfo(l.RuleName)}");
+
                     lastWrittenRule = l.RuleName;
                 }
+                WriteOutput($"{l.Additional}", OutputType.Violation);
+            } else {
+                WriteOutput($"{l.RuleName} ({l.Additional})", OutputType.Violation);
             }
-            WriteOutput($"{l.RuleName} ({l.Additional})", OutputType.Violation);
         }
 
         if (cr.DefectCount == 0) {
@@ -111,8 +114,12 @@ internal class Program {
             exitCode = 0;
         }
 
+#if DEBUG
         Console.ReadLine();
-    TheEndIsNigh:  // Who doesnt love a good goto, secretly.
+#endif
+
+    TheEndIsNigh:
+        // Who doesnt love a good goto, secretly.
         b.Verbose.Log("Mollycoddle, Exit");
         b.Flush();
         return exitCode;
@@ -132,18 +139,18 @@ internal class Program {
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
         switch (ot) {
-            case OutputType.Violation: pfx = "Violation: "; break;
+            case OutputType.Violation: pfx = "💩 Violation: "; break;
             case OutputType.Error: pfx = "Error: "; break;
             case OutputType.Info: pfx = "Info: "; break;
-            case OutputType.EndSuccess:
-            case OutputType.EndFailure: pfx = "Completed."; break;
+            case OutputType.EndSuccess: pfx = "😎 Completed."; break;
+            case OutputType.EndFailure: pfx = "😢 Completed."; break;
         }
         Console.WriteLine($"{pfx}{v}");
     }
 
     private static void WriteOutputAzDo(string v, OutputType ot) {
         string pfx = "";
-        string errType = WarningMode?"warning":"error";
+        string errType = WarningMode ? "warning" : "error";
 
         switch (ot) {
             case OutputType.Violation: pfx = $"##vso[task.logissue type={errType}]Violation: "; break;
@@ -151,11 +158,11 @@ internal class Program {
             case OutputType.Info: pfx = "##[command]"; break;
             case OutputType.EndSuccess:
                 Console.WriteLine($"{v}");
-                pfx = "##vso[task.complete result=Succeeded;]"; 
+                pfx = "##vso[task.complete result=Succeeded;]";
                 break;
             case OutputType.EndFailure:
                 Console.WriteLine($"{v}");
-                pfx = "##vso[task.complete result=Failed;]"; 
+                pfx = "##vso[task.complete result=Failed;]";
                 break;
         }
         Console.WriteLine($"{pfx}{v}");

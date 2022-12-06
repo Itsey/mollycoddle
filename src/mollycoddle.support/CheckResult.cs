@@ -13,12 +13,16 @@
         public int DefectCount { get; set; }
         public List<Violation> ViolationsFound { get; set; }
 
+        internal void AddDefect(Violation violation) {
+            ViolationsFound.Add(violation);
+        }
+
         internal void AddDefect(string owningRuleIdentity, string additional = "") {
             b.Verbose.Log($"Defect added ({owningRuleIdentity}) - ({additional})");
             DefectCount++;
             var v = new Violation(owningRuleIdentity);
             v.Additional = additional;
-            ViolationsFound.Add(v);
+            AddDefect(v);
         }
     }
 }

@@ -95,11 +95,11 @@
         /// <exception cref="InvalidOperationException"></exception>
         public ValidatorBase LoadValidatorStep(string ruleName, MollyRuleStepStorage nextRuleStep) {
             switch (nextRuleStep.ValidatorName) {
-                case DirectoryValidationChecks.VALIDATORNAME:
+                case DirectoryValidator.VALIDATORNAME:
                     return CreateDirectoryValidator(ruleName, nextRuleStep);
-                case FileValidationChecks.VALIDATORNAME:
+                case FileValidator.VALIDATORNAME:
                     return CreateFileValidatorFromConfiguration(ruleName, nextRuleStep);
-                case NugetValidationChecks.VALIDATORNAME:
+                case NugetPackageValidator.VALIDATORNAME:
                     return CreateNugetValidatorFromConfiguration(ruleName, nextRuleStep);
                 default:
                     throw new InvalidOperationException($"The validator [{nextRuleStep.ValidatorName}] was not recognised from the MollyRule file.");
@@ -109,7 +109,7 @@
         }
 
         private ValidatorBase CreateNugetValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
-            var vv = new NugetValidationChecks(ruleName);
+            var vv = new NugetPackageValidator(ruleName);
             switch (nextRuleStep.Control) {
                 case "ProhibitedPackagesList":
                     vv.AddProhibitedPackageList(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
@@ -122,8 +122,8 @@
             return vv;
         }
 
-        private FileValidationChecks CreateFileValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
-            var vv = new FileValidationChecks(ruleName);
+        private FileValidator CreateFileValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
+            var vv = new FileValidator(ruleName);
             switch (nextRuleStep.Control) {
                 case "MustExist":
                     vv.MustExist(nextRuleStep.PatternMatch);
@@ -157,7 +157,7 @@
         }
 
         private ValidatorBase CreateDirectoryValidator(string ruleName, MollyRuleStepStorage nextRuleStep) {
-            var vs = new DirectoryValidationChecks(ruleName);
+            var vs = new DirectoryValidator(ruleName);
             b.Verbose.Log($"Loading validator step {nextRuleStep.Control}");
             switch (nextRuleStep.Control) {
                 case "MustNotExist":

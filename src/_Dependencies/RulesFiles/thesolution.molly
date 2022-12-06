@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0070",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0070",
             "Name": "Everything, precisely, where it should be.",
             "RuleReference": "MC0070",
             "Validators": [
@@ -21,7 +21,7 @@
                     "AdditionalData": [
                         "**/src*/*/*.csproj",
                         "**/src*/**/FrameworkVersions/**/*.csproj",
-                        "**/test/*/*.test.csproj"
+                        "**/test/*/*.csproj"
                     ],
                     "Control": "IfExistMustBeHere",
                     "PatternMatch": "**/*.csproj",

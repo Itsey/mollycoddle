@@ -11,7 +11,7 @@
         private readonly MollyOptions mo;
         private DirectoryStructureChecker? dst;
         private FileStructureChecker? fst;
-        private NugetPackageChecker? nst;
+        private NugetPackageStructureChecker? nst;
         private bool projectStructureLoaded = false;
 
         public Molly(MollyOptions mo) {
@@ -22,7 +22,7 @@
             projectStructureLoaded = true;
             dst = new DirectoryStructureChecker(ps, mo);
             fst = new FileStructureChecker(ps, mo);
-            nst = new NugetPackageChecker(ps, mo);
+            nst = new NugetPackageStructureChecker(ps, mo);
         }
 
         protected Dictionary<string, string> ruleSupportingInfo = new Dictionary<string, string>();

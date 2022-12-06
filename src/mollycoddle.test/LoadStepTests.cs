@@ -8,7 +8,7 @@
 
     public class LoadStepTests {
         private Bilge b = new Bilge();
-        private string TestRuleName = "TestRuleName";
+        private string testRuleName = "TestRuleName";
         private UnitTestHelper u = new UnitTestHelper();
 
         [Fact]
@@ -20,7 +20,7 @@
             var sut = new MollyRuleFactory();
 
             Assert.Throws<InvalidOperationException>(() => {
-                var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+                var rl = (NugetPackageValidator)sut.LoadValidatorStep(testRuleName, jsonvalidatorstep);
             });
         }
 
@@ -31,10 +31,10 @@
 
             string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"%ROOT%\\\\src\",\"Control\":\"MustExist\",\"AdditionalData\":null}";
             var rule = new MollyRuleFactory();
-            var rl = rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.NotNull(rl);
-            Assert.True(rl is DirectoryValidationChecks);
+            Assert.True(rl is DirectoryValidator);
         }
 
         [Fact]
@@ -45,7 +45,7 @@
             string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MustExist\",\"AdditionalData\":null}";
             var rule = new MollyRuleFactory();
-            var rl = (DirectoryValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (DirectoryValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.NotNull(rl.MustExistExactly().First(x => x == pattern));
         }
@@ -58,7 +58,7 @@
             string pattern = "arflebarflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"" + pattern + "\",\"Control\":\"MustNotExist\",\"AdditionalData\":null}";
             var rule = new MollyRuleFactory();
-            var rl = (DirectoryValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (DirectoryValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.NotNull(rl.GetProhibitedPaths().First(x => x.PrimaryPattern == pattern));
         }
@@ -73,7 +73,7 @@
             string additional2 = "boblett";
             string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"" + pattern + "\",\"Control\":\"ProhibitedExcept\",\"AdditionalData\": [ \"" + additional1 + "\",\"" + additional2 + "\"]}";
             var rule = new MollyRuleFactory();
-            var rl = (DirectoryValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (DirectoryValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.True(rl.GetProhibitedPaths().First().PrimaryPattern == pattern);
             Assert.Contains(additional1, rl.GetProhibitedPaths().First().SecondaryList);
@@ -90,7 +90,7 @@
             string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MustNotExist\",\"AdditionalData\": [ \"" + additional1 + "\",\"" + additional2 + "\"]}";
             var rule = new MollyRuleFactory();
-            var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.Contains(additional1, rl.FilesThatMustNotExist().First().SecondaryList);
             Assert.Contains(additional2, rl.FilesThatMustNotExist().First().SecondaryList);
@@ -104,7 +104,7 @@
             string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MustNotExist\",\"AdditionalData\": null}";
             var rule = new MollyRuleFactory();
-            var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.Equal(rl.FilesThatMustNotExist().First().PrimaryPattern, pattern);
         }
@@ -117,7 +117,7 @@
             string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MatchWithMaster\",\"AdditionalData\":[\"bob\"]}";
             var rule = new MollyRuleFactory();
-            var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.NotNull(rl.FilesThatMustMatchTheirMaster().First(x => x.PatternForSourceFile == pattern));
             Assert.NotNull(rl.FilesThatMustMatchTheirMaster().First(x => x.FullPathForMasterFile == "bob"));
@@ -133,7 +133,7 @@
             var rule = new MollyRuleFactory();
 
             Assert.Throws<InvalidOperationException>(() => {
-                _ = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+                _ = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
             });
         }
 
@@ -145,7 +145,7 @@
             string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
             string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MustExist\",\"AdditionalData\":[\"bob\"]}";
             var rule = new MollyRuleFactory();
-            var rl = (FileValidationChecks)rule.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             Assert.Equal(rl.FilesThatMustExist().First(), pattern);
         }
@@ -159,7 +159,7 @@
             var sut = new MollyRuleFactory();
 
             Assert.Throws<InvalidOperationException>(() => {
-                var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+                var rl = (NugetPackageValidator)sut.LoadValidatorStep(testRuleName, jsonvalidatorstep);
             });
         }
 
@@ -174,7 +174,7 @@
             string jsonvalidatorstep = "{\"ValidatorName\":\"NugetValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"ProhibitedPackagesList\",\"AdditionalData\":[\"" + bannedEntry1 + "\",\"" + bannedEntry2 + "\"]}";
             var sut = new MollyRuleFactory();
 
-            var rl = (NugetValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (NugetPackageValidator)sut.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
             var l = rl.GetProhibitedPackagesLists().First();
             Assert.NotNull(l.ProhibitedPackages.First(p => p == bannedEntry1));
@@ -192,7 +192,7 @@
             string jsonvalidatorstep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + allowAllPattern + "\",\"Control\":\"FullBypass\",\"AdditionalData\":null}";
             var sut = new MollyRuleFactory();
 
-            var rl = (FileValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (FileValidator)sut.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
 
             Assert.NotNull(rl.FullBypasses());
@@ -208,7 +208,7 @@
             string jsonvalidatorstep = "{\"ValidatorName\":\"DirectoryValidationChecks\",\"PatternMatch\":\"" + allowAllPattern + "\",\"Control\":\"FullBypass\",\"AdditionalData\":null}";
             var sut = new MollyRuleFactory();
 
-            var rl = (DirectoryValidationChecks)sut.LoadValidatorStep(TestRuleName, jsonvalidatorstep);
+            var rl = (DirectoryValidator)sut.LoadValidatorStep(testRuleName, jsonvalidatorstep);
 
 
             Assert.NotNull(rl.FullBypasses());

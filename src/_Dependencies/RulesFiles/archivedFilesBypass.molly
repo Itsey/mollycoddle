@@ -1,9 +1,9 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0001",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0500",
             "Name": "Archive Is As Archive Does.",
-            "RuleReference": "MC0001",
+            "RuleReference": "MC0500",
             "Validators": [
                 {
                     "AdditionalData": null,

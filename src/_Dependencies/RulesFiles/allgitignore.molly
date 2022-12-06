@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0101",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0101",
             "Name": "All your gitignore are belong to us.",
             "RuleReference": "MC0101",
             "Validators": [

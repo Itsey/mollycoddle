@@ -21,10 +21,10 @@
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
             mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
-            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
 
-            var sut = new NugetPackageChecker(mps, new MollyOptions());
+            var sut = new NugetPackageStructureChecker(mps, new MollyOptions());
             sut.AddRuleRequirement(dv);
 
             var cr = sut.Check();
@@ -43,10 +43,10 @@
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithoutXunit));
             mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
-            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
 
-            var sut = new NugetPackageChecker(mps, new MollyOptions());
+            var sut = new NugetPackageStructureChecker(mps, new MollyOptions());
             sut.AddRuleRequirement(dv);
 
             var cr = sut.Check();
@@ -63,10 +63,10 @@
             mps.WithRootedFolder("src");
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage));
             mps.WithRootedFile("bob.csproj", File.ReadAllText(s));
-            var dv = new NugetValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPackageList(@"**\*.csproj", "banned.package");
 
-            var sut = new NugetPackageChecker(mps, new MollyOptions());
+            var sut = new NugetPackageStructureChecker(mps, new MollyOptions());
             sut.AddRuleRequirement(dv);
 
             var cr = sut.Check();
@@ -82,7 +82,7 @@
 
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            var npc = new NugetPackageChecker(mps, new MollyOptions());
+            var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
             string contents = File.ReadAllText(s);
@@ -101,7 +101,7 @@
 
             string root = @"c:\MadeUpPath";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            var npc = new NugetPackageChecker(mps, new MollyOptions());
+            var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
             string contents = File.ReadAllText(s);
@@ -120,7 +120,7 @@
 
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            var npc = new NugetPackageChecker(mps, new MollyOptions());
+            var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
             var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
             string contents = File.ReadAllText(s);

@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/mollycoddle/rules.html#MC0200",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0200",
             "Name": "No Naughty Nugets Needed.",
             "RuleReference": "MC0200",
             "Validators": [

@@ -16,7 +16,9 @@ namespace mollycoddle.test {
         MollyRule_GitIgnoreMaster,
         MollyRule_NugetConfigMaster,
         MollyRule_NoNaughtyNugets,
-        MollyRule_thesolution,
+        MollyRule_TheSolution,
+        SolutionFile_ReleaseCorrect,
+        SolutionFile_ReleaseIncorrect
     }
 
 
@@ -37,7 +39,9 @@ namespace mollycoddle.test {
                 case TestResourcesReferences.MollyRule_GitIgnoreMaster: return "allgitignore.molly";
                 case TestResourcesReferences.MollyRule_NugetConfigMaster: return "allnugetconfig.molly";
                 case TestResourcesReferences.MollyRule_NoNaughtyNugets: return "nonaughtynugets.molly";
-                case TestResourcesReferences.MollyRule_thesolution: return "thesolution.molly";
+                case TestResourcesReferences.MollyRule_TheSolution: return "thesolution.molly";
+                case TestResourcesReferences.SolutionFile_ReleaseCorrect: return "correct_release_solution.testdata";
+                case TestResourcesReferences.SolutionFile_ReleaseIncorrect: return "incorrect_release_solution.testdata";
             }
             return null;
         }

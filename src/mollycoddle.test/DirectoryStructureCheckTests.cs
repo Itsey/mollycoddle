@@ -14,7 +14,7 @@
             mps.WithRootedFolder("src");
 
             var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.MustExist("%ROOT%\\src");
             dv.AddProhibitedPattern("%ROOT%\\src\\src");
 
@@ -32,7 +32,7 @@
             var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
             mps.WithRootedFolder("project1").WithFolder(@"C:\temp\docs\");
             var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.MustExist("%ROOT%\\mustexistfolder");
             sut.AddRuleRequirement(dv);
 
@@ -65,7 +65,7 @@
             mps.WithRootedFolder("project1");
 
             var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPattern($"{root}\\*");
             sut.AddRuleRequirement(dv);
 
@@ -85,7 +85,7 @@
             mps.WithRootedFolder("project1");
 
             var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPattern(root + @"\*", $"{root}\\src", $"{root}\\build", $"{root}\\doc");
             sut.AddRuleRequirement(dv);
 
@@ -105,7 +105,7 @@
             mps.WithRootedFolder("src");
 
             var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPattern(@"%ROOT%\*", $"%ROOT%\\src");
             sut.AddRuleRequirement(dv);
 

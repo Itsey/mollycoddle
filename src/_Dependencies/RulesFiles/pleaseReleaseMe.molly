@@ -1,0 +1,38 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0067",
+            "Name": "Please Release Me, Let Me Go.",
+            "RuleReference": "MC0067",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "[PRE]GlobalSection(ProjectConfigurationPlatforms)",
+                        "[RVL]Debug"
+                        "[GMN]"
+                        "[GME]"
+                        "[MNM]^(\s*){[A-z0-9\-]*}.(Release)\|([A-z0-9 \.]*)\s=\s(Debug)\|"
+                        "[STP]EndGlobalSection"
+                    ],
+                    "Control": "RegexLineParser",
+                    "PatternMatch": "%ROOT%\\*.sln",
+                    "ValidatorName": "FileSectionMustNotMatch"
+                },
+                {
+                    "AdditionalData": [
+                        "[PRE]GlobalSection(ProjectConfigurationPlatforms)",
+                        "[RVL]Debug"
+                        "[GMN]"
+                        "[GME]"
+                        "[MNM]^(\s*){[A-z0-9\-]*}.(Release)\|([A-z0-9 \.]*)\s=\s(Debug)\|"
+                        "[STP]EndGlobalSection"
+                    ],
+                    "Control": "RegexLineParser",
+                    "PatternMatch": "%ROOT%\\*.sln",
+                    "ValidatorName": "FileSectionMustNotMatch"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

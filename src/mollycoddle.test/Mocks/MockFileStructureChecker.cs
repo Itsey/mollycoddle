@@ -9,8 +9,8 @@
             mps = ps;
         }
 
-        protected override Action<MinMatchActionChecker, string> GetContentsCheckerAction(string masterContentsPath) {
-            return new Action<MinMatchActionChecker, string>((fca, fn) => {
+        protected override Action<MinmatchActionCheckEntity, string> GetContentsCheckerAction(string masterContentsPath) {
+            return new Action<MinmatchActionCheckEntity, string>((fca, fn) => {
                 string f = GetFileContents(masterContentsPath);
                 string z = GetFileContents(fn);
                 if (f != z) {
@@ -28,19 +28,7 @@
                 return null;
             }
         }
-
-        protected override Action<MinMatchActionChecker, string> GetFileExistChecker(bool shouldExist = true)  {
-            return new Action<MinMatchActionChecker, string>((fca, fn) => {
-
-                if (mps.AllFiles.Contains(fn) == shouldExist) {
-                    fca.Passed = true;
-                } else {
-                    fca.IsInViolation = true;
-                    fca.AdditionalInfo = fn;
-                }
-
-            });
-        }
+        
 
         protected override string ValidateMasterPath(string pathToMaster) {
             // Remove all validation which would hit the disk.

@@ -8,15 +8,16 @@
     /// know how to do the validations just what the validations must be.
     /// </summary>
     [DebuggerDisplay("Validator For {TriggeringRule}")]
-    public class NugetValidationChecks : ValidatorBase {
+    public class NugetPackageValidator : ValidatorBase {
+
         /// <summary>
         /// This is the name of the validator, it must be specified exactly in the rules files.  It does not use nameof to prevent accidental refactoring.
         /// </summary>
         public const string VALIDATORNAME = "NugetValidationChecks";
-        public List<NugetValidationCheck> valcheck = new List<NugetValidationCheck>();
+        public List<NugetValidationCheck> valCheck = new List<NugetValidationCheck>();
         
 
-        public NugetValidationChecks(string owningRuleName) : base(owningRuleName) {
+        public NugetPackageValidator(string owningRuleName) : base(owningRuleName) {
         }
 
         public void AddProhibitedPackageList(string v1, params string[] v2) {
@@ -24,7 +25,7 @@
                 Pattern = v1,
                 ProhibitedPackages = v2
             };
-            valcheck.Add(v);
+            valCheck.Add(v);
         }
 
         public void AddMustReferencePackageList(string v1, params string[] v2) {
@@ -32,7 +33,7 @@
                 Pattern = v1,
                 MustIncludePackages = v2
             };
-            valcheck.Add(v);
+            valCheck.Add(v);
         }
 
         /// <summary>
@@ -40,7 +41,7 @@
         /// </summary>
         /// <returns></returns>
         public IEnumerable<NugetValidationCheck> GetProhibitedPackagesLists() {
-            foreach (var f in valcheck) {
+            foreach (var f in valCheck) {
                 if (f.ProhibitedPackages.Any()) {
                     yield return f;
                 }
@@ -52,7 +53,7 @@
         /// </summary>
         /// <returns></returns>
         public IEnumerable<NugetValidationCheck> GetMustReferencePackagesList() {
-            foreach (var f in valcheck) {
+            foreach (var f in valCheck) {
                 if (f.MustIncludePackages.Any()) {
                     yield return f;
                 }

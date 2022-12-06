@@ -11,7 +11,7 @@
             var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
 
             var dst = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidationChecks(MockProjectStructure.DUMMYRULENAME);
+            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
             dv.MustExist("%ROOT%\\mustexistfolder");
             dst.AddRuleRequirement(dv);
 
