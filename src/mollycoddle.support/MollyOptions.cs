@@ -26,5 +26,7 @@
         /// Decides if links are written out alongside the list of violations
         /// </summary>
         public bool AddHelpText { get; set; }
+        public bool EnableDebug { get; set; }
+        public string DebugSetting { get; set; }
     }
 }

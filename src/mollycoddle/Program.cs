@@ -10,7 +10,8 @@ internal class Program {
     private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
     private static bool WarningMode = false;
     private static int Main(string[] args) {
-        var b = new Bilge("mollycoddle");
+        Bilge? b = null;
+
         int exitCode = 0;
         var clas = new CommandArgumentSupport();
         clas.ArgumentPrefix = "-";
@@ -30,8 +31,11 @@ internal class Program {
         }
 
         var mo = ma.GetOptions();
-        ConfigureTrace();
+        if (mo.EnableDebug) {
+            ConfigureTrace(mo.DebugSetting);
+        }
 
+        b = new Bilge("mollycoddle");
         Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");
 
@@ -114,25 +118,28 @@ internal class Program {
             exitCode = 0;
         }
 
-#if DEBUG
-        Console.ReadLine();
-#endif
-
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
-        b.Verbose.Log("Mollycoddle, Exit");
-        b.Flush();
+        b?.Verbose.Log("Mollycoddle, Exit");
+        b?.Flush();
         return exitCode;
     }
 
-    private static void ConfigureTrace() {
+    private static void ConfigureTrace(string debugSetting) {
+        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting),"The debugSetting can not be empty at this point");
         // TODO: Currently hardcoded trace, move this to configuration.
+        Bilge.SetConfigurationResolver(debugSetting);
+
+
+#if !DEBUG
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
-#if DEBUG
-        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
+        
+#else         
+        Bilge.AddHandler(new ConsoleHandler());
 #endif
+        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
     }
 
 

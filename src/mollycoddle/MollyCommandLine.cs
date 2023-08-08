@@ -18,20 +18,27 @@
         [CommandLineArg("masterRoot", FullDescription = "If Master files based rules are used this is the location of the master Root for these files")]
         public string MasterPath { get; set; }
 
-        [CommandLineArg("rulesfile", FullDescription = "Path to either a mollyset or molly rules file")]
+        [CommandLineArg("rulesfile", FullDescription = "Path to either a mollyset or molly rules file.")]
         public string RulesFile { get; set; }
 
-        [CommandLineArg("formatter", FullDescription = "If set to azdo then azure build pipelines formatting will be used, otherwise plain text output")]
+        [CommandLineArg("formatter", FullDescription = "If set to azdo then azure build pipelines formatting will be used, otherwise plain text output.")]
         public string OutputFormat { get; set; }
 
-        [CommandLineArg("warnonly", FullDescription = "If set then MollyCoddle will return zero even if faults are found, but the faults will be outputted")]
+        [CommandLineArg("warnonly", FullDescription = "If set then MollyCoddle will return zero even if faults are found, but the faults will be outputted.")]
         public bool WarningMode { get; set; }
 
-        [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages")]
+        [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages.")]
         public bool WarningsIncludeLinks { get; set; }
+
+        [CommandLineArg("debug", FullDescription ="Set to a debug string to write out additional logging and debugging information.")]
+        public string Debug { get; set; }
 
         public MollyOptions GetOptions() {
             var result = new MollyOptions();
+
+            result.EnableDebug = !string.IsNullOrEmpty(Debug);
+            result.DebugSetting = Debug;
+
             result.AddHelpText = WarningsIncludeLinks;
             result.MasterPath = MasterPath;
             if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
