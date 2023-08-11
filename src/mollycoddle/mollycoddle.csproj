@@ -1,21 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Minimatch" Version="2.0.0" />
-    <PackageReference Include="Plisky.Diagnostics" Version="3.1.8" />
-    <PackageReference Include="Plisky.Listeners" Version="3.1.4" />
-    <PackageReference Include="Plisky.Plumbing" Version="1.8.1" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.1.12" />
+    <PackageReference Include="Plisky.Listeners" Version="3.1.11" />
+    <PackageReference Include="Plisky.Plumbing" Version="1.8.5" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\mollycoddle.support\mollycoddle.support.csproj" />
   </ItemGroup>
-
 </Project>

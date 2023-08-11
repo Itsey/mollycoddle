@@ -9,27 +9,16 @@
     /// on that minmatch this check entity can be used to validate the rule.
     /// </summary>
     public class MinmatchActionCheckEntity : CheckEntityBase {
-
-        /// <summary>
-        /// A format string that describes the violation, by default just returns a single string with the value.
-        /// </summary>
-        public string ViolationMessageFormat { get; set; } = "{0}";
-
-        /// <summary>
-        /// Gets a violation message by using the format specified in ViolationMessageFormat.
-        /// </summary>
-        /// <param name="supportingInfo">Any additional supporting information to help the engineer identify the issue</param>
-        /// <returns>A formatted error string, including the additional information</returns>
-        public virtual string GetViolationMessage() {
-
-            return string.Format(ViolationMessageFormat, AdditionalInfo);
-        }
-
+      
         public MinmatchActionCheckEntity(string owningRuleName) : base(owningRuleName) {
+           PerformCheck = (entity, fileName) => { 
+               IsInViolation = true; 
+               AdditionalInfo = "Default Failure Reason, this is an invalid rule."; 
+           };
+            DoesMatch = new Minimatcher(string.Empty);
         }
 
-        public string HelpUrl { get; set; }
-        public string AdditionalInfo { get; set; } = string.Empty;
+        
         public Minimatcher DoesMatch { get; internal set; }
         public Action<MinmatchActionCheckEntity, string> PerformCheck { get; set; }
 

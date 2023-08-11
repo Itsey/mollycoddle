@@ -112,7 +112,7 @@
             // need to check each file to determine if they have passed or not.
             foreach (var a in Actions) {
                 if (!a.Passed) {
-                    b.Verbose.Log($"{a.OwningRuleIdentity} failed on not passed after all checks {a.AdditionalInfo}");
+                    b.Verbose.Log($"{a.OwningRuleIdentity} failed.  After all checks it was not marked as passed.  Additional Info: {a.AdditionalInfo}");
                     result.AddDefect(a.OwningRuleIdentity, a.GetViolationMessage());
                 }
             }

@@ -12,6 +12,11 @@
         public Action<RegexLineCheckEntity, string> PerformCheck { get; set; }
 
         public RegexLineCheckEntity(string owningRuleName) : base(owningRuleName) {
+            PerformCheck = (entity, fileName) => {
+                IsInViolation = true;
+                AdditionalInfo = "Default Failure Reason, this is an invalid rule.";
+            };
+            DoesMatch = new Minimatcher(string.Empty);
         }
 
        

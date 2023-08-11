@@ -57,12 +57,12 @@
             try {
                 mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
             } catch (JsonException js) {
-                b.Warning.Log($"File {filename} did not cleanly come out of jsondeserialise, likely invalid json in file.",js.Message);
+                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.",js.Message);
                 throw new InvalidOperationException($"Invalid Json - Check [{filename}]",js);
             }
 
             if (mrs == null) {
-                b.Warning.Log($"File {filename} did not cleanly come out of jsondeserialise, likely invalid json in file.");
+                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.");
                 throw new InvalidOperationException($"Json did not result in valid MollyRuleStorage - Check [{filename}]");
             }
             if (mrs.Rules == null) {

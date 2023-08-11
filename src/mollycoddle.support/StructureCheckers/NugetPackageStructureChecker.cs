@@ -1,12 +1,11 @@
 ﻿namespace mollycoddle {
-
-    using System;
     using System.Xml.Linq;
     using Minimatch;
 
+
     /// <summary>
     /// Executes the actual checks against nuget files, taking a validation ruleset and running it against the actual files
-    /// to highlight violiations, such as banned packages or must have packages.
+    /// to highlight violations, such as banned packages or must have packages.
     /// </summary>
     public class NugetPackageStructureChecker : StructureCheckerBase {
         protected List<MinmatchActionCheckEntity> Actions = new();
@@ -26,7 +25,13 @@
             XElement pe;
             try {
                 x = XDocument.Parse(projectContents);
-                pe = x.Element("Project");
+                var el = x.Element("Project");
+                if (el!=null) {
+                    pe = el;
+                } else {
+                    b.Warning.Log("Invalid XML, no Project Element Found. This is not a valid csproj file.");
+                    yield break;
+                }
             } catch (System.Xml.XmlException ix) {
                 b.Warning.Dump(ix, "Invalid XML in a project file, most likely this is not a real csproj");
                 b.Warning.Log("File contents...", projectContents);
@@ -47,7 +52,7 @@
         }
 
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
-            foreach (var fn in ps.AllFiles) {
+            foreach (string fn in ps.AllFiles) {
                 int i = 0;
                 while (i < Actions.Count) {
                     var chk = Actions[i];
@@ -58,7 +63,7 @@
 
                     if (chk.ExecuteCheckWasViolation(fn)) {
                         ViolatedActions.Add(chk);
-                        Actions.Remove(chk);
+                        _ = Actions.Remove(chk);
                     } else {
                         i++;
                     }
@@ -93,17 +98,17 @@
             }
         }
 
-        protected virtual Action<MinmatchActionCheckEntity, string> GetBannedPackageListChecker(string[] bannedList) {
+        protected virtual Action<MinmatchActionCheckEntity, string> GetBannedPackageListChecker(PackageReference[] bannedList) {
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
                 b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault");
 
                 string fileContents = ps.GetFileContents(filenameToCheck);
                 var nugetPackageReferences = ReadNugetPackageFromSDKProjectContents(fileContents);
                 foreach (var nugetPackage in nugetPackageReferences) {
-                    foreach (string bannedPackage in bannedList) {
-                        if (string.Compare(nugetPackage.PackageIdentifier, bannedPackage, true) == 0) {
+                    foreach (var bannedPackage in bannedList) {
+                        if (string.Compare(nugetPackage.PackageIdentifier, bannedPackage.PackageName, true) == 0) {
                             resultant.IsInViolation = true;
-                            resultant.ViolationMessageFormat = $"{filenameToCheck}"+" contains banned package ({0})";
+                            resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package ({0})";
                             resultant.AdditionalInfo = nugetPackage.PackageIdentifier;
                             return;
                         }
@@ -112,33 +117,34 @@
             });
             return act;
         }
-        protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(string[] mustIncludeList) {
+        protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(PackageReference[] mustIncludeList) {
+
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
                 b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault");
 
-                var s = ps.GetFileContents(filenameToCheck);
+                string? s = ps.GetFileContents(filenameToCheck);
                 var nps = ReadNugetPackageFromSDKProjectContents(s);
 
                 foreach (var l in mustIncludeList) {
                     bool matched = false;
 
-                    foreach (var n in nps) {                
-                        if (string.Compare(n.PackageIdentifier, l, true) == 0) {
-                            matched = true; 
+                    foreach (var n in nps) {
+                        if (string.Compare(n.PackageIdentifier, l.PackageName, true) == 0) {
+                            matched = true;
                             break;
                         }
                     }
 
                     if (!matched) {
                         resultant.IsInViolation = true;
-                        resultant.ViolationMessageFormat = $"{filenameToCheck}"+" does not reference package ({0})";
-                        resultant.AdditionalInfo = l;
+                        resultant.ViolationMessageFormat = $"{filenameToCheck}" + " does not reference package ({0})";
+                        resultant.AdditionalInfo = l.PackageName;
                     }
                 }
             });
             return act;
         }
-       
+
 
         protected virtual string ValidateActualPath(string pathToActual) {
             return pathToActual.Replace("%ROOT%", ps.Root);
@@ -149,26 +155,24 @@
 
             pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
 
-            if (!File.Exists(pathToMaster)) {
-                throw new FileNotFoundException("master path must be present", pathToMaster);
-            }
-
-            return pathToMaster;
+            return !File.Exists(pathToMaster) ? throw new FileNotFoundException("master path must be present", pathToMaster) : pathToMaster;
         }
 
-        private void AddNugetMustIncludeAction(string ruleName, string pattern, string[] mustIncludePackages) {
+        private void AddNugetMustIncludeAction(string ruleName, string pattern, PackageReference[] mustIncludePackages) {
             pattern = ValidateActualPath(pattern);
-            var fca = new MinmatchActionCheckEntity(ruleName);
-            fca.PerformCheck = GetMustIncludeListChecker(mustIncludePackages);
-            fca.DoesMatch = new Minimatcher(pattern, o);
+            var fca = new MinmatchActionCheckEntity(ruleName) {
+                PerformCheck = GetMustIncludeListChecker(mustIncludePackages),
+                DoesMatch = new Minimatcher(pattern, o)
+            };
             Actions.Add(fca);
         }
 
-        private void AddNugetBannedPackageAction(string ruleName, string pattern, string[] prohibitedPackages) {
+        private void AddNugetBannedPackageAction(string ruleName, string pattern, PackageReference[] prohibitedPackages) {
             pattern = ValidateActualPath(pattern);
-            var fca = new MinmatchActionCheckEntity(ruleName);
-            fca.PerformCheck = GetBannedPackageListChecker(prohibitedPackages);
-            fca.DoesMatch = new Minimatcher(pattern, o);
+            var fca = new MinmatchActionCheckEntity(ruleName) {
+                PerformCheck = GetBannedPackageListChecker(prohibitedPackages),
+                DoesMatch = new Minimatcher(pattern, o)
+            };
             Actions.Add(fca);
         }
     }

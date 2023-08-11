@@ -161,15 +161,9 @@ namespace mollycoddle.test {
             yield return startNullTest.ToArray();
         }
 
-
-
-
-
-
         [Fact]
         [Fresh]
-        public void Exploratory_NubMistakes() {
-            string root = @"c:\MadeUpPath";
+        public void Exploratory_NubMistakes() {            
             var fpc = new FilePresenceChecker();
             string rootPath = @"c:\MadeUpPath";
             string[] dirs = { rootPath, @"c:\MadeUpPath\project1\project1.csproj", @"C:\temp\docs\.gitignore", @"c:\MadeUpPath\.gitignore" };

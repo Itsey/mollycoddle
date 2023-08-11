@@ -11,8 +11,19 @@
             Passed = true;
         }
 
+        /// <summary>
+        /// Additional supporting URL to provide help for the rule.
+        /// </summary>
+        public string HelpUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Further diagnostic information used to help diagnose problems.
+        /// </summary>
         public string DiagnosticDescriptor { get; set; } = nameof(CheckEntityBase);
 
+        /// <summary>
+        /// Additional information that can be used to describe why the rule failed.
+        /// </summary>
         public string AdditionalInfo { get; set; } = string.Empty;
 
         /// <summary>
@@ -35,6 +46,9 @@
         /// </summary>
         public bool IsInViolation { get; set; }
 
+        /// <summary>
+        /// The name of the rule that owns this check and therefore can be used to report out rule violations.
+        /// </summary>
         public string OwningRuleIdentity { get; set; }
 
         /// <summary>

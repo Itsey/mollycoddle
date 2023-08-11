@@ -20,18 +20,38 @@
         public NugetPackageValidator(string owningRuleName) : base(owningRuleName) {
         }
 
-        public void AddProhibitedPackageList(string v1, params string[] v2) {
+        public void AddProhibitedPackageList(string filenamePatternToMatch, params string[] prohibitedPackageList) {
+            List<PackageReference> refs = new();
+
+            foreach (var f in prohibitedPackageList) {
+                refs.Add(new PackageReference() { 
+                    PackageName = f,
+                    AllVersions = true
+                });
+            }
+
             var v = new NugetValidationCheck() {
-                Pattern = v1,
-                ProhibitedPackages = v2
+                Pattern = filenamePatternToMatch,
+                ProhibitedPackages = refs.ToArray()
             };
             valCheck.Add(v);
         }
 
-        public void AddMustReferencePackageList(string v1, params string[] v2) {
+        public void AddMustReferencePackageList(string filenamePatternToMatch, params string[] mustReferencePackageList) {
+
+            List<PackageReference> refs = new();
+
+            foreach (var f in mustReferencePackageList) {
+                refs.Add(new PackageReference() {
+                    PackageName = f,
+                    AllVersions = true
+                });
+            }
+
+
             var v = new NugetValidationCheck() {
-                Pattern = v1,
-                MustIncludePackages = v2
+                Pattern = filenamePatternToMatch,
+                MustIncludePackages = refs.ToArray()
             };
             valCheck.Add(v);
         }

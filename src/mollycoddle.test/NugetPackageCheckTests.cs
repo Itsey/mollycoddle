@@ -10,6 +10,34 @@
         private Bilge b = new Bilge();
         private UnitTestHelper u = new UnitTestHelper();
 
+        [Theory(DisplayName = nameof(NugetVersion_HasBannedVersion))]       
+        [InlineData("xunit", 1)]
+        [InlineData("xunit[2.4.1]", 1)]
+        [InlineData("xunit[2.3.1]", 0)]
+        [InlineData("xunit[0.0.0-2.4.0]", 0)]
+        [InlineData("xunit[0.0.0-2.4.2]", 1)]
+        public void NugetVersion_HasBannedVersion(string bannedString, int expectedDefectCount) {
+            b.Info.Flow();
+
+            string root = @"C:\MadeUpFolder";
+            var mps = MockProjectStructure.Get().WithRoot(root);
+            mps.WithRootedFolder("src");
+            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
+            mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
+            var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
+            
+            
+            dv.AddProhibitedPackageList(@"**\*.test.csproj", bannedString);
+
+            var sut = new NugetPackageStructureChecker(mps, new MollyOptions());
+            sut.AddRuleRequirement(dv);
+
+            var cr = sut.Check();
+            Assert.Fail();
+            Assert.Equal(expectedDefectCount, cr.DefectCount);
+        }
+
+
         [Fact(DisplayName = nameof(NugetMustContainPackage_NoErrorIfFound))]
         [Build(BuildType.Release)]
         [Integration]
@@ -128,8 +156,8 @@
             var ngps = npc.ReadNugetPackageFromSDKProjectContents(contents);
 
             Assert.NotEmpty(ngps);
-            Assert.NotNull(ngps.First(x => x.Version == "3.1.5"));
-            Assert.NotNull(ngps.First(x => x.Version == "2.0.0"));
+            Assert.NotNull(ngps.First(x => x.RawVersion == "3.1.5"));
+            Assert.NotNull(ngps.First(x => x.RawVersion == "2.0.0"));
         }
     }
 }

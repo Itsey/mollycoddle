@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace mollycoddle {
+﻿namespace mollycoddle {
     public class RegexStructureChecker : StructureCheckerBase {
         protected List<RegexLineCheckEntity> Actions = new();
-        protected List<RegexLineCheckEntity> ViolatedActions = new(); 
+        protected List<RegexLineCheckEntity> ViolatedActions = new();
 
         public RegexStructureChecker(ProjectStructure ps, MollyOptions mopts) : base(ps, mopts) {
         }
@@ -35,7 +29,7 @@ namespace mollycoddle {
                     b.Verbose.Log($"bypass filter activated for {fn}");
                     continue;
                 }
-                
+
 
                 int i = 0;
                 while (i < Actions.Count) {
@@ -44,11 +38,11 @@ namespace mollycoddle {
                     if (chk.IsInViolation) {
                         continue;
                     }
-                    
+
                     if (chk.ExecuteCheckWasViolation(fn)) {
                         b.Verbose.Log($"Violation {fn}, {chk.OwningRuleIdentity} {chk.AdditionalInfo}");
                         ViolatedActions.Add(chk);
-                        Actions.Remove(chk);
+                        _ = Actions.Remove(chk);
                     } else {
                         i++;
                     }
@@ -71,9 +65,6 @@ namespace mollycoddle {
             ViolatedActions.Clear();
 
             return result;
-
-
-            return result;
         }
 
         protected override void AddRegexValidator(RegexLineValidator rlv) {
@@ -82,16 +73,14 @@ namespace mollycoddle {
             switch (rlv.MatchType) {
                 case RegexBehaviour.MustMatchOnce:
                     AssignMustMatchOnceAction(rlv);
-                    
                     break;
                 case RegexBehaviour.MustNotMatch:
                     AssignMustNotMatchAction(rlv);
-                    
                     break;
                 case RegexBehaviour.ValueMustEqual: break;
                 case RegexBehaviour.ValueMustNotEqual: break;
             }
-            
+
 
         }
 
@@ -99,24 +88,28 @@ namespace mollycoddle {
             b.Verbose.Flow();
             b.Assert.NotNull(rlv.FileMinmatch);
 
-            var rca = new RegexLineCheckEntity(rlv.TriggeringRule);
+            var rca = new RegexLineCheckEntity(rlv.TriggeringRule) {
+                PerformCheck = new Action<RegexLineCheckEntity, string>((resultant, fileToCheck) => {
+                    if (rlv.FileMinmatch.IsMatch(fileToCheck)) {
 
-            rca.PerformCheck = new Action<RegexLineCheckEntity, string>((resultant, fileToCheck) => {
-                 if (rlv.FileMinmatch.IsMatch(fileToCheck)) {
+                        string? file = ps.GetFileContents(fileToCheck);
+                        if (string.IsNullOrEmpty(file)) {
+                            b.Verbose.Log("No file contents found, not checking anything");                           
+                        } else {
+                            b.Verbose.Log($"Parsing File Contents {fileToCheck}");
 
-                    var file = ps.GetFileContents(fileToCheck);
-                    b.Verbose.Log($"Parsing File Contents {fileToCheck}");
-
-                    foreach(var l in file.Split(Environment.NewLine)) {
-                        if (rlv.RegexMatch.IsMatch(l)) {
-                            b.Info.Log("Regex Match occured", l);
-                            resultant.IsInViolation = true;
-                            resultant.AdditionalInfo = string.Format(resultant.GetViolationMessage(), l, fileToCheck);
-                            break;
+                            foreach (string l in file.Split(Environment.NewLine)) {
+                                if (rlv.RegexMatch.IsMatch(l)) {
+                                    b.Info.Log("Regex Match occured", l);
+                                    resultant.IsInViolation = true;
+                                    resultant.AdditionalInfo = string.Format(resultant.GetViolationMessage(), l, fileToCheck);
+                                    break;
+                                }
+                            }
                         }
                     }
-                 }
-            });
+                })
+            };
 
             Actions.Add(rca);
         }

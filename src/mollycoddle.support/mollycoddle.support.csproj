@@ -1,16 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>mollycoddle</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Minimatch" Version="2.0.0" />
-    <PackageReference Include="Plisky.Diagnostics" Version="3.1.8" />
-    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.1.12" />
+    <PackageReference Include="xunit" Version="2.5.0" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Reference Include="Plisky.Versioning">
+      <HintPath>..\_Dependencies\FileReferences\Plisky.Versioning.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

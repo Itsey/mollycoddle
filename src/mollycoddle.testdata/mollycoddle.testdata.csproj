@@ -1,11 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
   <ItemGroup>
     <None Remove="MollyRules\alledconfig.molly" />
     <None Remove="MollyRules\allgitignore.molly" />
@@ -21,7 +19,6 @@
     <None Remove="NugetFiles\testproject_withoutxunit.txt" />
     <None Remove="NugetFiles\testproject_withxunit.txt" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="MollyRules\alledconfig.molly" />
     <EmbeddedResource Include="MollyRules\allgitignore.molly" />
@@ -37,5 +34,4 @@
     <EmbeddedResource Include="NugetFiles\testproject_withoutxunit.txt" />
     <EmbeddedResource Include="NugetFiles\testproject_withxunit.txt" />
   </ItemGroup>
-
 </Project>
