@@ -17,6 +17,7 @@ namespace Plisky.Diagnostics.Test {
                 Bilge.SetConfigurationResolver((a, b) => System.Diagnostics.SourceLevels.Verbose);
                 Bilge.Alert.Online("testing-online");
                 Bilge.Default.Info.Log("Diagnostic fixture activating trace");
+                Bilge.Default.Assert.ConfigureAsserts(AssertionStyle.Throw);
             }
         }
 

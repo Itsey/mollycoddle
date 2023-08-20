@@ -107,7 +107,11 @@ namespace mollycoddle.test {
             mps.WithRootedFolder("src\\src");      // fail
             mps.WithRootedFolder("test");          // pass
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_HotSauce), "mollycoddle.testdata", "*.molly");
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_HotSauce);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly");            
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -130,7 +134,11 @@ namespace mollycoddle.test {
             var mps = MockProjectStructure.Get().WithRoot(root);
             mps.WithRootedFolder("src");      // pass
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_HotSauce), "mollycoddle.testdata", "*.molly");
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_HotSauce);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly");            
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -158,7 +166,11 @@ namespace mollycoddle.test {
             mps.WithRootedFolder("arfle");   // violation
             mps.WithRootedFolder("build");  // pass
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_GoodRoots), "mollycoddle.testdata", "*.molly");
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_GoodRoots);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly");            
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -183,7 +195,11 @@ namespace mollycoddle.test {
             mps.WithRootedFolder("test");   // pass
             mps.WithRootedFolder("build");  // pass
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_GoodRoots), "mollycoddle.testdata", "rule.molly");
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_GoodRoots);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly");            
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -211,9 +227,12 @@ namespace mollycoddle.test {
             mps.WithRootedFile("src\\.editorconfig", ecfilecontents);
             mps.WithFile("c:\\mastermadeup\\master.editorconfig", "mock-editorconfig-contents");
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_EditorConfigMaster), "mollycoddle.testdata", "*.molly");
-
-
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_EditorConfigMaster);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly");
+            
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
 
@@ -242,8 +261,7 @@ namespace mollycoddle.test {
             mps.WithRootedFile(".gitignore", ecfilecontents);
             mps.WithFile("c:\\mastermadeup\\master.gitignore", "mock-gitignore-contents");
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_GitIgnoreMaster), "mollycoddle.testdata", "*.molly");
-
+            string js = GetTestDatafileContent(TestResourcesReferences.MollyRule_GitIgnoreMaster); 
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -259,8 +277,15 @@ namespace mollycoddle.test {
             Assert.Equal(defectCount, cr.DefectCount);
         }
 
+        private string GetTestDatafileContent(TestResourcesReferences contentToLoad) {
+            string? testResource = TestResources.GetIdentifiers(contentToLoad);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string js = u.GetTestDataFile(testResource, "mollycoddle.testdata", "*.molly") ?? string.Empty;
+            return js;
+        }
 
-        
         [Build(BuildType.Release)]
         [Integration]
         [Theory]
@@ -275,8 +300,7 @@ namespace mollycoddle.test {
             mps.WithRootedFile("src\\nuget.config", ecfilecontents);
             mps.WithFile("c:\\mastermadeup\\master.nuget.config", "mock-nugetconfig-contents");
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_NugetConfigMaster), "mollycoddle.testdata", "*.molly");
-
+            string js = GetTestDatafileContent(TestResourcesReferences.MollyRule_NugetConfigMaster);
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -301,10 +325,13 @@ namespace mollycoddle.test {
             string root = @"C:\MadeUpRoot";
             var mps = MockProjectStructure.Get().WithRoot(root);
             mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\bad.csproj", u.GetTestDataFromFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage)));  // violation banned.package
-            mps.WithRootedFile("src\\good.csproj", u.GetTestDataFromFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences)));   // pass
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_NoNaughtyNugets), "mollycoddle.testdata", "*.molly");
+          
+
+            mps.WithRootedFile("src\\bad.csproj", GetTestDatafileContent(TestResourcesReferences.CsProjBandPackage));  // violation banned.package
+            mps.WithRootedFile("src\\good.csproj", GetTestDatafileContent(TestResourcesReferences.CsProjSimpleNugetReferences));   // pass
+
+            string js = GetTestDatafileContent(TestResourcesReferences.MollyRule_NoNaughtyNugets);
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -318,6 +345,7 @@ namespace mollycoddle.test {
             Assert.Equal(1, cr.DefectCount);
         }
 
+       
 
         [Integration]
         [Build(BuildType.Release)]
@@ -333,7 +361,8 @@ namespace mollycoddle.test {
             mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");   // pass
             mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_TheSolution), "mollycoddle.testdata", "*.molly");
+            
+            string js = GetTestDatafileContent(TestResourcesReferences.MollyRule_TheSolution);
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);
@@ -359,7 +388,7 @@ namespace mollycoddle.test {
             mps.WithRootedFolder("src");   // FAIL no solution file
 
 
-            string js = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.MollyRule_TheSolution), "mollycoddle.testdata", "*.molly");
+            string js = GetTestDatafileContent(TestResourcesReferences.MollyRule_TheSolution);
 
             var sut = new MollyRuleFactory();
             var rls = sut.LoadRulesFromFile(js);

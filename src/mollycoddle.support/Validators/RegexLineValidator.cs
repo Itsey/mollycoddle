@@ -71,7 +71,9 @@ namespace mollycoddle {
         }
 
         public RegexLineValidator(string ruleName) : base(ruleName) {
-
+            RegexValueExtract = string.Empty;
+            RegexMatch = new Regex(string.Empty);
+            FileMinmatch = new Minimatcher(string.Empty);
         }
     }
 }

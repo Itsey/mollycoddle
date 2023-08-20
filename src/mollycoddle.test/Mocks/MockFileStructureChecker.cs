@@ -11,8 +11,8 @@
 
         protected override Action<MinmatchActionCheckEntity, string> GetContentsCheckerAction(string masterContentsPath) {
             return new Action<MinmatchActionCheckEntity, string>((fca, fn) => {
-                string f = GetFileContents(masterContentsPath);
-                string z = GetFileContents(fn);
+                string? f = GetFileContents(masterContentsPath);
+                string? z = GetFileContents(fn);
                 if (f != z) {
                     fca.IsInViolation = true;
                     fca.AdditionalInfo = fn;

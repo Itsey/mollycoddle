@@ -7,26 +7,38 @@
     using Xunit;
 
     public class NugetPackageCheckTests {
-        private Bilge b = new Bilge();
-        private UnitTestHelper u = new UnitTestHelper();
+        private readonly Bilge b = new();
+        private readonly UnitTestHelper u = new();
 
-        [Theory(DisplayName = nameof(NugetVersion_HasBannedVersion))]       
+        [Theory(DisplayName = nameof(NugetVersion_HasBannedVersion))]
+        // Test data file has xunit 2.4.1
         [InlineData("xunit", 1)]
         [InlineData("xunit[2.4.1]", 1)]
         [InlineData("xunit[2.3.1]", 0)]
         [InlineData("xunit[0.0.0-2.4.0]", 0)]
         [InlineData("xunit[0.0.0-2.4.2]", 1)]
+        [InlineData("xunit[>0.0.0]", 1)]
+        [InlineData("xunit[>2.4.0]", 1)]
+        [InlineData("xunit[>2.4.1]", 0)]
+        [InlineData("xunit[<3.0.0]", 1)]
+        [InlineData("xunit[<2.4.1]", 0)]
+        [InlineData("xunit[<2.4.2]", 1)]
+        [InlineData("xunit[<2.4.0]", 0)]
         public void NugetVersion_HasBannedVersion(string bannedString, int expectedDefectCount) {
             b.Info.Flow();
-
+            
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
-            mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
+            _ = mps.WithRootedFolder("src");
+
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }            
+            mps.WithRootedFile("bob.test.csproj", File.ReadAllText(testResource));
             var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
-            
-            
+
+
             dv.AddProhibitedPackageList(@"**\*.test.csproj", bannedString);
 
             var sut = new NugetPackageStructureChecker(mps, new MollyOptions());
@@ -46,8 +58,12 @@
 
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit));
+            _ = mps.WithRootedFolder("src");
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithXunit);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string s = u.GetTestDataFile(testResource);
             mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
             var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
@@ -68,9 +84,14 @@
 
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithoutXunit));
-            mps.WithRootedFile("bob.test.csproj", File.ReadAllText(s));
+            _ = mps.WithRootedFolder("src");
+
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsTestProjectWithoutXunit);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+
+            mps.WithRootedFile("bob.test.csproj", File.ReadAllText(testResource));
             var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddMustReferencePackageList(@"**\*.test.csproj", "xunit");
 
@@ -88,9 +109,13 @@
         public void BannedPackageRule_ResultsInViolation() {
             string root = @"C:\MadeUpFolder";
             var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage));
-            mps.WithRootedFile("bob.csproj", File.ReadAllText(s));
+            _ = mps.WithRootedFolder("src");
+
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            mps.WithRootedFile("bob.csproj", File.ReadAllText(testResource));
             var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPackageList(@"**\*.csproj", "banned.package");
 
@@ -112,8 +137,11 @@
             var mps = MockProjectStructure.Get().WithRoot(root);
             var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
-            string contents = File.ReadAllText(s);
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string contents = File.ReadAllText(testResource);
 
             var ngps = npc.ReadNugetPackageFromSDKProjectContents(contents);
 
@@ -131,8 +159,11 @@
             var mps = MockProjectStructure.Get().WithRoot(root);
             var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
-            string contents = File.ReadAllText(s);
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string contents = File.ReadAllText(testResource);
 
             var ngps = npc.ReadNugetPackageFromSDKProjectContents(contents);
 
@@ -142,7 +173,8 @@
         }
 
         [Fact]
-        [Build(BuildType.Release)][Integration]
+        [Build(BuildType.Release)]
+        [Integration]
         public void NugetPackageLoad_FindsPackageVersions() {
             b.Info.Flow();
 
@@ -150,9 +182,12 @@
             var mps = MockProjectStructure.Get().WithRoot(root);
             var npc = new NugetPackageStructureChecker(mps, new MollyOptions());
 
-            var s = u.GetTestDataFile(TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences));
-            string contents = File.ReadAllText(s);
-
+            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjSimpleNugetReferences);
+            if (string.IsNullOrEmpty(testResource)) {
+                throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            }
+            string contents = File.ReadAllText(testResource);
+            
             var ngps = npc.ReadNugetPackageFromSDKProjectContents(contents);
 
             Assert.NotEmpty(ngps);

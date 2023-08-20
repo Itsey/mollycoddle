@@ -7,6 +7,8 @@
         public MollyCommandLine() {
             WarningMode = false;
             WarningsIncludeLinks = false;
+            DirectoryToTarget = string.Empty;
+            Debug = "off";
         }
 
         [CommandLineArg("disabled", FullDescription = "If Disabled is set the mollycoddle will not execute but will return 0 instead.")]

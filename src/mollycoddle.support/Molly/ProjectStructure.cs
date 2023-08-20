@@ -32,15 +32,20 @@ public class ProjectStructure {
         return dir;
     }
 
+
+    protected virtual bool ActualDoesFileExist(string filename) {
+        // Method used to abstract the file system so mock project structure can replace these methods
+        return File.Exists(filename);
+    }
+
     /// <summary>
     /// Returns true if the file exists, false otherwise.  This is used to abstract out File.Exists for simpler
     /// unit testing.
     /// </summary>
     /// <param name="filename">The filename to check for whether it exists.</param>
     /// <returns>true if the file exists, false otherwise.</returns>
-    public virtual bool DoesFileExist(string filename) {
-        // Method used to abstract the file system so mock project structure can replace these methods
-        return File.Exists(filename);
+    public bool DoesFileExist(string filename) {
+        return ActualDoesFileExist(filename);
     }
 
     /// <summary>

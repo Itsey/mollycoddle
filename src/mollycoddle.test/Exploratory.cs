@@ -24,20 +24,19 @@ namespace mollycoddle.test {
         private MollyOptions mo;
 
         public Exploratory() {
-
-
             b.Info.Flow();
-
             u = new Plisky.Test.UnitTestHelper();
+            mo = new MollyOptions();
         }
 
 
-        [Theory]
+        [Theory(Skip ="Not Implemented")]
         [Fresh]
         [InlineData("regex", "targetstring", true)]
         public void MustNotMatchRegex_Works_AsExpected(string regex, string targetString, bool isViolation) {
             var sut = new MockRegexLineCheckEntity(dummyRuleName);
-            //sut.RegularExpression
+;
+            throw new NotImplementedException();
 
         }
 

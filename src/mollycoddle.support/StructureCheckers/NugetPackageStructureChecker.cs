@@ -100,10 +100,19 @@
 
         protected virtual Action<MinmatchActionCheckEntity, string> GetBannedPackageListChecker(PackageReference[] bannedList) {
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault");
+                
+                if (string.IsNullOrEmpty(filenameToCheck)) {
+                    throw new InvalidOperationException("Should not be performing checks on invalid filenames");
+                }
 
-                string fileContents = ps.GetFileContents(filenameToCheck);
-                var nugetPackageReferences = ReadNugetPackageFromSDKProjectContents(fileContents);
+                string? fileContents = ps.GetFileContents(filenameToCheck);
+                IEnumerable<NugetPackageEntry> nugetPackageReferences;
+                if (fileContents == null) {
+                    nugetPackageReferences = new NugetPackageEntry[0];
+                } else {
+                    nugetPackageReferences = ReadNugetPackageFromSDKProjectContents(fileContents);
+                }
+                              
                 foreach (var nugetPackage in nugetPackageReferences) {
                     foreach (var bannedPackage in bannedList) {
                         if (string.Compare(nugetPackage.PackageIdentifier, bannedPackage.PackageName, true) == 0) {
@@ -120,15 +129,20 @@
         protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(PackageReference[] mustIncludeList) {
 
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault");
+                b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault.");
 
                 string? s = ps.GetFileContents(filenameToCheck);
-                var nps = ReadNugetPackageFromSDKProjectContents(s);
+                IEnumerable<NugetPackageEntry> packagesToCheck;
+                if (s == null) {
+                    packagesToCheck = new NugetPackageEntry[0];
+                } else {
+                    packagesToCheck = ReadNugetPackageFromSDKProjectContents(s);
+                }
 
                 foreach (var l in mustIncludeList) {
                     bool matched = false;
 
-                    foreach (var n in nps) {
+                    foreach (var n in packagesToCheck) {
                         if (string.Compare(n.PackageIdentifier, l.PackageName, true) == 0) {
                             matched = true;
                             break;

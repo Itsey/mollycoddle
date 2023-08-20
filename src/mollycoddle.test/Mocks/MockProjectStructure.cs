@@ -6,23 +6,20 @@
 
     internal class MockProjectStructure : ProjectStructure {
         public const string DUMMYRULENAME = "testrule";
-        public Dictionary<string, string> testFileContents = new Dictionary<string, string>();
+        public Dictionary<string, string> testFileContents = new();
 
         public override string? GetFileContents(string filename) {
-            if (this.AllFiles.Contains(filename)) {
-                return testFileContents[filename];
-            }
-            return null;
+            return AllFiles.Contains(filename) ? testFileContents[filename] : null;
         }
 
-        public override bool DoesFileExist(string filename) {
-            
-            return this.AllFiles.Contains(filename);
+        protected override bool ActualDoesFileExist(string filename) {
+
+            return AllFiles.Contains(filename);
         }
 
         public override Tuple<long, byte[]> GetFileHashAndLength(string masterContentsPath) {
             string cnts = testFileContents[masterContentsPath];
-            return new Tuple<long, byte[]>(cnts.Length,Encoding.UTF8.GetBytes(cnts));
+            return new Tuple<long, byte[]>(cnts.Length, Encoding.UTF8.GetBytes(cnts));
         }
 
         internal static MockProjectStructure Get() {
@@ -35,7 +32,7 @@
         }
 
         internal MockProjectStructure WithFolder(params string[] folders) {
-            foreach (var nextPath in folders) {
+            foreach (string nextPath in folders) {
                 base.AllFolders.Add(nextPath);
             }
             return this;
@@ -47,23 +44,15 @@
         }
 
         internal void WithRootedFile(string fileName, string fileContents = "test") {
-            if (fileName.Contains("%ROOT%")) {
-                fileName = fileName.Replace("%ROOT%", base.Root);
-            } else {
-                fileName = Path.Combine(base.Root, fileName);
-            }
+            fileName = fileName.Contains("%ROOT%") ? fileName.Replace("%ROOT%", base.Root) : Path.Combine(base.Root, fileName);
             AllFiles.Add(fileName);
             testFileContents.Add(fileName, fileContents);
         }
 
         internal MockProjectStructure WithRootedFolder(params string[] rootedFolders) {
-            foreach (var tp in rootedFolders) {
-                var nextPath = tp;
-                if (nextPath.Contains("%ROOT%")) {
-                    nextPath = nextPath.Replace("%ROOT%", base.Root);
-                } else {
-                    nextPath = Path.Combine(base.Root, nextPath);
-                }
+            foreach (string tp in rootedFolders) {
+                string nextPath = tp;
+                nextPath = nextPath.Contains("%ROOT%") ? nextPath.Replace("%ROOT%", base.Root) : Path.Combine(base.Root, nextPath);
                 base.AllFolders.Add(nextPath);
             }
             return this;

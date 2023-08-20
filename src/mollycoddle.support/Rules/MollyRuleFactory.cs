@@ -35,7 +35,8 @@
                 } else if (xtn == ".mollyset"){
                     b.Info.Log($"Rule Collection File Loaded {filename}");
                     foreach (string mfile in File.ReadAllLines(filename)) {
-                        string mfile2 = Path.Combine(Path.GetDirectoryName(filename), mfile);
+
+                        string mfile2 = Path.Combine(Path.GetDirectoryName(filename) ?? string.Empty, mfile);
                         b.Verbose.Log($"Parsing Single Rulefile {mfile2}");
                         foreach (var r in LoadAllMollyRules(mfile2)) {
                             b.Verbose.Log($"File Loaded Rule {r.Identifier}");
