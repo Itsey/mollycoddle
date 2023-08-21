@@ -1,28 +1,29 @@
-﻿namespace mollycoddle {
+﻿namespace mollycoddle; 
 
-    using System.Collections.Generic;
-    using Plisky.Diagnostics;
+using System.Collections.Generic;
+using Plisky.Diagnostics;
 
-    public class CheckResult {
-        protected Bilge b = new Bilge("molly-results");
+public class CheckResult {
+    protected Bilge b = new Bilge("molly-results");
 
-        public CheckResult() {
-            ViolationsFound = new List<Violation>();
-        }
+    public CheckResult() {
+        ViolationsFound = new List<Violation>();
+    }
 
-        public int DefectCount { get; set; }
-        public List<Violation> ViolationsFound { get; set; }
+    public int DefectCount { get; private set; }
+    public List<Violation> ViolationsFound { get; set; }
 
-        internal void AddDefect(Violation violation) {
-            ViolationsFound.Add(violation);
-        }
+    public void AddDefect(Violation violation) {
+        ViolationsFound.Add(violation);
+        DefectCount++;
+    }
 
-        internal void AddDefect(string owningRuleIdentity, string additional = "") {
-            b.Verbose.Log($"Defect added ({owningRuleIdentity}) - ({additional})");
-            DefectCount++;
-            var v = new Violation(owningRuleIdentity);
-            v.Additional = additional;
-            AddDefect(v);
-        }
+    public void AddDefect(string owningRuleIdentity, string additional = "") {
+        b.Verbose.Log($"Defect added ({owningRuleIdentity}) - ({additional})");
+
+        var v = new Violation(owningRuleIdentity) {
+            Additional = additional
+        };
+        AddDefect(v);
     }
 }

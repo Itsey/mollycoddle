@@ -1,242 +1,229 @@
-﻿using Plisky.Diagnostics;
-using Plisky.Diagnostics.Listeners;
+﻿namespace mollycoddle.test;
+
+using Plisky.Diagnostics;
 using Plisky.Test;
 using Xunit;
 
-namespace mollycoddle.test {
+public class FileStructureCheckTests {
+    protected Bilge b = new();
+    private const string DUMMYRULE = "dummy";
 
-    public class FileStructureCheckTests {
-        protected Bilge b = new Bilge();
-        private const string DUMMYRULE = "dummy";
+    public FileStructureCheckTests() {
+    }
 
-        public FileStructureCheckTests() {
-            
-        }
+    [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+    [Integration]
+    public void CompareWithMasterFile_RuleWorks() {
+        b.Info.Flow();
 
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\.gitignore", "gitignorefilecontents");
+        mps.WithFile("%MASTEROOT%\\master.gitignore", "gitignorefilecontents");
 
-        [Fact]
-        [Fresh]
-        public void IfExistsMustBeHere_Action_AddsViolationOnFail() {
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFolder("pickle");
-            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
-            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass            
-            mps.WithRootedFile("pickle\\testproj2\\testproj.csproj", "basil was here");  // Fail - not under src
+        var sut = new MockFileStructureChecker(mps);
+        sut.AssignCompareWithMasterAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", DUMMYRULE);
 
-            var sut = new MockFileStructureChecker(mps);
-            string[] secondary = new string[] { "**/src*/*/*.csproj" };
-            sut.AssignIfItExistsItMustBeHereAction("dummyrule", new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
-            var cr = sut.Check();
+        var cr = sut.Check();
 
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            Assert.Equal(1, cr.DefectCount);
+    [Fact]
+    [Integration]
+    public void FileMustExist_FailsIfFileDoesNotExist() {
+        b.Info.Flow();
 
-        }
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
+        sut.AssignMustExistAction(DUMMYRULE, "**/*.cs");
 
-        [Fact]
-        [Fresh]
-        public void OneLanguage_FileStructureTest_Passes() {
-            b.Info.Flow();
+        var cr = sut.Check();
 
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-            sut.AssignFileMustNotContainAction("dummyrule", "**/*.cs", "basil");
+    [Fact]
+    [Integration]
+    public void FileMustExist_PassesIfFileExists() {
+        b.Info.Flow();
 
-            var cr = sut.Check();
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
+        sut.AssignMustExistAction(DUMMYRULE, "**/*.cs");
 
-            Assert.Equal(1, cr.DefectCount);
-        }
+        var cr = sut.Check();
 
-        [Fact]
-        [Build(BuildType.CI)]
-        public void FileSystem_MasterBypass_Works() {
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFolder("pickle");
-            mps.WithRootedFile("src\\testproj\\xx\\testproj.csproj", "basil was here");   // fail
-            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
-            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            var sut = new MockFileStructureChecker(mps);
-            sut.AddMasterByPass("**");
-            string[] secondary = new string[] { "**/src*/*/*.csproj" };
-            sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
-            var cr = sut.Check();
+    [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+    [Integration]
+    public void FileMustNotContain_RuleWorks() {
+        b.Info.Flow();
 
-            Assert.Equal(0, cr.DefectCount);
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
 
-        }
+        sut.AssignFileMustNotContainAction(DUMMYRULE, " **/*.cs", "basil");
 
-        [Fact]
-        [Integration]
-        public void MustExistInSpecificLocation_PassesIfValid() {
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");
-            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");
+        var cr = sut.Check();
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            var sut = new MockFileStructureChecker(mps);
-            string[] secondary = new string[] { "**/src*/*/*.csproj" };
-            sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
-            var cr = sut.Check();
+    [Fact]
+    [Integration]
+    public void FileMustNotExist_AllowsForExceptions() {
+        b.Info.Flow();
 
-            Assert.Equal(0, cr.DefectCount);
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
 
-        }
+        sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.bob") {
+            SecondaryList = new string[] { "**\\mytestfile.bob" }
+        });
+        var cr = sut.Check();
 
-        [Fact]
-        [Integration]
-        public void MustExistInSpecificLocation_FailsIfNotMatchSecondary() {
-            string root = @"C:\MadeUpFolder";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFolder("pickle");
-            mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
-            mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
-            mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            var sut = new MockFileStructureChecker(mps);
-            string[] secondary = new string[] { "**/src*/*/*.csproj" };
-            sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
-            var cr = sut.Check();
+    [Fact]
+    [Integration]
+    public void FileMustNotExist_FailsIfFileExists() {
+        b.Info.Flow();
 
-            Assert.Equal(1, cr.DefectCount);
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
 
-        }
+        sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.bob"));
 
-   
+        var cr = sut.Check();
 
-        [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
-        [Integration]
-        public void CompareWithMasterFile_RuleWorks() {
-            b.Info.Flow();
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\.gitignore", "gitignorefilecontents");
-            mps.WithFile("%MASTEROOT%\\master.gitignore", "gitignorefilecontents");
+    [Fact]
+    [Integration]
+    public void FileMustNotExist_PassesIfFileDoesNotExist() {
+        b.Info.Flow();
 
-            var sut = new MockFileStructureChecker(mps);
-            sut.AssignCompareWithMasterAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", DUMMYRULE);
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
+        sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.cs"));
 
-            var cr = sut.Check();
+        var cr = sut.Check();
 
-            Assert.Equal(0, cr.DefectCount);
-        }
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-        [Fact]
-        [Integration]
-        public void FileMustExist_FailsIfFileDoesNotExist() {
-            b.Info.Flow();
+    [Fact]
+    [Build(BuildType.CI)]
+    public void FileSystem_MasterBypass_Works() {
+        string root = @"C:\MadeUpFolder";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        _ = mps.WithRootedFolder("pickle");
+        mps.WithRootedFile("src\\testproj\\xx\\testproj.csproj", "basil was here");   // fail
+        mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
+        mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
 
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-            sut.AssignMustExistAction(DUMMYRULE, "**/*.cs");
+        var sut = new MockFileStructureChecker(mps);
+        sut.AddMasterByPass("**");
+        string[] secondary = new string[] { "**/src*/*/*.csproj" };
+        sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+        var cr = sut.Check();
 
-            var cr = sut.Check();
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            Assert.Equal(1, cr.DefectCount);
-        }
+    [Fact]
+    [Fresh]
+    public void IfExistsMustBeHere_Action_AddsViolationOnFail() {
+        string root = @"C:\MadeUpFolder";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        _ = mps.WithRootedFolder("pickle");
+        mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
+        mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
+        mps.WithRootedFile("pickle\\testproj2\\testproj.csproj", "basil was here");  // Fail - not under src
 
-        [Fact]
-        [Integration]
-        public void FileMustNotExist_PassesIfFileDoesNotExist() {
-            b.Info.Flow();
+        var sut = new MockFileStructureChecker(mps);
+        string[] secondary = new string[] { "**/src*/*/*.csproj" };
+        sut.AssignIfItExistsItMustBeHereAction("dummyrule", new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+        var cr = sut.Check();
 
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-            sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.cs"));
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            var cr = sut.Check();
+    [Fact]
+    [Integration]
+    public void MustExistInSpecificLocation_FailsIfNotMatchSecondary() {
+        string root = @"C:\MadeUpFolder";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        _ = mps.WithRootedFolder("pickle");
+        mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");   // Pass
+        mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");  // Pass
+        mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
 
-            Assert.Equal(0, cr.DefectCount);
-        }
+        var sut = new MockFileStructureChecker(mps);
+        string[] secondary = new string[] { "**/src*/*/*.csproj" };
+        sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+        var cr = sut.Check();
 
-        [Fact]
-        [Integration]
-        public void FileMustNotExist_FailsIfFileExists() {
-            b.Info.Flow();
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-            
-            sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.bob"));
+    [Fact]
+    [Integration]
+    public void MustExistInSpecificLocation_PassesIfValid() {
+        string root = @"C:\MadeUpFolder";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\testproj\\testproj.csproj", "basil was here");
+        mps.WithRootedFile("src_two\\testproj2\\testproj.csproj", "basil was here");
 
-            var cr = sut.Check();
+        var sut = new MockFileStructureChecker(mps);
+        string[] secondary = new string[] { "**/src*/*/*.csproj" };
+        sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
+        var cr = sut.Check();
 
-            Assert.Equal(1, cr.DefectCount);
-        }
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-        [Fact]
-        [Integration]
-        public void FileMustNotExist_AllowsForExceptions() {
-            b.Info.Flow();
+    [Fact]
+    [Fresh]
+    public void OneLanguage_FileStructureTest_Passes() {
+        b.Info.Flow();
 
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.bob", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
+        string root = @"C:\MadeUpFolder";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("src");
+        mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
+        var sut = new MockFileStructureChecker(mps);
+        sut.AssignFileMustNotContainAction("dummyrule", "**/*.cs", "basil");
 
-            sut.AssignMustNotExistAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.bob") {
-                SecondaryList = new string[] { "**\\mytestfile.bob" }
-            });
-            var cr = sut.Check();
-            
-            Assert.Equal(0, cr.DefectCount);
-        }
+        var cr = sut.Check();
 
-
-        [Fact]
-        [Integration]
-        public void FileMustExist_PassesIfFileExists() {
-            b.Info.Flow();
-
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-            sut.AssignMustExistAction(DUMMYRULE, "**/*.cs");
-
-            var cr = sut.Check();
-
-            Assert.Equal(0, cr.DefectCount);
-        }
-
-        [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
-        [Integration]
-        public void FileMustNotContain_RuleWorks() {
-            b.Info.Flow();
-
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFile("src\\mytestfile.cs", "basil was here");
-            var sut = new MockFileStructureChecker(mps);
-
-            sut.AssignFileMustNotContainAction(DUMMYRULE, " **/*.cs", "basil");
-
-            var cr = sut.Check();
-            Assert.Equal(1, cr.DefectCount);
-        }
+        Assert.Equal(1, cr.DefectCount);
     }
 }

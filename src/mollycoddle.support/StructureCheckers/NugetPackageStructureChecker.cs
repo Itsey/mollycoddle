@@ -1,7 +1,7 @@
 ﻿namespace mollycoddle {
+
     using System.Xml.Linq;
     using Minimatch;
-
 
     /// <summary>
     /// Executes the actual checks against nuget files, taking a validation ruleset and running it against the actual files
@@ -26,7 +26,7 @@
             try {
                 x = XDocument.Parse(projectContents);
                 var el = x.Element("Project");
-                if (el!=null) {
+                if (el != null) {
                     pe = el;
                 } else {
                     b.Warning.Log("Invalid XML, no Project Element Found. This is not a valid csproj file.");
@@ -100,7 +100,6 @@
 
         protected virtual Action<MinmatchActionCheckEntity, string> GetBannedPackageListChecker(PackageReference[] bannedList) {
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                
                 if (string.IsNullOrEmpty(filenameToCheck)) {
                     throw new InvalidOperationException("Should not be performing checks on invalid filenames");
                 }
@@ -112,24 +111,79 @@
                 } else {
                     nugetPackageReferences = ReadNugetPackageFromSDKProjectContents(fileContents);
                 }
-                              
+
+                int packageCountCheck = 0;
                 foreach (var nugetPackage in nugetPackageReferences) {
+                    packageCountCheck++;
                     foreach (var bannedPackage in bannedList) {
                         if (string.Compare(nugetPackage.PackageIdentifier, bannedPackage.PackageName, true) == 0) {
-                            resultant.IsInViolation = true;
-                            resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package ({0})";
-                            resultant.AdditionalInfo = nugetPackage.PackageIdentifier;
-                            return;
+                            b.Info.Log($"Package Name Match {nugetPackage.PackageIdentifier} looking into versioning specifics. MatchType: {bannedPackage.VersionMatchType}");
+
+                            switch (bannedPackage.VersionMatchType) {
+                                case PackageVersionMatchType.AllVersions:
+                                    resultant.IsInViolation = true;
+                                    resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package ({0})";
+                                    resultant.AdditionalInfo = nugetPackage.PackageIdentifier;
+                                    return;
+
+                                case PackageVersionMatchType.RangeProhibited:
+                                    if ((nugetPackage.Version >= bannedPackage.LowVersionNumber) && (nugetPackage.Version <= bannedPackage.HighVersionNumber)) {
+                                        b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} version {nugetPackage.Version} is within banned range {bannedPackage.LowVersionNumber}-{bannedPackage.HighVersionNumber}");
+                                        resultant.IsInViolation = true;
+                                        resultant.ViolationMessageFormat = $"{filenameToCheck} contains banned package version, less than minimum. ({{0}}) within banned range {bannedPackage.LowVersionNumber}-{bannedPackage.HighVersionNumber}";
+                                        resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                        return;
+                                    }
+                                    break;
+
+                                case PackageVersionMatchType.Exact:
+                                    if (nugetPackage.Version.Equals(bannedPackage.LowVersionNumber)) {
+                                        b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} matched banned version number {bannedPackage.LowVersionNumber}");
+                                        resultant.IsInViolation = true;
+                                        resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, less than minimum. ({0})";
+                                        resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                        return;
+                                    }
+                                    break;
+
+                                case PackageVersionMatchType.NotLessThan:
+                                    if (nugetPackage.Version < bannedPackage.LowVersionNumber) {
+                                        b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} is less than minimum verison {bannedPackage.LowVersionNumber}");
+                                        resultant.IsInViolation = true;
+                                        resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, less than minimum. ({0})";
+                                        resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                        return;
+                                    }
+                                    break;
+
+                                case PackageVersionMatchType.NotMoreThan:
+                                    if (nugetPackage.Version > bannedPackage.HighVersionNumber) {
+                                        b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} is greater than maximum version {bannedPackage.HighVersionNumber}");
+                                        resultant.IsInViolation = true;
+                                        resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, greater than maximum. ({0})";
+                                        resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                        return;
+                                    }
+                                    break;
+
+                                default:
+                                    throw new InvalidOperationException($"Unknown PackageVersionMatchType {bannedPackage.VersionMatchType}");
+                            }
                         }
                     }
+                }
+                if (packageCountCheck == 0) {
+                    b.Warning.Log($"Project File >> {filenameToCheck} - contained no nuget packages to check.");
+                } else {
+                    b.Verbose.Log($"Checked {packageCountCheck} packages for banned list.");
                 }
             });
             return act;
         }
-        protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(PackageReference[] mustIncludeList) {
 
+        protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(PackageReference[] mustIncludeList) {
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault.");
+                //TODO: b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault.");
 
                 string? s = ps.GetFileContents(filenameToCheck);
                 IEnumerable<NugetPackageEntry> packagesToCheck;
@@ -159,7 +213,6 @@
             return act;
         }
 
-
         protected virtual string ValidateActualPath(string pathToActual) {
             return pathToActual.Replace("%ROOT%", ps.Root);
         }
@@ -172,19 +225,19 @@
             return !File.Exists(pathToMaster) ? throw new FileNotFoundException("master path must be present", pathToMaster) : pathToMaster;
         }
 
-        private void AddNugetMustIncludeAction(string ruleName, string pattern, PackageReference[] mustIncludePackages) {
+        private void AddNugetBannedPackageAction(string ruleName, string pattern, PackageReference[] prohibitedPackages) {
             pattern = ValidateActualPath(pattern);
             var fca = new MinmatchActionCheckEntity(ruleName) {
-                PerformCheck = GetMustIncludeListChecker(mustIncludePackages),
+                PerformCheck = GetBannedPackageListChecker(prohibitedPackages),
                 DoesMatch = new Minimatcher(pattern, o)
             };
             Actions.Add(fca);
         }
 
-        private void AddNugetBannedPackageAction(string ruleName, string pattern, PackageReference[] prohibitedPackages) {
+        private void AddNugetMustIncludeAction(string ruleName, string pattern, PackageReference[] mustIncludePackages) {
             pattern = ValidateActualPath(pattern);
             var fca = new MinmatchActionCheckEntity(ruleName) {
-                PerformCheck = GetBannedPackageListChecker(prohibitedPackages),
+                PerformCheck = GetMustIncludeListChecker(mustIncludePackages),
                 DoesMatch = new Minimatcher(pattern, o)
             };
             Actions.Add(fca);

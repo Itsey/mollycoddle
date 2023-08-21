@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,6 +29,12 @@
     <ProjectReference Include="..\mollycoddle.support\mollycoddle.support.csproj" />
     <ProjectReference Include="..\mollycoddle.testdata\mollycoddle.testdata.csproj" />
     <ProjectReference Include="..\mollycoddle\mollycoddle.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Plisky.Versioning">
+      <HintPath>..\_Dependencies\FileReferences\Plisky.Versioning.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

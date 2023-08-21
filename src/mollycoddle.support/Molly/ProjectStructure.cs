@@ -16,6 +16,16 @@ public class ProjectStructure {
     public List<string> AllFolders { get; set; }
     public string Root { get; set; }
 
+    /// <summary>
+    /// Returns true if the file exists, false otherwise.  This is used to abstract out File.Exists for simpler
+    /// unit testing.
+    /// </summary>
+    /// <param name="filename">The filename to check for whether it exists.</param>
+    /// <returns>true if the file exists, false otherwise.</returns>
+    public bool DoesFileExist(string filename) {
+        return ActualDoesFileExist(filename);
+    }
+
     public List<string> GetAllDirectories(string path, string searchPattern = "*") {
         b.Verbose.Log($"Working on {path}");
 
@@ -32,22 +42,6 @@ public class ProjectStructure {
         return dir;
     }
 
-
-    protected virtual bool ActualDoesFileExist(string filename) {
-        // Method used to abstract the file system so mock project structure can replace these methods
-        return File.Exists(filename);
-    }
-
-    /// <summary>
-    /// Returns true if the file exists, false otherwise.  This is used to abstract out File.Exists for simpler
-    /// unit testing.
-    /// </summary>
-    /// <param name="filename">The filename to check for whether it exists.</param>
-    /// <returns>true if the file exists, false otherwise.</returns>
-    public bool DoesFileExist(string filename) {
-        return ActualDoesFileExist(filename);
-    }
-
     /// <summary>
     /// Gets a file contents by reading it from the disk, returns null if the file isnt found.
     /// </summary>
@@ -55,10 +49,11 @@ public class ProjectStructure {
     /// <returns>The contents of the file, or null if the file is not found</returns>
     public virtual string? GetFileContents(string filename) {
         // Method is used so that the mock project structure can remove the dependency on the file system.
-        if (!DoesFileExist(filename)) { return null;  }
+        if (!DoesFileExist(filename)) { return null; }
 
         return File.ReadAllText(filename);
     }
+
     public virtual Tuple<long, byte[]> GetFileHashAndLength(string masterContentsPath) {
         // Method used to abstract the file system so mock project structure can replace these methods
         var fi = new FileInfo(masterContentsPath);
@@ -84,5 +79,8 @@ public class ProjectStructure {
         b.Verbose.Log($"{AllFiles.Count} files");
     }
 
-  
+    protected virtual bool ActualDoesFileExist(string filename) {
+        // Method used to abstract the file system so mock project structure can replace these methods
+        return File.Exists(filename);
+    }
 }

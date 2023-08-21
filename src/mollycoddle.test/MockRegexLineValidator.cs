@@ -1,12 +1,12 @@
+namespace mollycoddle.test;
+
 using System.Text.RegularExpressions;
 
-namespace mollycoddle.test {
-    public class MockRegexLineCheckEntity : RegexLineCheckEntity {
-        public MockRegexLineCheckEntity(string dummyRuleName) : base(dummyRuleName) {
-        }
+public class MockRegexLineCheckEntity : RegexLineCheckEntity {
 
-        public Regex RegularExpression { get; set; }
-
-     
+    public MockRegexLineCheckEntity(string dummyRuleName) : base(dummyRuleName) {
+        RegularExpression = new Regex(string.Empty);
     }
+
+    public Regex RegularExpression { get; set; }
 }

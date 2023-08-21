@@ -1,118 +1,117 @@
-﻿namespace mollycoddle.test {
-    using Plisky.Test;
-    using Xunit;
+﻿namespace mollycoddle.test;
 
-    public class DirectoryStructureCheckTests {
+using Plisky.Test;
+using Xunit;
 
-        
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void BugRepro_MustExist_Src_Works() {
-            string root = @"C:\Files\Code\git\PliskyDiagnostics";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
+public class DirectoryStructureCheckTests {
 
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
-            dv.MustExist("%ROOT%\\src");
-            dv.AddProhibitedPattern("%ROOT%\\src\\src");
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void BugRepro_MustExist_Src_Works() {
+        string root = @"C:\Files\Code\git\PliskyDiagnostics";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        mps.WithRootedFolder("src");
 
-            sut.AddRuleRequirement(dv);
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.MustExist("%ROOT%\\src");
+        dv.AddProhibitedPattern("%ROOT%\\src\\src");
 
-            var cr = sut.Check();
+        sut.AddRuleRequirement(dv);
 
-            Assert.Equal(0, cr.DefectCount);
-        }
+        var cr = sut.Check();
 
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void MustExistFolder_FailsIfNotFound() {
-            var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
-            mps.WithRootedFolder("project1").WithFolder(@"C:\temp\docs\");
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
-            dv.MustExist("%ROOT%\\mustexistfolder");
-            sut.AddRuleRequirement(dv);
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            var cr = sut.Check();
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void MustExistFolder_FailsIfNotFound() {
+        var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
+        mps.WithRootedFolder("project1").WithFolder(@"C:\temp\docs\");
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.MustExist("%ROOT%\\mustexistfolder");
+        sut.AddRuleRequirement(dv);
 
-            Assert.Equal(1, cr.DefectCount);
-        }
+        var cr = sut.Check();
 
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void MustExistFolder_PassIfFound() {
-            var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
-            mps.WithRootedFolder("project1").WithRootedFolder("src").WithFolder(@"C:\temp\docs\");
+        Assert.Equal(1, cr.DefectCount);
+    }
 
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void MustExistFolder_PassIfFound() {
+        var mps = MockProjectStructure.Get().WithRoot(@"c:\MadeUpPath");
+        mps.WithRootedFolder("project1").WithRootedFolder("src").WithFolder(@"C:\temp\docs\");
 
-            var cr = sut.Check();
-            Assert.Equal(0, cr.DefectCount);
-        }
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
 
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void ProhibitedPattern_Basic_Works() {
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("build");
-            mps.WithRootedFolder("doc");
-            mps.WithRootedFolder("project1");
+        var cr = sut.Check();
+        Assert.Equal(0, cr.DefectCount);
+    }
 
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
-            dv.AddProhibitedPattern($"{root}\\*");
-            sut.AddRuleRequirement(dv);
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void ProhibitedPattern_Basic_Works() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        mps.WithRootedFolder("build");
+        mps.WithRootedFolder("doc");
+        mps.WithRootedFolder("project1");
 
-            var cr = sut.Check();
-            Assert.Equal(3, cr.DefectCount);
-        }
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.AddProhibitedPattern($"{root}\\*");
+        sut.AddRuleRequirement(dv);
 
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void ProhibitedPattern_ExceptionsWork() {
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("src");
-            mps.WithRootedFolder("build");
-            mps.WithRootedFolder("doc");
-            mps.WithRootedFolder("project1");
+        var cr = sut.Check();
+        Assert.Equal(3, cr.DefectCount);
+    }
 
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
-            dv.AddProhibitedPattern(root + @"\*", $"{root}\\src", $"{root}\\build", $"{root}\\doc");
-            sut.AddRuleRequirement(dv);
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void ProhibitedPattern_ExceptionsWork() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        mps.WithRootedFolder("src");
+        mps.WithRootedFolder("build");
+        mps.WithRootedFolder("doc");
+        mps.WithRootedFolder("project1");
 
-            var cr = sut.Check();
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.AddProhibitedPattern(root + @"\*", $"{root}\\src", $"{root}\\build", $"{root}\\doc");
+        sut.AddRuleRequirement(dv);
 
-            Assert.Equal(1, cr.DefectCount);
-            Assert.Contains("project1", cr.ViolationsFound[0].Additional);
-        }
+        var cr = sut.Check();
 
-        [Build(BuildType.Any)]
-        [Integration]
-        [Fact]
-        public void ProhibitedPattern_RootReplacement_Works() {
-            string root = @"c:\MadeUpPath";
-            var mps = MockProjectStructure.Get().WithRoot(root);
-            mps.WithRootedFolder("project1");
-            mps.WithRootedFolder("src");
+        Assert.Equal(1, cr.DefectCount);
+        Assert.Contains("project1", cr.ViolationsFound[0].Additional);
+    }
 
-            var sut = new DirectoryStructureChecker(mps, new MollyOptions());
-            var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
-            dv.AddProhibitedPattern(@"%ROOT%\*", $"%ROOT%\\src");
-            sut.AddRuleRequirement(dv);
+    [Build(BuildType.Any)]
+    [Integration]
+    [Fact]
+    public void ProhibitedPattern_RootReplacement_Works() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        mps.WithRootedFolder("project1");
+        mps.WithRootedFolder("src");
 
-            var cr = sut.Check();
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.AddProhibitedPattern(@"%ROOT%\*", $"%ROOT%\\src");
+        sut.AddRuleRequirement(dv);
 
-            Assert.Equal(1, cr.DefectCount);
-            Assert.Contains("project1", cr.ViolationsFound[0].Additional);
-        }
+        var cr = sut.Check();
+
+        Assert.Equal(1, cr.DefectCount);
+        Assert.Contains("project1", cr.ViolationsFound[0].Additional);
     }
 }

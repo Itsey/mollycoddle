@@ -1,12 +1,11 @@
 ﻿namespace mollycoddle {
+
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using Plisky.Diagnostics;
 
     public class Molly {
+        protected Dictionary<string, string> ruleSupportingInfo = new Dictionary<string, string>();
         private readonly Bilge b = new Bilge("molly-main");
         private readonly MollyOptions mo;
         private DirectoryStructureChecker? dst;
@@ -25,7 +24,20 @@
             nst = new NugetPackageStructureChecker(ps, mo);
         }
 
-        protected Dictionary<string, string> ruleSupportingInfo = new Dictionary<string, string>();
+        public CheckResult ExecuteAllChecks() {
+            if (!projectStructureLoaded) {
+                throw new InvalidOperationException("Not Possible to execute checks prior to the project structure being loaded");
+            }
+
+            b.Info.Log("Executing directory structure checks");
+            var cr = dst!.Check();
+            b.Info.Log($"{cr.DefectCount} violations, executing file system checks");
+            cr = fst!.Check(cr);
+            b.Info.Log($"{cr.DefectCount} violations, executing nuget checks");
+            cr = nst!.Check(cr);
+            return cr;
+        }
+
         public string GetRuleSupportingInfo(string ruleName) {
             if (ruleSupportingInfo.ContainsKey(ruleName)) {
                 return ruleSupportingInfo[ruleName];
@@ -44,11 +56,10 @@
                 if (!ruleSupportingInfo.ContainsKey(x.Name)) {
                     string linkHelpText = "Sorry, no further information provided.";
                     if (!string.IsNullOrEmpty(x.Link)) {
-                        linkHelpText = "See: "+x.Link;
+                        linkHelpText = "See: " + x.Link;
                     }
                     ruleSupportingInfo.Add(x.Name, linkHelpText);
                 }
-
 
                 foreach (var n in x.Validators) {
                     dst!.AddRuleRequirement(n);
@@ -56,20 +67,6 @@
                     nst!.AddRuleRequirement(n);
                 }
             }
-        }
-
-        public CheckResult ExecuteAllChecks() {
-            if (!projectStructureLoaded) {
-                throw new InvalidOperationException("Not Possible to execute checks prior to the project structure being loaded");
-            }
-
-            b.Info.Log("Executing directory structure checks");
-            var cr = dst!.Check();
-            b.Info.Log($"{cr.DefectCount} violations, executing file system checks");
-            cr = fst!.Check(cr);
-            b.Info.Log($"{cr.DefectCount} violations, executing nuget checks");
-            cr = nst!.Check(cr);
-            return cr;
         }
     }
 }

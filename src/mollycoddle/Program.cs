@@ -6,9 +6,9 @@ using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
 internal class Program {
-
     private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
     private static bool WarningMode = false;
+
     private static int Main(string[] args) {
         Bilge? b = null;
 
@@ -49,7 +49,6 @@ internal class Program {
             exitCode = 0;
             goto TheEndIsNigh;
         }
-
 
         if (!ValidateDirectory(directoryToTarget)) {
             WriteOutput($"InvalidCommand - Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
@@ -126,22 +125,20 @@ internal class Program {
     }
 
     private static void ConfigureTrace(string debugSetting) {
-        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting),"The debugSetting can not be empty at this point");
+        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver(debugSetting);
-
 
 #if !DEBUG
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
-        
-#else         
+
+#else
         Bilge.AddHandler(new ConsoleHandler());
 #endif
         Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
     }
-
 
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
@@ -167,6 +164,7 @@ internal class Program {
                 Console.WriteLine($"{v}");
                 pfx = "##vso[task.complete result=Succeeded;]";
                 break;
+
             case OutputType.EndFailure:
                 Console.WriteLine($"{v}");
                 pfx = "##vso[task.complete result=Failed;]";

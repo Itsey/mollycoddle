@@ -1,15 +1,16 @@
 ﻿namespace mollycoddle {
+
     using Minimatch;
     using Plisky.Diagnostics;
 
     public abstract class StructureCheckerBase {
         protected Bilge b = new("molly-structurecheck");
+        protected List<Func<string, bool>> bypassMatch = new();
         protected MollyOptions mo;
         protected Options o = new() { AllowWindowsPaths = true, IgnoreCase = true };
         protected List<Tuple<string, Func<string, bool>>> prohibitors = new();
         protected ProjectStructure ps;
         protected List<ValidatorBase> validators = new();
-        protected List<Func<string, bool>> bypassMatch = new();
 
         public StructureCheckerBase(ProjectStructure ps, MollyOptions mopts) {
             this.ps = ps;
@@ -48,10 +49,6 @@
         protected virtual void AddNugetValidator(NugetPackageValidator nu) {
         }
 
-        protected virtual void AddRegexValidator(RegexLineValidator rlv) {
-
-        }
-
         protected void AddProhibitedPatternFinder(string ruleName, string prohibited, params string[] exceptions) {
             prohibited = ReplaceRoot(prohibited);
             b.Verbose.Log($"Creating prohibition {ruleName}");
@@ -75,6 +72,9 @@
                 return false;
             }
             prohibitors.Add(new Tuple<string, Func<string, bool>>(ruleName, isProhibited));
+        }
+
+        protected virtual void AddRegexValidator(RegexLineValidator rlv) {
         }
 
         protected void PrepareValidators() {

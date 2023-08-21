@@ -12,9 +12,9 @@
         }
 
         /// <summary>
-        /// Additional supporting URL to provide help for the rule.
+        /// Additional information that can be used to describe why the rule failed.
         /// </summary>
-        public string HelpUrl { get; set; } = string.Empty;
+        public string AdditionalInfo { get; set; } = string.Empty;
 
         /// <summary>
         /// Further diagnostic information used to help diagnose problems.
@@ -22,24 +22,9 @@
         public string DiagnosticDescriptor { get; set; } = nameof(CheckEntityBase);
 
         /// <summary>
-        /// Additional information that can be used to describe why the rule failed.
+        /// Additional supporting URL to provide help for the rule.
         /// </summary>
-        public string AdditionalInfo { get; set; } = string.Empty;
-
-        /// <summary>
-        /// A format string that describes the violation, by default just returns a single string with the value.
-        /// </summary>
-        public string ViolationMessageFormat { get; set; } = "{0}";
-
-        /// <summary>
-        /// Gets a violation message by using the format specified in ViolationMessageFormat.
-        /// </summary>
-        /// <returns>A formatted error string, including the additional information</returns>
-        public virtual string GetViolationMessage() {
-
-            return string.Format(ViolationMessageFormat, AdditionalInfo);
-        }
-
+        public string HelpUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// IsInViolation actually indicates if the violation has occured.
@@ -56,5 +41,17 @@
         /// </summary>
         public bool Passed { get; set; }
 
+        /// <summary>
+        /// A format string that describes the violation, by default just returns a single string with the value.
+        /// </summary>
+        public string ViolationMessageFormat { get; set; } = "{0}";
+
+        /// <summary>
+        /// Gets a violation message by using the format specified in ViolationMessageFormat.
+        /// </summary>
+        /// <returns>A formatted error string, including the additional information</returns>
+        public virtual string GetViolationMessage() {
+            return string.Format(ViolationMessageFormat, AdditionalInfo);
+        }
     }
 }

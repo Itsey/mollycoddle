@@ -7,9 +7,7 @@
     using Plisky.Diagnostics;
 
     public class MollyRuleFactory {
-        Bilge b = new Bilge("molly-rules");
-
- 
+        private Bilge b = new Bilge("molly-rules");
 
         public MollyRuleFactory() {
         }
@@ -20,10 +18,10 @@
             }
 
             b.Info.Log($"Loading {filename}");
-            
+
             if (!File.Exists(filename)) {
                 b.Error.Log($"File {filename} not found, about to error");
-                throw new FileNotFoundException("molly rules file was not found.", filename);                
+                throw new FileNotFoundException("molly rules file was not found.", filename);
             } else {
                 string xtn = Path.GetExtension(filename).ToLowerInvariant();
                 if (xtn == ".molly") {
@@ -32,10 +30,9 @@
                         b.Verbose.Log($"File Loaded Rule {r.Identifier}");
                         yield return r;
                     }
-                } else if (xtn == ".mollyset"){
+                } else if (xtn == ".mollyset") {
                     b.Info.Log($"Rule Collection File Loaded {filename}");
                     foreach (string mfile in File.ReadAllLines(filename)) {
-
                         string mfile2 = Path.Combine(Path.GetDirectoryName(filename) ?? string.Empty, mfile);
                         b.Verbose.Log($"Parsing Single Rulefile {mfile2}");
                         foreach (var r in LoadAllMollyRules(mfile2)) {
@@ -47,44 +44,8 @@
                     b.Error.Log($"File extension {xtn} is neither molly, nor mollyset therefore erroring");
                     throw new InvalidOperationException("The ruleset file type is not known and can not be loaded");
                 }
-
             }
-
         }
-
-        private IEnumerable<MollyRule> LoadAllMollyRules(string filename) {
-            string json = File.ReadAllText(filename);
-            MollyRuleStorage? mrs;
-            try {
-                mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
-            } catch (JsonException js) {
-                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.",js.Message);
-                throw new InvalidOperationException($"Invalid Json - Check [{filename}]",js);
-            }
-
-            if (mrs == null) {
-                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.");
-                throw new InvalidOperationException($"Json did not result in valid MollyRuleStorage - Check [{filename}]");
-            }
-            if (mrs.Rules == null) {
-                b.Warning.Log($"The file {filename} was loaded but no rules were returned");
-                yield break;
-            }
-
-            foreach (var m in mrs.Rules) {
-                var result = new MollyRule() {
-                    Identifier = m.RuleReference,
-                    Name = m.Name,
-                    Link = m.Link
-                };
-                foreach(var vl in m.Validators) {
-                    result.AddValidator(LoadValidatorStep(m.Name, vl));
-                }
-                yield return result;
-            }
-            b.Verbose.Log("Rules file load completed");
-        }
-
 
         /// <summary>
         /// This loads the validator from the rule step.  The Rule step describes what is required for the rule and ths method will return a validator
@@ -98,29 +59,51 @@
             switch (nextRuleStep.ValidatorName) {
                 case DirectoryValidator.VALIDATORNAME:
                     return CreateDirectoryValidator(ruleName, nextRuleStep);
+
                 case FileValidator.VALIDATORNAME:
                     return CreateFileValidatorFromConfiguration(ruleName, nextRuleStep);
+
                 case NugetPackageValidator.VALIDATORNAME:
                     return CreateNugetValidatorFromConfiguration(ruleName, nextRuleStep);
+
                 default:
                     throw new InvalidOperationException($"The validator [{nextRuleStep.ValidatorName}] was not recognised from the MollyRule file.");
             }
-          
-          
         }
 
-        private ValidatorBase CreateNugetValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
-            var vv = new NugetPackageValidator(ruleName);
+        public ValidatorBase LoadValidatorStep(string ruleName, string jsonContent) {
+            var valstep = JsonSerializer.Deserialize<MollyRuleStepStorage>(jsonContent);
+            if (valstep == null) {
+                throw new InvalidOperationException("The Json Step Cant Not Be Loaded");
+            }
+            return LoadValidatorStep(ruleName, valstep);
+        }
+
+        private ValidatorBase CreateDirectoryValidator(string ruleName, MollyRuleStepStorage nextRuleStep) {
+            var vs = new DirectoryValidator(ruleName);
+            b.Verbose.Log($"Loading validator step {nextRuleStep.Control}");
             switch (nextRuleStep.Control) {
-                case "ProhibitedPackagesList":
-                    vv.AddProhibitedPackageList(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                case "MustNotExist":
+                    vs.AddProhibitedPattern(nextRuleStep.PatternMatch);
+                    break;
+
+                case "MustExist":
+                    vs.MustExist(nextRuleStep.PatternMatch);
+                    break;
+
+                case "ProhibitedExcept":
+                    vs.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
+                    break;
+
+                case "FullBypass":
+                    vs.AddBypass(nextRuleStep.PatternMatch);
                     break;
 
                 default:
                     b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
-                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for nuget MollyRule");
+                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for directory validation MollyRule");
             }
-            return vv;
+            return vs;
         }
 
         private FileValidator CreateFileValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
@@ -140,15 +123,18 @@
                     }
                     vv.MustMatchMaster(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData.First());
                     break;
+
                 case "IfExistMustBeHere":
                     if (nextRuleStep.AdditionalData == null || !nextRuleStep.AdditionalData.Any()) {
                         throw new InvalidOperationException("Require additional data for precise position rule in mollyrule file");
                     }
                     vv.MustBeInSpecificLocation(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
                     break;
+
                 case "FullBypass":
                     vv.AddBypass(nextRuleStep.PatternMatch);
                     break;
+
                 default:
                     b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
                     throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for file validation MollyRule");
@@ -157,39 +143,51 @@
             return vv;
         }
 
-        private ValidatorBase CreateDirectoryValidator(string ruleName, MollyRuleStepStorage nextRuleStep) {
-            var vs = new DirectoryValidator(ruleName);
-            b.Verbose.Log($"Loading validator step {nextRuleStep.Control}");
+        private ValidatorBase CreateNugetValidatorFromConfiguration(string ruleName, MollyRuleStepStorage nextRuleStep) {
+            var vv = new NugetPackageValidator(ruleName);
             switch (nextRuleStep.Control) {
-                case "MustNotExist":
-                    vs.AddProhibitedPattern(nextRuleStep.PatternMatch);
+                case "ProhibitedPackagesList":
+                    vv.AddProhibitedPackageList(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
                     break;
 
-                case "MustExist":
-                    vs.MustExist(nextRuleStep.PatternMatch);
-                    break;
-
-                case "ProhibitedExcept":
-                    vs.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
-                    break;
-                case "FullBypass":
-                    vs.AddBypass(nextRuleStep.PatternMatch);
-                    break;
                 default:
                     b.Error.Log($"Invalid Control found in file {nextRuleStep.Control}");
-                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for directory validation MollyRule");
+                    throw new InvalidOperationException($"Json data [{nextRuleStep.Control}] is invalid for nuget MollyRule");
             }
-            return vs;
+            return vv;
         }
 
-        public ValidatorBase LoadValidatorStep(string ruleName, string jsonContent) {
-            var valstep = JsonSerializer.Deserialize<MollyRuleStepStorage>(jsonContent);
-            if (valstep == null) {
-                throw new InvalidOperationException("The Json Step Cant Not Be Loaded");
+        private IEnumerable<MollyRule> LoadAllMollyRules(string filename) {
+            string json = File.ReadAllText(filename);
+            MollyRuleStorage? mrs;
+            try {
+                mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);
+            } catch (JsonException js) {
+                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.", js.Message);
+                throw new InvalidOperationException($"Invalid Json - Check [{filename}]", js);
             }
-            return LoadValidatorStep(ruleName, valstep);
 
-            
+            if (mrs == null) {
+                b.Warning.Log($"File {filename} did not cleanly come out of deserialsation, likely invalid json in file.");
+                throw new InvalidOperationException($"Json did not result in valid MollyRuleStorage - Check [{filename}]");
+            }
+            if (mrs.Rules == null) {
+                b.Warning.Log($"The file {filename} was loaded but no rules were returned");
+                yield break;
+            }
+
+            foreach (var m in mrs.Rules) {
+                var result = new MollyRule() {
+                    Identifier = m.RuleReference,
+                    Name = m.Name,
+                    Link = m.Link
+                };
+                foreach (var vl in m.Validators) {
+                    result.AddValidator(LoadValidatorStep(m.Name, vl));
+                }
+                yield return result;
+            }
+            b.Verbose.Log("Rules file load completed");
         }
     }
 }
