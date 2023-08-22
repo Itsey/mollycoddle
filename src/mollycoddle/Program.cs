@@ -129,25 +129,25 @@ internal class Program {
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver(debugSetting);
 
-#if !DEBUG
+#if DEBUG
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
-
+        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
 #else
         Bilge.AddHandler(new ConsoleHandler());
 #endif
-        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
+        
     }
 
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
         switch (ot) {
-            case OutputType.Violation: pfx = "💩 Violation: "; break;
+            case OutputType.Violation: pfx = "�� Violation: "; break;
             case OutputType.Error: pfx = "Error: "; break;
             case OutputType.Info: pfx = "Info: "; break;
-            case OutputType.EndSuccess: pfx = "😎 Completed."; break;
-            case OutputType.EndFailure: pfx = "😢 Completed."; break;
+            case OutputType.EndSuccess: pfx = "�� Completed."; break;
+            case OutputType.EndFailure: pfx = "�� Completed."; break;
         }
         Console.WriteLine($"{pfx}{v}");
     }

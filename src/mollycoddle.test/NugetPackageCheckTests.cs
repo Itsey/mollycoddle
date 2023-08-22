@@ -11,6 +11,7 @@
     public class NugetPackageCheckTests {
         private readonly Bilge b = new();
         private readonly UnitTestHelper u = new();
+        private readonly TestUtilities tu = new();
 
         public NugetPackageCheckTests() {
             b.Assert.ConfigureAsserts(AssertionStyle.Nothing);
@@ -166,12 +167,12 @@
             var mps = MockProjectStructure.Get().WithRoot(root);
             _ = mps.WithRootedFolder("src");
 
-            string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage);
-            if (string.IsNullOrEmpty(testResource)) {
-                throw new InvalidDataException("The test data must be populated before the tests can proceed");
-            }
-            string s = u.GetTestDataFile(testResource);
-            mps.WithRootedFile("bob.csproj", File.ReadAllText(s));
+            //string? testResource = TestResources.GetIdentifiers(TestResourcesReferences.CsProjBandPackage);
+            //if (string.IsNullOrEmpty(testResource)) {
+            //    throw new InvalidDataException("The test data must be populated before the tests can proceed");
+            //}
+            //string s = u.GetTestDataFile(testResource);
+            mps.WithRootedFile("bob.csproj", tu.GetTestDataFileContent(TestResourcesReferences.CsProjBandPackage)); //TODO:X  File.ReadAllText(s));
             var dv = new NugetPackageValidator(MockProjectStructure.DUMMYRULENAME);
             dv.AddProhibitedPackageList(@"**\*.csproj", "banned.package");
 
