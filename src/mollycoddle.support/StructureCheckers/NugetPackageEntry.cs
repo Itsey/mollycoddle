@@ -8,7 +8,6 @@ namespace mollycoddle {
             PackageIdentifier = packageIdentifierValue;
             RawVersion = packageVersionValue;
             Version = VersionNumber.Parse(packageVersionValue);
-
         }
 
         public string PackageIdentifier { get; set; }

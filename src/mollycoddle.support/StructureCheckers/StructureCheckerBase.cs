@@ -1,16 +1,16 @@
-﻿using Minimatch;
-using Plisky.Diagnostics;
+﻿namespace mollycoddle {
 
-namespace mollycoddle {
+    using Minimatch;
+    using Plisky.Diagnostics;
 
     public abstract class StructureCheckerBase {
-        protected Bilge b = new Bilge("molly-structurecheck");
+        protected Bilge b = new("molly-structurecheck");
+        protected List<Func<string, bool>> bypassMatch = new();
         protected MollyOptions mo;
-        protected Options o = new Options() { AllowWindowsPaths = true, IgnoreCase = true };
-        protected List<Tuple<string, Func<string, bool>>> prohibitors = new List<Tuple<string, Func<string, bool>>>();
+        protected Options o = new() { AllowWindowsPaths = true, IgnoreCase = true };
+        protected List<Tuple<string, Func<string, bool>>> prohibitors = new();
         protected ProjectStructure ps;
-        protected List<ValidatorBase> validators = new List<ValidatorBase>();
-        protected List<Func<string,bool>> bypassMatch = new List<Func<string, bool>>();
+        protected List<ValidatorBase> validators = new();
 
         public StructureCheckerBase(ProjectStructure ps, MollyOptions mopts) {
             this.ps = ps;
@@ -32,7 +32,9 @@ namespace mollycoddle {
         }
 
         public CheckResult Check(CheckResult results) {
+            b.Verbose.Log("Base Check Initialised, Preparing");
             PrepareValidators();
+            b.Verbose.Log("Validators Prepared, Executing");
             return ActualExecuteChecks(results);
         }
 
@@ -47,22 +49,18 @@ namespace mollycoddle {
         protected virtual void AddNugetValidator(NugetPackageValidator nu) {
         }
 
-        protected virtual void AddRegexValidator(RegexLineValidator rlv) {
-            
-        }
-
         protected void AddProhibitedPatternFinder(string ruleName, string prohibited, params string[] exceptions) {
             prohibited = ReplaceRoot(prohibited);
             b.Verbose.Log($"Creating prohibition {ruleName}");
 
             var flt = Minimatcher.CreateFilter(prohibited, o);
-            List<Minimatcher> exceptFor = new List<Minimatcher>();
+            var exceptFor = new List<Minimatcher>();
             foreach (string exception in exceptions) {
-                var ne = ReplaceRoot(exception);
+                string ne = ReplaceRoot(exception);
                 var m = new Minimatcher(ne, o);
                 exceptFor.Add(m);
             }
-            Func<string, bool> isProhibited = (pat) => {
+            bool isProhibited(string pat) {
                 if (flt(pat)) {
                     foreach (var n in exceptFor) {
                         if (n.IsMatch(pat)) {
@@ -72,8 +70,11 @@ namespace mollycoddle {
                     return true;
                 }
                 return false;
-            };
+            }
             prohibitors.Add(new Tuple<string, Func<string, bool>>(ruleName, isProhibited));
+        }
+
+        protected virtual void AddRegexValidator(RegexLineValidator rlv) {
         }
 
         protected void PrepareValidators() {
@@ -100,10 +101,9 @@ namespace mollycoddle {
         }
 
         protected string ReplaceRoot(string prohibited) {
-            if (ps == null) {
-                throw new InvalidOperationException("The root must be set in the validator prior to calling ReplaceRoot");
-            }
-            return prohibited.Replace("%ROOT%", ps.Root);
+            return ps == null
+                ? throw new InvalidOperationException("The root must be set in the validator prior to calling ReplaceRoot")
+                : prohibited.Replace("%ROOT%", ps.Root);
         }
     }
 }

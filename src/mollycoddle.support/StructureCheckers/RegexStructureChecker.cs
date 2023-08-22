@@ -1,4 +1,5 @@
 ﻿namespace mollycoddle {
+
     public class RegexStructureChecker : StructureCheckerBase {
         protected List<RegexLineCheckEntity> Actions = new();
         protected List<RegexLineCheckEntity> ViolatedActions = new();
@@ -16,7 +17,6 @@
 
             b.Info.Log($"Regex Check {ps.AllFiles.Count} files to check");
             foreach (string fn in ps.AllFiles) {
-
                 bool bypassActive = false;
                 foreach (var bp in bypassMatch) {
                     if (bp(fn)) {
@@ -29,7 +29,6 @@
                     b.Verbose.Log($"bypass filter activated for {fn}");
                     continue;
                 }
-
 
                 int i = 0;
                 while (i < Actions.Count) {
@@ -74,14 +73,19 @@
                 case RegexBehaviour.MustMatchOnce:
                     AssignMustMatchOnceAction(rlv);
                     break;
+
                 case RegexBehaviour.MustNotMatch:
                     AssignMustNotMatchAction(rlv);
                     break;
+
                 case RegexBehaviour.ValueMustEqual: break;
                 case RegexBehaviour.ValueMustNotEqual: break;
             }
+        }
 
-
+        private void AssignMustMatchOnceAction(RegexLineValidator rlv) {
+            b.Verbose.Flow();
+            throw new NotImplementedException();
         }
 
         private void AssignMustNotMatchAction(RegexLineValidator rlv) {
@@ -91,10 +95,9 @@
             var rca = new RegexLineCheckEntity(rlv.TriggeringRule) {
                 PerformCheck = new Action<RegexLineCheckEntity, string>((resultant, fileToCheck) => {
                     if (rlv.FileMinmatch.IsMatch(fileToCheck)) {
-
                         string? file = ps.GetFileContents(fileToCheck);
                         if (string.IsNullOrEmpty(file)) {
-                            b.Verbose.Log("No file contents found, not checking anything");                           
+                            b.Verbose.Log("No file contents found, not checking anything");
                         } else {
                             b.Verbose.Log($"Parsing File Contents {fileToCheck}");
 
@@ -112,11 +115,6 @@
             };
 
             Actions.Add(rca);
-        }
-
-        private void AssignMustMatchOnceAction(RegexLineValidator rlv) {
-            b.Verbose.Flow();
-            throw new NotImplementedException();
         }
     }
 }

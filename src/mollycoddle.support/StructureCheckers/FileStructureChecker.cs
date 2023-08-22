@@ -1,7 +1,6 @@
 ﻿namespace mollycoddle {
 
     using System;
-    using System.Security.Cryptography;
     using Minimatch;
 
     public class FileStructureChecker : StructureCheckerBase {
@@ -9,7 +8,6 @@
         protected List<MinmatchActionCheckEntity> ViolatedActions = new List<MinmatchActionCheckEntity>();
 
         public FileStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
-            
         }
 
         public virtual void AssignCompareWithMasterAction(string patternToMatch, string pathToMaster, string ruleName) {
@@ -42,8 +40,6 @@
             Actions.Add(fca);
         }
 
-
-
         public void AssignMustExistAction(string ruleName, string patternForFile) {
             var fca = new MinmatchActionCheckEntity(ruleName);
             // Must Exist defaults to having not passed.  It passes if the file is then found.
@@ -55,6 +51,7 @@
 
             Actions.Add(fca);
         }
+
         public void AssignMustNotExistAction(string ruleName, MatchWithSecondaryMatches patternForFile) {
             var fca = new MinmatchActionCheckEntity(ruleName);
             // Must Exist defaults to having not passed.  It passes if the file is then found.
@@ -68,7 +65,6 @@
         }
 
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
-
             if (Actions.Count == 0) {
                 b.Warning.Log("There are no loaded actions for the file structure checker, no file based checks occur.");
                 return result;
@@ -76,7 +72,6 @@
 
             b.Info.Log($"File System  Check {ps.AllFiles.Count} files to check");
             foreach (string fn in ps.AllFiles) {
-
                 bool bypassActive = false;
                 foreach (var bp in bypassMatch) {
                     if (bp(fn)) {
@@ -129,7 +124,7 @@
         protected override void AddFileValidator(FileValidator fs) {
             base.AddFileValidator(fs);
 
-            foreach(string l in fs.FullBypasses()) {
+            foreach (string l in fs.FullBypasses()) {
                 AddFullbypassActions(l);
             }
             foreach (var l in fs.FilesThatMustMatchTheirMaster()) {
@@ -146,16 +141,10 @@
             }
         }
 
-        private void AddFullbypassActions(string l) {
-            AddMasterByPass(l.Replace("%ROOT%", ps.Root).ToLowerInvariant());
-        }
-
         protected virtual Action<MinmatchActionCheckEntity, string> GetContentsCheckerAction(string masterContentsPath) {
-
             var masterLengthAndHash = ps.GetFileHashAndLength(masterContentsPath);
 
             var result = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-
                 var targetLengthAndHasn = ps.GetFileHashAndLength(filenameToCheck);
 
                 if (targetLengthAndHasn.Item1 == masterLengthAndHash.Item1) {
@@ -174,6 +163,70 @@
 
         protected virtual string? GetFileContents(string path) {
             return File.ReadAllText(path);
+        }
+
+        protected virtual Action<MinmatchActionCheckEntity, string> GetFileExistChecker(bool shouldExist = true, string[]? exceptionList = null) {
+            List<Minimatcher>? possiblePatterns = null;
+
+            if (exceptionList != null) {
+                possiblePatterns = new List<Minimatcher>();
+
+                foreach (string l in exceptionList) {
+                    possiblePatterns.Add(new Minimatcher(l, o));
+                }
+            }
+
+            var result = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
+                if (possiblePatterns != null) {
+                    foreach (var l in possiblePatterns) {
+                        if (l.IsMatch(filenameToCheck)) {
+                            resultant.Passed = true;
+                            return;
+                        }
+                    }
+                }
+
+                if (ps.DoesFileExist(filenameToCheck) == shouldExist) {
+                    resultant.Passed = true;
+                } else {
+                    resultant.IsInViolation = true;
+                    resultant.AdditionalInfo = filenameToCheck;
+                }
+            });
+
+            return result;
+        }
+
+        protected virtual string ValidateActualPath(string pathToActual) {
+            return pathToActual.Replace("%ROOT%", ps.Root);
+        }
+
+        protected virtual string ValidateMasterPath(string pathToMaster) {
+            b.Info.Flow(pathToMaster);
+            ArgumentNullException.ThrowIfNull(pathToMaster);
+
+            pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
+            b.Verbose.Log($"resolved master path {pathToMaster} using {mo.MasterPath}");
+            if (!ps.DoesFileExist(pathToMaster)) {
+                b.Error.Log($"Error, master path file is not found {pathToMaster}");
+                throw new FileNotFoundException($"Master path ({pathToMaster}) must be present.", pathToMaster);
+            }
+
+            return pathToMaster;
+        }
+
+        private void AddFullbypassActions(string l) {
+            AddMasterByPass(l.Replace("%ROOT%", ps.Root).ToLowerInvariant());
+        }
+
+        private Action<MinmatchActionCheckEntity, string> GetFileContentsMustChecker(string text, bool mustOrMustNot) {
+            return new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
+                string? f = GetFileContents(filenameToCheck);
+                if (f != null) {
+                    resultant.IsInViolation = f.Contains(text, StringComparison.OrdinalIgnoreCase) != mustOrMustNot;
+                    resultant.AdditionalInfo = filenameToCheck;
+                }
+            });
         }
 
         private Action<MinmatchActionCheckEntity, string> GetMustMatchOneOfTheseChecker(string[] secondaryList) {
@@ -204,70 +257,6 @@
                 }
             });
             return result;
-        }
-
-        protected virtual Action<MinmatchActionCheckEntity, string> GetFileExistChecker(bool shouldExist = true, string[]? exceptionList = null) {
-
-            List<Minimatcher>? possiblePatterns=null;
-
-            if (exceptionList != null) {
-                possiblePatterns = new List<Minimatcher>();
-
-                foreach (string l in exceptionList) {
-                    possiblePatterns.Add(new Minimatcher(l, o));
-                }
-
-            }
-
-            var result = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-
-                if (possiblePatterns != null) {
-                    foreach (var l in possiblePatterns) {
-                        if (l.IsMatch(filenameToCheck)) {
-                            resultant.Passed = true;
-                            return;
-                        }
-                    }
-                }
-            
-                if (ps.DoesFileExist(filenameToCheck) == shouldExist) {
-                    resultant.Passed = true;
-                } else {
-                    resultant.IsInViolation = true;
-                    resultant.AdditionalInfo = filenameToCheck;
-                }
-            });
-
-            
-            return result;
-        }
-
-        protected virtual string ValidateActualPath(string pathToActual) {
-            return pathToActual.Replace("%ROOT%", ps.Root);
-        }
-
-        protected virtual string ValidateMasterPath(string pathToMaster) {
-            b.Info.Flow(pathToMaster);
-            ArgumentNullException.ThrowIfNull(pathToMaster);
-
-            pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
-            b.Verbose.Log($"resolved master path {pathToMaster} using {mo.MasterPath}");
-            if (!ps.DoesFileExist(pathToMaster)) {
-                b.Error.Log($"Error, master path file is not found {pathToMaster}");
-                throw new FileNotFoundException($"Master path ({pathToMaster}) must be present.", pathToMaster);
-            }
-
-            return pathToMaster;
-        }
-
-        private Action<MinmatchActionCheckEntity, string> GetFileContentsMustChecker(string text, bool mustOrMustNot) {
-            return new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                string? f = GetFileContents(filenameToCheck);
-                if (f != null) {
-                    resultant.IsInViolation = f.Contains(text, StringComparison.OrdinalIgnoreCase) != mustOrMustNot;
-                    resultant.AdditionalInfo = filenameToCheck;
-                }
-            });
         }
     }
 }

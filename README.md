@@ -26,3 +26,9 @@ Total Violations 1
 The main documentation is here: https://itsey.github.io/mollycoddle/
 
 This includes information relating to the rules and how to run it as part of a pipeline.
+
+
+### Developer Notes.
+
+Attempted to migrate to the Microsoft Globbing implementation but it does not support windows paths, or filters or directories.  Ultimately aborted this and rolled back to the existing globbing implementation. 
+

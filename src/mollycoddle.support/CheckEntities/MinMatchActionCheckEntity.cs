@@ -9,16 +9,15 @@
     /// on that minmatch this check entity can be used to validate the rule.
     /// </summary>
     public class MinmatchActionCheckEntity : CheckEntityBase {
-      
+
         public MinmatchActionCheckEntity(string owningRuleName) : base(owningRuleName) {
-           PerformCheck = (entity, fileName) => { 
-               IsInViolation = true; 
-               AdditionalInfo = "Default Failure Reason, this is an invalid rule."; 
-           };
+            PerformCheck = (entity, fileName) => {
+                IsInViolation = true;
+                AdditionalInfo = "Default Failure Reason, this is an invalid rule.";
+            };
             DoesMatch = new Minimatcher(string.Empty);
         }
 
-        
         public Minimatcher DoesMatch { get; internal set; }
         public Action<MinmatchActionCheckEntity, string> PerformCheck { get; set; }
 
