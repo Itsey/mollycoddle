@@ -1,9 +1,10 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
 /// <summary>
 /// MollyOptions are cross cutting options relating to how the program works.
 /// </summary>
 public class MollyOptions {
+    public static string PRIMARYPATHLITERAL = "%MASTERROOT%";
 
     public MollyOptions() {
         DebugSetting = DirectoryToTarget = RulesFile = string.Empty;
@@ -32,7 +33,7 @@ public class MollyOptions {
     /// <summary>
     /// The Path to the master files for any master comparisons that need to be made
     /// </summary>
-    public string? MasterPath { get; set; }
+    public string? PrimaryFilePath { get; set; }
 
     /// <summary>
     /// The rules file that is to be loaded, either a rules set or a single rules file.

@@ -2,8 +2,10 @@ namespace mollycoddle.test;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using FluentAssertions;
+using Minimatch;
 using Plisky.Diagnostics;
 using Plisky.Test;
 using Xunit;
@@ -129,5 +131,17 @@ public class Exploratory {
         foreach (var l in ssd.TestList) {
             sut.IsExecuting(l.Item1).Should().Be(l.Item2, $"{l.Item1}");
         }
+    }
+
+    [Theory]
+    [InlineData(".\\mollycoddle\\src\\mollycoddle.sln", "**\\*.sln", true)]
+    [InlineData(".\\mollycoddle\\src\\mollycoddle.sln", "**\\src\\*.sln", true)]
+    [InlineData("c:\\mollycoddle\\src\\mollycoddle.sln", "**\\src\\*.sln", true)]
+    public void TestMinmatchExpressions(string filename, string pattern, bool matchExpected) {
+        // This is required to correctly resolve paths that are not rooted, leaving this test in to keep this reminder.
+        filename = Path.GetFullPath(filename);
+        var mm = new Minimatcher(pattern, new Options() { AllowWindowsPaths = true, IgnoreCase = true });
+
+        mm.IsMatch(filename).Should().Be(matchExpected);
     }
 }

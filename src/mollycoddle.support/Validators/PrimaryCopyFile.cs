@@ -1,4 +1,4 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
 public class PrimaryCopyFile {
 

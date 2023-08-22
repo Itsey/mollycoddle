@@ -183,8 +183,6 @@
 
         protected virtual Action<MinmatchActionCheckEntity, string> GetMustIncludeListChecker(PackageReference[] mustIncludeList) {
             var act = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                //TODO: b.Assert.True(File.Exists(filenameToCheck), "Validation that the file exists should happen before this call, dev fault.");
-
                 string? s = ps.GetFileContents(filenameToCheck);
                 IEnumerable<NugetPackageEntry> packagesToCheck;
                 if (s == null) {
@@ -220,9 +218,10 @@
         protected virtual string ValidateMasterPath(string pathToMaster) {
             ArgumentNullException.ThrowIfNull(pathToMaster);
 
-            pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
+            pathToMaster = pathToMaster.Replace(MollyOptions.PRIMARYPATHLITERAL, mo.PrimaryFilePath);
 
-            return !File.Exists(pathToMaster) ? throw new FileNotFoundException("master path must be present", pathToMaster) : pathToMaster;
+            int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidMasterDirectory, $"Path to the master files must be present and valid.  Path specified is {pathToMaster}");
+            return !File.Exists(pathToMaster) ? throw new FileNotFoundException($"Error {errorCode}.  Path to master files is missing.", pathToMaster) : pathToMaster;
         }
 
         private void AddNugetBannedPackageAction(string ruleName, string pattern, PackageReference[] prohibitedPackages) {

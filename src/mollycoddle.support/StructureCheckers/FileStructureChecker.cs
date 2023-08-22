@@ -42,6 +42,7 @@
 
         public void AssignMustExistAction(string ruleName, string patternForFile) {
             var fca = new MinmatchActionCheckEntity(ruleName);
+            fca.DiagnosticDescriptor = $"FSC - Must Exist - {patternForFile}";
             // Must Exist defaults to having not passed.  It passes if the file is then found.
             patternForFile = ValidateActualPath(patternForFile);
             fca.Passed = false;
@@ -70,7 +71,8 @@
                 return result;
             }
 
-            b.Info.Log($"File System  Check {ps.AllFiles.Count} files to check");
+            b.Info.Log($"File System  Check {ps.AllFiles.Count} files to check.");
+            int bypassCount = 0;
             foreach (string fn in ps.AllFiles) {
                 bool bypassActive = false;
                 foreach (var bp in bypassMatch) {
@@ -81,9 +83,11 @@
                 }
 
                 if (bypassActive) {
-                    b.Verbose.Log($"bypass filter activated for {fn}");
+                    bypassCount++;
                     continue;
                 }
+
+                b.Verbose.Log($"fsc - {fn}");
 
                 int i = 0;
                 while (i < Actions.Count) {
@@ -94,7 +98,7 @@
                     }
 
                     if (chk.ExecuteCheckWasViolation(fn)) {
-                        b.Verbose.Log($"Violation {fn}, {chk.OwningRuleIdentity} {chk.AdditionalInfo}");
+                        b.Info.Log($"Violation {fn}, {chk.OwningRuleIdentity} {chk.AdditionalInfo} {Actions[i].DiagnosticDescriptor} {i}");
                         ViolatedActions.Add(chk);
                         Actions.Remove(chk);
                     } else {
@@ -102,6 +106,7 @@
                     }
                 }
             }
+            b.Verbose.Log($"fsc - Checks Completed {bypassCount} files bypassed");
 
             // Loop to catch those violations which require to actively pass, e.g. Must exist or Must not exist, they
             // need to check each file to determine if they have passed or not.
@@ -166,6 +171,8 @@
         }
 
         protected virtual Action<MinmatchActionCheckEntity, string> GetFileExistChecker(bool shouldExist = true, string[]? exceptionList = null) {
+            b.Verbose.Log($"MustExistChecker {shouldExist}");
+
             List<Minimatcher>? possiblePatterns = null;
 
             if (exceptionList != null) {
@@ -193,7 +200,6 @@
                     resultant.AdditionalInfo = filenameToCheck;
                 }
             });
-
             return result;
         }
 
@@ -201,18 +207,18 @@
             return pathToActual.Replace("%ROOT%", ps.Root);
         }
 
-        protected virtual string ValidateMasterPath(string pathToMaster) {
-            b.Info.Flow(pathToMaster);
-            ArgumentNullException.ThrowIfNull(pathToMaster);
+        protected virtual string ValidateMasterPath(string pathToPrimaryFiles) {
+            b.Info.Flow(pathToPrimaryFiles);
+            ArgumentNullException.ThrowIfNull(pathToPrimaryFiles);
 
-            pathToMaster = pathToMaster.Replace("%MASTERROOT%", mo.MasterPath);
-            b.Verbose.Log($"resolved master path {pathToMaster} using {mo.MasterPath}");
-            if (!ps.DoesFileExist(pathToMaster)) {
-                b.Error.Log($"Error, master path file is not found {pathToMaster}");
-                throw new FileNotFoundException($"Master path ({pathToMaster}) must be present.", pathToMaster);
+            pathToPrimaryFiles = pathToPrimaryFiles.Replace(MollyOptions.PRIMARYPATHLITERAL, mo.PrimaryFilePath);
+            b.Verbose.Log($"resolved primary file path path {pathToPrimaryFiles} using {mo.PrimaryFilePath}");
+            if (!ps.DoesFileExist(pathToPrimaryFiles)) {
+                int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidMasterDirectory, $"Path to the primary files must be present and valid.  Path specified is {pathToPrimaryFiles}");
+                throw new FileNotFoundException($"0x{errorCode:x8}. Primary file path ({pathToPrimaryFiles}) does not represent a full path to locate the required primary files.", pathToPrimaryFiles);
             }
 
-            return pathToMaster;
+            return pathToPrimaryFiles;
         }
 
         private void AddFullbypassActions(string l) {
@@ -231,6 +237,7 @@
 
         private Action<MinmatchActionCheckEntity, string> GetMustMatchOneOfTheseChecker(string[] secondaryList) {
             if ((secondaryList == null) || (secondaryList.Length == 0)) {
+                b.Error.Report((short)MollySubSystem.RulesFiles, (short)MollyErrorCode.MustMatchRuleMissingMatchConditions, "The rule is invalid, you must have a match for a forced match rule.");
                 throw new InvalidOperationException("The rule is invalid, you must have a match for a forced match rule.");
             }
 

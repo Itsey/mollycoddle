@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-namespace mollycoddle; 
+namespace mollycoddle;
 
 [Flags]
 public enum OutputType {

@@ -1,4 +1,4 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
 /// <summary>
 /// Holds a match pattern and a set of secondary patterns, for example a match and a list of exceptions.

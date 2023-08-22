@@ -1,0 +1,43 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0500",
+            "Name": "No Checks Be Best.",
+            "RuleReference": "MC0501",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\**\\obj\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\**\\ndependout\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\**\\bin\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\**\\.vs\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\**\\.git\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+       
+    ],
+    "RulesetName": "Archive Enablement"
+}

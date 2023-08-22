@@ -6,7 +6,8 @@
     },
     "testDir": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Files\\Code\\git\\JSBSite\" -rulesfile=\"C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\testarchive.mollyset\" -addrulehelp -Debug=v-**"
+      "commandLineArgs": "\"C:\\Files\\Code\\git\\mollycoddle\" -rulesfile=\"C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\defaultrules.mollyset\" -primaryRoot=\"C:\\Files\\OneDrive\\Dev\\PrimaryFiles\" -formatter=\"plain\" -debug=v-**",
+      "workingDirectory": "c:\\files\\code\\git"
     }
   }
 }

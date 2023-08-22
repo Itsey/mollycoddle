@@ -1,4 +1,4 @@
-﻿namespace mollycoddle.test; 
+﻿namespace mollycoddle.test;
 
 using System;
 using System.Collections.Generic;

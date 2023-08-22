@@ -14,9 +14,10 @@
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
             b.Info.Flow();
 
+            b.Info.Log("Directory Structure Checker working on all directories in the project.....");
             foreach (string nextFolder in ps.AllFolders) {
                 string folderName = nextFolder.ToLowerInvariant();
-                b.Verbose.Log($"checking {folderName}");
+                b.Verbose.Log($"dsc - checking {folderName}");
 
                 if (IsByPassActive(folderName)) {
                     b.Verbose.Log($"bypass filter activated for {folderName}");
@@ -29,6 +30,7 @@
 
                 foreach (var isPathProhibited in prohibitors) {
                     if (isPathProhibited.Item2(folderName)) {
+                        b.Info.Log($"dsc - prohibited path found.  Violation raised for {nextFolder}");
                         result.AddDefect(new Violation(isPathProhibited.Item1) {
                             Additional = $"({folderName}) is a prohibited path."
                         });

@@ -16,6 +16,8 @@
                 AdditionalInfo = "Default Failure Reason, this is an invalid rule.";
             };
             DoesMatch = new Minimatcher(string.Empty);
+
+            DiagnosticDescriptor = "Default MinmatchActionCheckEntity - Not To Be Used.";
         }
 
         public Minimatcher DoesMatch { get; internal set; }

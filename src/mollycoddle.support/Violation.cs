@@ -1,4 +1,4 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
 /// <summary>
 /// Violations indicate failures in the rules compliance.  Each violation has an owning rule identity

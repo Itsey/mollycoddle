@@ -1,4 +1,5 @@
 ﻿namespace mollycoddle {
+
     public enum PackageVersionMatchType {
         AllVersions,
         RangeProhibited,

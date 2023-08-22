@@ -1,4 +1,4 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
 using System.Collections.Generic;
 using System.Diagnostics;

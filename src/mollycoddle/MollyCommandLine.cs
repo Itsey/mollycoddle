@@ -1,31 +1,41 @@
-﻿namespace mollycoddle; 
+﻿namespace mollycoddle;
 
+using Plisky.Diagnostics;
 using Plisky.Plumbing;
 
 [CommandLineArguments]
 public class MollyCommandLine {
+    private string actualDirectory;
 
     public MollyCommandLine() {
         WarningMode = false;
         WarningsIncludeLinks = false;
-        DirectoryToTarget = string.Empty;
         Debug = "off";
+        actualDirectory = string.Empty;
     }
 
     [CommandLineArg("debug", FullDescription = "Set to a debug string to write out additional logging and debugging information.")]
     public string Debug { get; set; }
 
     [CommandLineArg("dir", IsRequired = true, IsSingleParameterDefault = true, Description = "The root to start scanning in")]
-    public string DirectoryToTarget { get; set; }
+    public string DirectoryToTarget {
+        get {
+            return actualDirectory;
+        }
+        set {
+            actualDirectory = Path.GetFullPath(value);
+        }
+    }
 
     [CommandLineArg("disabled", FullDescription = "If Disabled is set the mollycoddle will not execute but will return 0 instead.")]
     public bool Disabled { get; set; }
 
-    [CommandLineArg("masterRoot", FullDescription = "If Master files based rules are used this is the location of the master Root for these files")]
-    public string? MasterPath { get; set; }
-
     [CommandLineArg("formatter", FullDescription = "If set to azdo then azure build pipelines formatting will be used, otherwise plain text output.")]
     public string OutputFormat { get; set; } = "azdo";
+
+    [CommandLineArg("primaryRoot", FullDescription = "If Primary Source files based rules are used this is the location of the primary Root for these files")]
+    [CommandLineArg("masterRoot")]
+    public string? PrimaryPath { get; set; }
 
     [CommandLineArg("rulesfile", FullDescription = "Path to either a mollyset or molly rules file.")]
     public string? RulesFile { get; set; }
@@ -38,6 +48,7 @@ public class MollyCommandLine {
 
     public MollyOptions GetOptions() {
         if (RulesFile == null) {
+            Bilge.Default.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineRulesFileMissing, "Rules file must be specified for mollycoddle to execute.");
             throw new InvalidOperationException("Rules file must be specified for mollycoddle to execute.");
         }
 
@@ -47,7 +58,7 @@ public class MollyCommandLine {
         result.DebugSetting = Debug;
 
         result.AddHelpText = WarningsIncludeLinks;
-        result.MasterPath = MasterPath;
+        result.PrimaryFilePath = PrimaryPath;
 
         if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
             if (DirectoryToTarget.EndsWith("\\")) {

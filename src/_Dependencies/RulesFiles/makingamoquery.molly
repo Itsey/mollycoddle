@@ -6,7 +6,7 @@
             "RuleReference": "MC0201",
             "Validators": [
                 {
-                    "AdditionalData": [                       
+                    "AdditionalData": [
                         "moq[4.19.0-4.20.68]"
                     ],
                     "Control": "ProhibitedPackagesList",
@@ -14,7 +14,7 @@
                     "ValidatorName": "NugetValidationChecks"
                 }
             ]
-        },
-        ]
+        }
+    ],
     "RulesetName": "Basic Quality Rules"
 }

@@ -180,7 +180,7 @@ public class RulesFiles_IntegrationTests {
         var rls = sut.LoadRulesFromFile(js);
 
         var m = new Molly(new MollyOptions() {
-            MasterPath = @"c:\mastermadeup"
+            PrimaryFilePath = @"c:\mastermadeup"
         });
         m.AddProjectStructure(mps);
         m.ImportRules(rls);
@@ -209,7 +209,7 @@ public class RulesFiles_IntegrationTests {
         var rls = sut.LoadRulesFromFile(js);
 
         var m = new Molly(new MollyOptions() {
-            MasterPath = @"c:\mastermadeup"
+            PrimaryFilePath = @"c:\mastermadeup"
         });
         m.AddProjectStructure(mps);
         m.ImportRules(rls);
@@ -238,7 +238,7 @@ public class RulesFiles_IntegrationTests {
         var rls = sut.LoadRulesFromFile(js);
 
         var m = new Molly(new MollyOptions() {
-            MasterPath = @"c:\mastermadeup"
+            PrimaryFilePath = @"c:\mastermadeup"
         });
         m.AddProjectStructure(mps);
         m.ImportRules(rls);

@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics;
 using mollycoddle;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
@@ -10,6 +11,9 @@ internal class Program {
     private static bool WarningMode = false;
 
     private static int Main(string[] args) {
+        var sw = new Stopwatch();
+        sw.Start();
+
         Bilge? b = null;
 
         int exitCode = 0;
@@ -23,6 +27,8 @@ internal class Program {
         if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
             WriteOutput = WriteOutputAzDo;
         }
+
+        WriteOutput("MollyCoddle Online", OutputType.Info);
 
         if (ma.Disabled) {
             WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
@@ -96,8 +102,7 @@ internal class Program {
         foreach (var l in cr.ViolationsFound.OrderBy(p => p.RuleName)) {
             if (mo.AddHelpText) {
                 if (l.RuleName != lastWrittenRule) {
-                    Console.WriteLine($"❓ {l.RuleName} Further help:  {molly.GetRuleSupportingInfo(l.RuleName)}");
-
+                    WriteOutput($"❓ {l.RuleName} Further help:  {molly.GetRuleSupportingInfo(l.RuleName)}", OutputType.Info);
                     lastWrittenRule = l.RuleName;
                 }
                 WriteOutput($"{l.Additional}", OutputType.Violation);
@@ -106,10 +111,12 @@ internal class Program {
             }
         }
 
+        sw.Stop();
+        string elapsedString = $" Took {sw.ElapsedMilliseconds}ms.";
         if (cr.DefectCount == 0) {
-            WriteOutput($"No Violations, Mollycoddle Pass.", OutputType.EndSuccess);
+            WriteOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
         } else {
-            WriteOutput($"Total Violations {cr.DefectCount}", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+            WriteOutput($"Total Violations {cr.DefectCount}.  ({elapsedString})", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
         }
 
         if (WarningMode) {
@@ -120,7 +127,7 @@ internal class Program {
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
         b?.Verbose.Log("Mollycoddle, Exit");
-        b?.Flush();
+
         return exitCode;
     }
 
@@ -129,25 +136,24 @@ internal class Program {
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver(debugSetting);
 
-#if DEBUG
+#if DEBUG && false
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
         Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
-#else
-        Bilge.AddHandler(new ConsoleHandler());
+
 #endif
-        
+        Bilge.AddHandler(new ConsoleHandler());
     }
 
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
         switch (ot) {
-            case OutputType.Violation: pfx = "�� Violation: "; break;
-            case OutputType.Error: pfx = "Error: "; break;
+            case OutputType.Violation: pfx = "💩 Violation: "; break;
+            case OutputType.Error: pfx = "⚠ Error: "; break;
             case OutputType.Info: pfx = "Info: "; break;
-            case OutputType.EndSuccess: pfx = "�� Completed."; break;
-            case OutputType.EndFailure: pfx = "�� Completed."; break;
+            case OutputType.EndSuccess: pfx = "😎 Completed."; break;
+            case OutputType.EndFailure: pfx = "😢 Completed."; break;
         }
         Console.WriteLine($"{pfx}{v}");
     }
@@ -157,8 +163,8 @@ internal class Program {
         string errType = WarningMode ? "warning" : "error";
 
         switch (ot) {
-            case OutputType.Violation: pfx = $"##vso[task.logissue type={errType}]Violation: "; break;
-            case OutputType.Error: pfx = $"##vso[task.logissue type={errType}]Error: "; break;
+            case OutputType.Violation: pfx = $"##vso[task.logissue type={errType}] 💩 Violation: "; break;
+            case OutputType.Error: pfx = $"##vso[task.logissue type={errType}] ⚠ Error: "; break;
             case OutputType.Info: pfx = "##[command]"; break;
             case OutputType.EndSuccess:
                 Console.WriteLine($"{v}");

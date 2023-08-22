@@ -8,23 +8,7 @@
                 {
                     "AdditionalData": null,
                     "Control": "MustExist",
-                    "PatternMatch": "**/src*/*.sln",
-                    "ValidatorName": "FileValidationChecks"
-                },
-                {
-                    "AdditionalData": null,
-                    "Control": "MustNotExist",
-                    "PatternMatch": "**/src*/*.csproj",
-                    "ValidatorName": "FileValidationChecks"
-                },
-                {
-                    "AdditionalData": [
-                        "**/src*/*/*.csproj",
-                        "**/src*/**/FrameworkVersions/**/*.csproj",
-                        "**/test/*/*.csproj"
-                    ],
-                    "Control": "IfExistMustBeHere",
-                    "PatternMatch": "**/*.csproj",
+                    "PatternMatch": "**\\src\\*.sln",
                     "ValidatorName": "FileValidationChecks"
                 }
             ]
