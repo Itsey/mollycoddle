@@ -1,0 +1,12 @@
+﻿performancebypass.molly
+root_folder_allowlist.molly
+rootfolders_src.molly
+nuget_banned_packages.molly
+file_readme.molly
+moq_sponsorlink_banned.molly
+solution_mustexist.molly
+bannedFileExtensions.molly
+master_nugetconfig.molly
+master_gitignore.molly
+master_editorconfig.molly
+archivedFilesBypass.molly

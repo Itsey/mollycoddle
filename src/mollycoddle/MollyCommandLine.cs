@@ -1,10 +1,10 @@
 ﻿namespace mollycoddle;
 
-using Plisky.Diagnostics;
 using Plisky.Plumbing;
 
 [CommandLineArguments]
 public class MollyCommandLine {
+    private const string VERSION_REPLACEMENT_TAG = "XXVERSIONNAMEXX";
     private string actualDirectory;
 
     public MollyCommandLine() {
@@ -37,6 +37,9 @@ public class MollyCommandLine {
     [CommandLineArg("masterRoot")]
     public string? PrimaryPath { get; set; }
 
+    [CommandLineArg("version", FullDescription = "If set then will replace {{VER}} in the rules loading path or file with the string value passed.  Defaults to not used.")]
+    public string? RulesetVersion { get; set; } = string.Empty;
+
     [CommandLineArg("rulesfile", FullDescription = "Path to either a mollyset or molly rules file.")]
     public string? RulesFile { get; set; }
 
@@ -47,25 +50,26 @@ public class MollyCommandLine {
     public bool WarningsIncludeLinks { get; set; }
 
     public MollyOptions GetOptions() {
-        if (RulesFile == null) {
-            Bilge.Default.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineRulesFileMissing, "Rules file must be specified for mollycoddle to execute.");
-            throw new InvalidOperationException("Rules file must be specified for mollycoddle to execute.");
+        RulesFile ??= string.Empty;
+
+        if (RulesFile.Contains(VERSION_REPLACEMENT_TAG)) {
+            RulesFile = RulesFile.Replace(VERSION_REPLACEMENT_TAG, RulesetVersion);
         }
 
-        var result = new MollyOptions();
+        if (Debug is "off" or "none") {
+            Debug = string.Empty;
+        }
 
-        result.EnableDebug = !string.IsNullOrEmpty(Debug);
-        result.DebugSetting = Debug;
+        var result = new MollyOptions {
+            EnableDebug = !string.IsNullOrEmpty(Debug),
+            DebugSetting = Debug,
 
-        result.AddHelpText = WarningsIncludeLinks;
-        result.PrimaryFilePath = PrimaryPath;
+            AddHelpText = WarningsIncludeLinks,
+            PrimaryFilePath = PrimaryPath
+        };
 
         if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
-            if (DirectoryToTarget.EndsWith("\\")) {
-                result.DirectoryToTarget = DirectoryToTarget.Substring(0, DirectoryToTarget.Length - 1);
-            } else {
-                result.DirectoryToTarget = DirectoryToTarget;
-            }
+            result.DirectoryToTarget = DirectoryToTarget.EndsWith("\\") ? DirectoryToTarget[..^1] : DirectoryToTarget;
         }
         OutputFormat = "default";
         result.RulesFile = RulesFile;

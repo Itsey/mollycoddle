@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Minimatch" Version="2.0.0" />
-    <PackageReference Include="Plisky.Diagnostics" Version="3.1.12" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.2.0" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Plisky.Versioning">

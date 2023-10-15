@@ -1,0 +1,20 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0100",
+            "Name": "Local editor config must match master.editorconfig.",
+            "RuleReference": "MC0100",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.editorconfig"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\src\\.editorconfig",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

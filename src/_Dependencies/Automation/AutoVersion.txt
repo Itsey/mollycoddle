@@ -1,0 +1,10 @@
+﻿**/src/**/mollycoddle.csproj|StdAssembly
+**/src/**/mollycoddle.csproj|StdInformational
+**/src/**/mollycoddle.csproj|StdFile
+**/src/**/mollycoddle.support.csproj|StdAssembly
+**/src/**/mollycoddle.support.csproj|StdInformational
+**/src/**/mollycoddle.support.csproj|StdFile
+**/src/**/mollycoddle.test.csproj|StdAssembly
+**/src/**/mollycoddle.test.csproj|StdInformational
+**/src/**/mollycoddle.test.csproj|StdFile
+

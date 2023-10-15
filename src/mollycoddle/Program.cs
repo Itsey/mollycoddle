@@ -9,6 +9,7 @@ using Plisky.Plumbing;
 internal class Program {
     private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
     private static bool WarningMode = false;
+    private static int exitCode = 0;
 
     private static int Main(string[] args) {
         var sw = new Stopwatch();
@@ -16,12 +17,11 @@ internal class Program {
 
         Bilge? b = null;
 
-        int exitCode = 0;
-        var clas = new CommandArgumentSupport();
-        clas.ArgumentPrefix = "-";
-        clas.ArgumentPostfix = "=";
+        var clas = new CommandArgumentSupport {
+            ArgumentPrefix = "-",
+            ArgumentPostfix = "="
+        };
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
-
         WarningMode = ma.WarningMode;
 
         if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
@@ -36,13 +36,15 @@ internal class Program {
             goto TheEndIsNigh;
         }
 
+
         var mo = ma.GetOptions();
         if (mo.EnableDebug) {
+            WriteOutput($"Debug Mode {mo.DebugSetting}", OutputType.Info);
             ConfigureTrace(mo.DebugSetting);
         }
 
         b = new Bilge("mollycoddle");
-        Bilge.Alert.Online("mollycoddle");
+        _ = Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");
 
         string directoryToTarget = mo.DirectoryToTarget;
@@ -127,7 +129,7 @@ internal class Program {
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
         b?.Verbose.Log("Mollycoddle, Exit");
-
+        _ = b.Flush();
         return exitCode;
     }
 
@@ -136,7 +138,7 @@ internal class Program {
         // TODO: Currently hardcoded trace, move this to configuration.
         Bilge.SetConfigurationResolver(debugSetting);
 
-#if DEBUG && false
+#if DEBUG && true
         Bilge.SetConfigurationResolver((x, y) => {
             return System.Diagnostics.SourceLevels.Verbose;
         });
@@ -180,22 +182,10 @@ internal class Program {
     }
 
     private static bool ValidateRulesFile(string rulesFile) {
-        if (string.IsNullOrWhiteSpace(rulesFile)) {
-            return false;
-        }
-        if (!File.Exists(rulesFile)) {
-            return false;
-        }
-        return true;
+        return !string.IsNullOrWhiteSpace(rulesFile) && File.Exists(rulesFile);
     }
 
     private static bool ValidateDirectory(string pathToCheck) {
-        if (string.IsNullOrWhiteSpace(pathToCheck)) {
-            return false;
-        }
-        if (!Directory.Exists(pathToCheck)) {
-            return false;
-        }
-        return true;
+        return !string.IsNullOrWhiteSpace(pathToCheck) && Directory.Exists(pathToCheck);
     }
 }

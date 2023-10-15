@@ -1,0 +1,20 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0102",
+            "Name": "Nuget config must match master file.",
+            "RuleReference": "MC0102",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%MASTERROOT%\\master.nuget.config"
+                    ],
+                    "Control": "MatchWithMaster",
+                    "PatternMatch": "%ROOT%\\src\\nuget.config",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}
