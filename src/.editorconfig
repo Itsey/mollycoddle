@@ -138,6 +138,9 @@ dotnet_naming_rule.interface_types_must_be_prefixed_with_i.symbols = interface_t
 dotnet_naming_rule.interface_types_must_be_prefixed_with_i.style = prefix_interface_interface_with_i
 
 
+#SA1116: Parameters go down a line
+dotnet_diagnostic.SA1116.severity = silent
+
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = silent
 
@@ -161,6 +164,7 @@ dotnet_diagnostic.SA1501.severity = silent
 
 # SA1505: Opening braces should not be followed by blank line
 dotnet_diagnostic.SA1505.severity = silent
+dotnet_diagnostic.SA1513.severity = silent
 dotnet_diagnostic.SA1633.severity=silent
 dotnet_diagnostic.SA1634.severity=silent
 dotnet_diagnostic.SA1635.severity=silent
