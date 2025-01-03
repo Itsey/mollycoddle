@@ -8,10 +8,10 @@
                 {
                     "AdditionalData": [
                         "[PRE]GlobalSection(ProjectConfigurationPlatforms)",
-                        "[RVL]Debug"
-                        "[GMN]"
-                        "[GME]"
-                        "[MNM]^(\s*){[A-z0-9\-]*}.(Release)\|([A-z0-9 \.]*)\s=\s(Debug)\|"
+                        "[RVL]Debug",
+                        "[GMN]",
+                        "[GME]",
+                        "[MNM]^(\\s*){[A-z0-9\\-]*}.(Release)\|([A-z0-9 \\.]*)\\s=\\s(Debug)\\|",
                         "[STP]EndGlobalSection"
                     ],
                     "Control": "RegexLineParser",
@@ -21,10 +21,10 @@
                 {
                     "AdditionalData": [
                         "[PRE]GlobalSection(ProjectConfigurationPlatforms)",
-                        "[RVL]Debug"
-                        "[GMN]"
-                        "[GME]"
-                        "[MNM]^(\s*){[A-z0-9\-]*}.(Release)\|([A-z0-9 \.]*)\s=\s(Debug)\|"
+                        "[RVL]Debug",
+                        "[GMN]",
+                        "[GME]",
+                        "[MNM]^(\\s*){[A-z0-9\\-]*}.(Release)\\|([A-z0-9 \\.]*)\\s=\\s(Debug)\\|",
                         "[STP]EndGlobalSection"
                     ],
                     "Control": "RegexLineParser",

@@ -129,7 +129,7 @@ internal class Program {
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
         b?.Verbose.Log("Mollycoddle, Exit");
-        _ = b.Flush();
+        _ = b?.Flush();
         return exitCode;
     }
 

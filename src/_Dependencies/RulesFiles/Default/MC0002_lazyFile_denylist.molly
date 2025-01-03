@@ -2,31 +2,31 @@
     "Rules": [
         {
             "Link": "https://itsey.github.io/molly-rules.html#MC0001",
-            "Name": "File extension denylist.",
+            "Name": "Lazy file deny list, common errors and mistakes.",
             "RuleReference": "MC0001",
             "Validators": [
                 {
                     "AdditionalData": null,
                     "Control": "MustNotExist",
-                    "PatternMatch": "**/*.vb",
+                    "PatternMatch": "**/class1.cs",
                     "ValidatorName": "FileValidationChecks"
                 },
                 {
                     "AdditionalData": null,
                     "Control": "MustNotExist",
-                    "PatternMatch": "**/*.vbproj",
+                    "PatternMatch": "**/*(2).*",
                     "ValidatorName": "FileValidationChecks"
                 },
                 {
                     "AdditionalData": null,
                     "Control": "MustNotExist",
-                    "PatternMatch": "**/*.java",
+                    "PatternMatch": "**/*(1).*",
                     "ValidatorName": "FileValidationChecks"
                 },
                 {
                     "AdditionalData": null,
                     "Control": "MustNotExist",
-                    "PatternMatch": "**/*.py",
+                    "PatternMatch": "**/*- Copy.*",
                     "ValidatorName": "FileValidationChecks"
                 }
             ]

@@ -1,0 +1,2 @@
+﻿**/mollycoddle.nuspec|Nuspec
+**/mollycoddle.nuspec|TextFile
