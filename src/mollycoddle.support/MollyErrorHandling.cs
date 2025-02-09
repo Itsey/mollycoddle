@@ -1,7 +1,7 @@
 ﻿namespace mollycoddle;
 
 public enum MollyErrorCode : short {
-    ProgramCommandLineInvalidMasterDirectory = 0x0001,
+    ProgramCommandLineInvalidCommonDirectory = 0x0001,
     ProgramCommandLineRulesFileMissing = 0x0002,
     MustMatchRuleMissingMatchConditions = 0x3
 }

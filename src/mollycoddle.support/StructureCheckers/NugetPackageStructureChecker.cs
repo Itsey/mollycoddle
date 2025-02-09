@@ -220,7 +220,7 @@
 
             pathToMaster = pathToMaster.Replace(MollyOptions.PRIMARYPATHLITERAL, mo.PrimaryFilePath);
 
-            int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidMasterDirectory, $"Path to the master files must be present and valid.  Path specified is {pathToMaster}");
+            int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidCommonDirectory, $"Path to the master files must be present and valid.  Path specified is {pathToMaster}");
             return !File.Exists(pathToMaster) ? throw new FileNotFoundException($"Error {errorCode}.  Path to master files is missing.", pathToMaster) : pathToMaster;
         }
 

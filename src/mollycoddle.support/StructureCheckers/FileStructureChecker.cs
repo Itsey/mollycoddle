@@ -10,9 +10,9 @@
         public FileStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
         }
 
-        public virtual void AssignCompareWithMasterAction(string patternToMatch, string pathToMaster, string ruleName) {
+        public virtual void AssignCompareWithCommonAction(string patternToMatch, string pathToCommon, string ruleName) {
             patternToMatch = ValidateActualPath(patternToMatch);
-            string pm = ValidateMasterPath(pathToMaster);
+            string pm = ValidateCommonPath(pathToCommon);
 
             var fca = new MinmatchActionCheckEntity(ruleName);
             fca.PerformCheck = GetContentsCheckerAction(pm);
@@ -132,8 +132,8 @@
             foreach (string l in fs.FullBypasses()) {
                 AddFullbypassActions(l);
             }
-            foreach (var l in fs.FilesThatMustMatchTheirMaster()) {
-                AssignCompareWithMasterAction(ValidateActualPath(l.PatternForSourceFile), l.FullPathForMasterFile, fs.TriggeringRule);
+            foreach (var l in fs.FilesThatMustMatchTheirCommon()) {
+                AssignCompareWithCommonAction(ValidateActualPath(l.PatternForSourceFile), l.FullPathForCommonFile, fs.TriggeringRule);
             }
             foreach (string ln in fs.FilesThatMustExist()) {
                 AssignMustExistAction(fs.TriggeringRule, ln);
@@ -146,21 +146,24 @@
             }
         }
 
-        protected virtual Action<MinmatchActionCheckEntity, string> GetContentsCheckerAction(string masterContentsPath) {
-            var masterLengthAndHash = ps.GetFileHashAndLength(masterContentsPath);
+        protected virtual Action<MinmatchActionCheckEntity, string> GetContentsCheckerAction(string pathToCheck) {
+            b.Verbose.Flow();
+
+            var commonFileLengthAndHash = ps.GetFileHashAndLength(pathToCheck);
 
             var result = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                var targetLengthAndHasn = ps.GetFileHashAndLength(filenameToCheck);
+                var targetLengthAndHash = ps.GetFileHashAndLength(filenameToCheck);
 
-                if (targetLengthAndHasn.Item1 == masterLengthAndHash.Item1) {
-                    if (!masterLengthAndHash.Item2.SequenceEqual(targetLengthAndHasn.Item2)) {
+                if (targetLengthAndHash.Item1 == commonFileLengthAndHash.Item1) {
+                    if (!commonFileLengthAndHash.Item2.SequenceEqual(targetLengthAndHash.Item2)) {
                         // Failed
                         resultant.IsInViolation = true;
-                        resultant.AdditionalInfo = filenameToCheck;
+                        resultant.AdditionalInfo = $"{filenameToCheck} does not match common file definition.";
                     }
                 } else {
+                    b.Verbose.Log($"Lengths do not match {commonFileLengthAndHash.Item1} {targetLengthAndHash.Item1}");
                     resultant.IsInViolation = true;
-                    resultant.AdditionalInfo = $"{filenameToCheck} does not match master.";
+                    resultant.AdditionalInfo = $"{filenameToCheck} does not match common file definition.";
                 }
             });
             return result;
@@ -207,22 +210,22 @@
             return pathToActual.Replace("%ROOT%", ps.Root);
         }
 
-        protected virtual string ValidateMasterPath(string pathToPrimaryFiles) {
+        protected virtual string ValidateCommonPath(string pathToPrimaryFiles) {
             b.Info.Flow(pathToPrimaryFiles);
             ArgumentNullException.ThrowIfNull(pathToPrimaryFiles);
 
             pathToPrimaryFiles = pathToPrimaryFiles.Replace(MollyOptions.PRIMARYPATHLITERAL, mo.PrimaryFilePath);
             b.Verbose.Log($"resolved primary file path path {pathToPrimaryFiles} using {mo.PrimaryFilePath}");
             if (!ps.DoesFileExist(pathToPrimaryFiles)) {
-                int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidMasterDirectory, $"Path to the primary files must be present and valid.  Path specified is {pathToPrimaryFiles}");
-                throw new FileNotFoundException($"0x{errorCode:x8}. Primary file path ({pathToPrimaryFiles}) does not represent a full path to locate the required primary files.", pathToPrimaryFiles);
+                int errorCode = b.Error.Report((short)MollySubSystem.Program, (short)MollyErrorCode.ProgramCommandLineInvalidCommonDirectory, $"Path to the primary files must be present and valid.  Path specified is {pathToPrimaryFiles}");
+                throw new FileNotFoundException($"0x{errorCode:x8}. Unable to find primary file: ({pathToPrimaryFiles}).", pathToPrimaryFiles);
             }
 
             return pathToPrimaryFiles;
         }
 
         private void AddFullbypassActions(string l) {
-            AddMasterByPass(l.Replace("%ROOT%", ps.Root).ToLowerInvariant());
+            AddFullBypass(l.Replace("%ROOT%", ps.Root).ToLowerInvariant());
         }
 
         private Action<MinmatchActionCheckEntity, string> GetFileContentsMustChecker(string text, bool mustOrMustNot) {

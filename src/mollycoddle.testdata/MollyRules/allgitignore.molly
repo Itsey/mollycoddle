@@ -7,9 +7,9 @@
             "Validators": [
                 {
                     "AdditionalData": [
-                        "%MASTERROOT%\\master.gitignore"
+                        "%COMMONROOT%\\common.gitignore"
                     ],
-                    "Control": "MatchWithMaster",
+                    "Control": "MatchWithPrimary",
                     "PatternMatch": "%ROOT%\\.gitignore",
                     "ValidatorName": "FileValidationChecks"
                 }

@@ -17,6 +17,13 @@ dotnet_style_collection_initializer = true:suggestion
 dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:silent
 dotnet_style_prefer_conditional_expression_over_return = true:silent
+dotnet_style_explicit_tuple_names = true:warning
+dotnet_style_prefer_inferred_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:suggestion
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
+dotnet_style_namespace_match_folder = false:suggestion
 
 # Code files
 [*.{cs,csx}]
@@ -77,17 +84,17 @@ csharp_style_expression_bodied_accessors                        = true:none
 csharp_style_pattern_matching_over_is_with_cast_check           = true : suggestion
 csharp_style_pattern_matching_over_as_with_null_check           = true : suggestion
 csharp_style_inlined_variable_declaration                       = true : suggestion
-csharp_style_throw_expression                                   = true : suggestion
+csharp_style_throw_expression                                   = true:suggestion
 csharp_style_conditional_delegate_call                          = true : suggestion
 
 # Newline settings
 csharp_new_line_before_open_brace                               = none
-csharp_new_line_before_else                                     = false : error
-csharp_new_line_before_catch                                    = false : error
-csharp_new_line_before_finally                                  = false : error
+csharp_new_line_before_else                                     = false
+csharp_new_line_before_catch                                    = false
+csharp_new_line_before_finally                                  = false
 csharp_new_line_before_members_in_object_initializers           = true
 csharp_new_line_before_members_in_anonymous_types               = true
-
+csharp_new_line_between_query_expression_clauses 		= false
 
 #custom styles -------------------------------------------------------------------------------------------
 
@@ -138,9 +145,6 @@ dotnet_naming_rule.interface_types_must_be_prefixed_with_i.symbols = interface_t
 dotnet_naming_rule.interface_types_must_be_prefixed_with_i.style = prefix_interface_interface_with_i
 
 
-#SA1116: Parameters go down a line
-dotnet_diagnostic.SA1116.severity = silent
-
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = silent
 
@@ -164,7 +168,6 @@ dotnet_diagnostic.SA1501.severity = silent
 
 # SA1505: Opening braces should not be followed by blank line
 dotnet_diagnostic.SA1505.severity = silent
-dotnet_diagnostic.SA1513.severity = silent
 dotnet_diagnostic.SA1633.severity=silent
 dotnet_diagnostic.SA1634.severity=silent
 dotnet_diagnostic.SA1635.severity=silent
@@ -199,4 +202,9 @@ csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_space_around_binary_operators = before_and_after
 dotnet_style_namespace_match_folder = false
+csharp_style_prefer_method_group_conversion = true:silent
+csharp_style_prefer_top_level_statements = true:silent
+csharp_style_prefer_primary_constructors = true:suggestion
+csharp_prefer_system_threading_lock = true:suggestion
+csharp_style_prefer_null_check_over_type_check = true:suggestion
 

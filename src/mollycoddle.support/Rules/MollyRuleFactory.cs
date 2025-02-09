@@ -21,7 +21,7 @@
 
             if (!File.Exists(filename)) {
                 b.Error.Log($"File {filename} not found, about to error");
-                throw new FileNotFoundException("molly rules file was not found.", filename);
+                throw new FileNotFoundException($"Molly rules file was not found. {filename}", filename);
             } else {
                 string xtn = Path.GetExtension(filename).ToLowerInvariant();
                 if (xtn == ".molly") {
@@ -121,11 +121,11 @@
                     vv.AddProhibitedPattern(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData);
                     break;
 
-                case "MatchWithMaster":
+                case "MatchWithPrimary":
                     if (nextRuleStep.AdditionalData == null || !nextRuleStep.AdditionalData.Any()) {
-                        throw new InvalidOperationException("Require additional data for master match rule in mollyrule file");
+                        throw new InvalidOperationException("Require additional data for common match rule in mollyrule file");
                     }
-                    vv.MustMatchMaster(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData.First());
+                    vv.MustMatchPrimary(nextRuleStep.PatternMatch, nextRuleStep.AdditionalData.First());
                     break;
 
                 case "IfExistMustBeHere":

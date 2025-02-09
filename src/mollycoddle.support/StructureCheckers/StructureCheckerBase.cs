@@ -17,7 +17,7 @@
             mo = mopts;
         }
 
-        public void AddMasterByPass(string v) {
+        public void AddFullBypass(string v) {
             b.Verbose.Log($"Master Bypass {v}");
             bypassMatch.Add(Minimatcher.CreateFilter(v, o));
         }

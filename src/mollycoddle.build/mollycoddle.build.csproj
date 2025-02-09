@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace></RootNamespace>
+    <NoWarn>CS0649;CS0169;CA1050;CA1822;CA2211;IDE1006</NoWarn>
+    <NukeRootDirectory>..</NukeRootDirectory>
+    <NukeScriptDirectory>..</NukeScriptDirectory>
+    <NukeTelemetryVersion>1</NukeTelemetryVersion>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1" />
+    <PackageReference Include="NuGet.CommandLine" Version="6.12.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Nuke.Common" Version="9.0.3" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.2.2" />
+    <PackageReference Include="Plisky.Listeners" Version="3.2.2" />
+    <PackageReference Include="Plisky.Mollycoddle" Version="0.1.2" />
+    <PackageReference Include="Plisky.Nuke.Fusion" Version="0.1.12" />
+    <PackageReference Include="Plisky.Versonify" Version="0.1.1" />
+  </ItemGroup>
+
+</Project>

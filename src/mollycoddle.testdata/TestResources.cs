@@ -12,7 +12,7 @@ public enum TestResourcesReferences {
     MollyRule_PenBeMighty,
     MollyRule_HotSauce,
     MollyRule_GoodRoots,
-    MollyRule_EditorConfigMaster,
+    MollyRule_EditorConfigSample,
     MollyRule_GitIgnoreMaster,
     MollyRule_NugetConfigMaster,
     MollyRule_NoNaughtyNugets,
@@ -34,7 +34,7 @@ public static class TestResources {
             case TestResourcesReferences.MollyRule_HotSauce: return "hotsauce.molly";
             case TestResourcesReferences.MollyRule_GoodRoots: return "goodroots.molly";
             case TestResourcesReferences.MollyRule_OneLanguage: return "onelanguage.molly";
-            case TestResourcesReferences.MollyRule_EditorConfigMaster: return "alledconfig.molly";
+            case TestResourcesReferences.MollyRule_EditorConfigSample: return "alledconfig.molly";
             case TestResourcesReferences.MollyRule_GitIgnoreMaster: return "allgitignore.molly";
             case TestResourcesReferences.MollyRule_NugetConfigMaster: return "allnugetconfig.molly";
             case TestResourcesReferences.MollyRule_NoNaughtyNugets: return "nonaughtynugets.molly";

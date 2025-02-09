@@ -5,7 +5,7 @@ using Plisky.Diagnostics;
 
 public class CheckResult {
     protected Bilge b = new Bilge("molly-results");
-
+    public int ErrorCode { get; set; }
     public CheckResult() {
         ViolationsFound = new List<Violation>();
     }

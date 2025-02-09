@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "mollycoddle.build": {
+      "commandName": "Project",
+      "commandLineArgs": "ConstructStep"
+    }
+  }
+}

@@ -1,16 +1,16 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/molly-rules.html#MC0102",
-            "Name": "Nuget config must match master file.",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0103",
+            "Name": "Directory.Props must match common file.",
             "RuleReference": "MC0102",
             "Validators": [
                 {
                     "AdditionalData": [
-                        "%MASTERROOT%\\master.nuget.config"
+                        "%COMMONROOT%\\common.directory.props"
                     ],
-                    "Control": "MatchWithMaster",
-                    "PatternMatch": "%ROOT%\\src\\nuget.config",
+                    "Control": "MatchWithPrimary",
+                    "PatternMatch": "%ROOT%\\src\\directory.props",
                     "ValidatorName": "FileValidationChecks"
                 }
             ]

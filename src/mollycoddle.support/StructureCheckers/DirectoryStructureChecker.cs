@@ -54,7 +54,7 @@
             base.AddDirectoryValidator(dc);
 
             foreach (string masterBypassPattern in dc.FullBypasses()) {
-                AddMasterByPass(masterBypassPattern.Replace("%ROOT%", ps.Root).ToLowerInvariant());
+                AddFullBypass(masterBypassPattern.Replace("%ROOT%", ps.Root).ToLowerInvariant());
             }
 
             foreach (string l in dc.MustExistExactly()) {

@@ -6,14 +6,22 @@ using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
-internal class Program {
+public class Program {
     private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
     private static bool WarningMode = false;
     private static int exitCode = 0;
+    private static string timingMessage = "";
+    private static long lastCheckpoint = 0;
 
-    private static int Main(string[] args) {
+    private static async Task<int> Main(string[] args) {
         var sw = new Stopwatch();
-        sw.Start();
+
+        Hub.Current.UseStrongReferences = true;
+        Hub.Current.LookFor<CheckpointMessage>((a) => {
+            long time = sw.ElapsedMilliseconds - lastCheckpoint;
+            lastCheckpoint = sw.ElapsedMilliseconds;
+            timingMessage += $"({a.Name} : {time}ms.)";
+        });
 
         Bilge? b = null;
 
@@ -43,95 +51,57 @@ internal class Program {
             ConfigureTrace(mo.DebugSetting);
         }
 
+
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");
 
-        string directoryToTarget = mo.DirectoryToTarget;
+        var mm = new MollyMain(mo, b);
+        mm.WriteOutput = WriteOutput;
 
-        b.Verbose.Log($"Targeting Directory ]{directoryToTarget}");
-
-        if ((directoryToTarget == "?") || (directoryToTarget == "/?") || (directoryToTarget.ToLower() == "/help")) {
+        if ((ma.DirectoryToTarget == "?") || (ma.DirectoryToTarget == "/?") || (ma.DirectoryToTarget.ToLower() == "/help")) {
             Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
             Console.WriteLine(clas.GenerateHelp(ma, "MollyCoddle"));
             exitCode = 0;
-            goto TheEndIsNigh;
-        }
-
-        if (!ValidateDirectory(directoryToTarget)) {
-            WriteOutput($"InvalidCommand - Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
-            exitCode = -1;
-            goto TheEndIsNigh;
-        }
-        if (!ValidateRulesFile(mo.RulesFile)) {
-            WriteOutput($"InvalidCommand - RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
-            exitCode = -2;
-            goto TheEndIsNigh;
-        }
-
-        var ps = new ProjectStructure {
-            Root = directoryToTarget
-        };
-        ps.PopulateProjectStructure();
-
-        var mrf = new MollyRuleFactory();
-        var molly = new Molly(mo);
-        molly.AddProjectStructure(ps);
-        try {
-            molly.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
-        } catch (InvalidOperationException iox) {
-            WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
-            Exception? eox = iox;
-            while (eox != null) {
-                WriteOutput($"Error: {eox.Message}", OutputType.Error);
-                eox = eox.InnerException;
-            }
-            exitCode = -90;
-            goto TheEndIsNigh;
-        }
-
-        CheckResult cr;
-        try {
-            cr = molly.ExecuteAllChecks();
-            exitCode = cr.DefectCount;
-        } catch (Exception ex) {
-            WriteOutput(ex.Message, OutputType.Error);
-            exitCode = -3;
-            goto TheEndIsNigh;
-        }
-
-        string lastWrittenRule = string.Empty;
-        foreach (var l in cr.ViolationsFound.OrderBy(p => p.RuleName)) {
-            if (mo.AddHelpText) {
-                if (l.RuleName != lastWrittenRule) {
-                    WriteOutput($"❓ {l.RuleName} Further help:  {molly.GetRuleSupportingInfo(l.RuleName)}", OutputType.Info);
-                    lastWrittenRule = l.RuleName;
-                }
-                WriteOutput($"{l.Additional}", OutputType.Violation);
-            } else {
-                WriteOutput($"{l.RuleName} ({l.Additional})", OutputType.Violation);
-            }
-        }
-
-        sw.Stop();
-        string elapsedString = $" Took {sw.ElapsedMilliseconds}ms.";
-        if (cr.DefectCount == 0) {
-            WriteOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
         } else {
-            WriteOutput($"Total Violations {cr.DefectCount}.  ({elapsedString})", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+
+            try {
+                sw.Start();
+
+                var cr = await mm.DoMollly();
+                exitCode = cr.DefectCount;
+
+
+
+                sw.Stop();
+                string elapsedString = $" Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
+                if (cr.DefectCount == 0) {
+                    WriteOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
+                } else {
+                    WriteOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+                }
+
+            } catch (Exception ex) {
+                WriteOutput(ex.Message, OutputType.Error);
+                exitCode = -3;
+                goto TheEndIsNigh;
+            }
+
+            if (WarningMode) {
+                b.Info.Log("Warning mode, resetting exit code to zero");
+                exitCode = 0;
+            }
         }
 
-        if (WarningMode) {
-            b.Info.Log("Warning mode, resetting exit code to zero");
-            exitCode = 0;
-        }
 
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
         b?.Verbose.Log("Mollycoddle, Exit");
-        _ = b.Flush();
+        b?.Flush().Wait();
         return exitCode;
     }
+
+
 
     private static void ConfigureTrace(string debugSetting) {
         Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
@@ -181,11 +151,5 @@ internal class Program {
         Console.WriteLine($"{pfx}{v}");
     }
 
-    private static bool ValidateRulesFile(string rulesFile) {
-        return !string.IsNullOrWhiteSpace(rulesFile) && File.Exists(rulesFile);
-    }
 
-    private static bool ValidateDirectory(string pathToCheck) {
-        return !string.IsNullOrWhiteSpace(pathToCheck) && Directory.Exists(pathToCheck);
-    }
 }

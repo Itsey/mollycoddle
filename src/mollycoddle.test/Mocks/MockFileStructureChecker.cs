@@ -29,7 +29,7 @@ internal class MockFileStructureChecker : FileStructureChecker {
         }
     }
 
-    protected override string ValidateMasterPath(string pathToMaster) {
+    protected override string ValidateCommonPath(string pathToMaster) {
         // Remove all validation which would hit the disk.
         return pathToMaster;
     }

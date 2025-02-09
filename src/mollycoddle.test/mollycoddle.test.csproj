@@ -1,18 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
-
     <OutputType>Library</OutputType>
+    <AssemblyVersion>0.1</AssemblyVersion>
+    <Version>0.1.3.0</Version>
+    <FileVersion>0.1.3.0</FileVersion>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.11.0" />
+    <PackageReference Include="AwesomeAssertions" Version="8.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.0" />
-    <PackageReference Include="Plisky.Diagnostics" Version="3.2.0" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.2.2" />
     <PackageReference Include="Plisky.Testing" Version="1.3.6" />
     <PackageReference Include="xunit" Version="2.5.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.0">
@@ -24,17 +24,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\mollycoddle.support\mollycoddle.support.csproj" />
     <ProjectReference Include="..\mollycoddle.testdata\mollycoddle.testdata.csproj" />
     <ProjectReference Include="..\mollycoddle\mollycoddle.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="Plisky.Versioning">
       <HintPath>..\_Dependencies\FileReferences\Plisky.Versioning.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 </Project>

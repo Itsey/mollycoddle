@@ -54,9 +54,9 @@ public class ProjectStructure {
         return File.ReadAllText(filename);
     }
 
-    public virtual Tuple<long, byte[]> GetFileHashAndLength(string masterContentsPath) {
+    public virtual Tuple<long, byte[]> GetFileHashAndLength(string filePathToCheck) {
         // Method used to abstract the file system so mock project structure can replace these methods
-        var fi = new FileInfo(masterContentsPath);
+        var fi = new FileInfo(filePathToCheck);
         using var fs = fi.OpenRead();
         return new Tuple<long, byte[]>(fi.Length, MD5.Create().ComputeHash(fs));
     }

@@ -7,9 +7,9 @@
             "Validators": [
                 {
                     "AdditionalData": [
-                        "%MASTERROOT%\\master.editorconfig"
+                        "%COMMONROOT%\\common.editorconfig"
                     ],
-                    "Control": "MatchWithMaster",
+                    "Control": "MatchWithPrimary",
                     "PatternMatch": "%ROOT%\\src\\.editorconfig",
                     "ValidatorName": "FileValidationChecks"
                 }

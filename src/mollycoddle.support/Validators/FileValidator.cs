@@ -16,7 +16,7 @@ public class FileValidator : ValidatorBase {
     public const string VALIDATORNAME = "FileValidationChecks";
 
     private List<string> completeBypasses = new List<string>();
-    private List<PrimaryCopyFile> masterMatchers = new List<PrimaryCopyFile>();
+    private List<PrimaryCopyFile> primaryMatchers = new List<PrimaryCopyFile>();
     private List<string> mustExistPaths = new List<string>();
     private List<MatchWithSecondaryMatches> precisePositions = new List<MatchWithSecondaryMatches>();
     private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();
@@ -50,8 +50,8 @@ public class FileValidator : ValidatorBase {
         return mustExistPaths;
     }
 
-    public IEnumerable<PrimaryCopyFile> FilesThatMustMatchTheirMaster() {
-        return masterMatchers;
+    public IEnumerable<PrimaryCopyFile> FilesThatMustMatchTheirCommon() {
+        return primaryMatchers;
     }
 
     /// <summary>
@@ -75,13 +75,13 @@ public class FileValidator : ValidatorBase {
     }
 
     /// <summary>
-    /// Add a file matching pattern that must match a master file, exactly.
+    /// Add a file matching pattern that must match a common file, exactly.
     /// </summary>
     /// <param name="pathToMatch">The matching pattern</param>
-    /// <param name="masterToMatch">The path to the master that must match</param>
-    public void MustMatchMaster(string pathToMatch, string masterToMatch) {
+    /// <param name="primaryToMatch">The path to the primary that must match</param>
+    public void MustMatchPrimary(string pathToMatch, string primaryToMatch) {
         mustExistPaths.Add(pathToMatch);
-        masterMatchers.Add(new PrimaryCopyFile(pathToMatch, masterToMatch));
+        primaryMatchers.Add(new PrimaryCopyFile(pathToMatch, primaryToMatch));
     }
 
     internal void MustBeInSpecificLocation(string patternMatch, string[] additionalData) {

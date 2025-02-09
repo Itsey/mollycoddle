@@ -34,7 +34,7 @@ public class MollyCommandLine {
     public string OutputFormat { get; set; } = "azdo";
 
     [CommandLineArg("primaryRoot", FullDescription = "If Primary Source files based rules are used this is the location of the primary Root for these files")]
-    [CommandLineArg("masterRoot")]
+    [CommandLineArg("masterRoot")]  // compat mode.
     public string? PrimaryPath { get; set; }
 
     [CommandLineArg("version", FullDescription = "If set then will replace {{VER}} in the rules loading path or file with the string value passed.  Defaults to not used.")]
@@ -42,6 +42,9 @@ public class MollyCommandLine {
 
     [CommandLineArg("rulesfile", FullDescription = "Path to either a mollyset or molly rules file.")]
     public string? RulesFile { get; set; }
+
+    [CommandLineArg("temppath", FullDescription = "Working directory for molly, and cache location. Supports environment variables.")]
+    public string TempPath { get; set; }
 
     [CommandLineArg("warnonly", FullDescription = "If set then MollyCoddle will return zero even if faults are found, but the faults will be outputted.")]
     public bool WarningMode { get; set; }
@@ -55,6 +58,7 @@ public class MollyCommandLine {
         if (RulesFile.Contains(VERSION_REPLACEMENT_TAG)) {
             RulesFile = RulesFile.Replace(VERSION_REPLACEMENT_TAG, RulesetVersion);
         }
+        RulesFile = Environment.ExpandEnvironmentVariables(RulesFile);
 
         if (Debug is "off" or "none") {
             Debug = string.Empty;
@@ -68,6 +72,17 @@ public class MollyCommandLine {
             PrimaryFilePath = PrimaryPath
         };
 
+        if (!string.IsNullOrEmpty(result.PrimaryFilePath)) {
+            result.PrimaryFilePath = result.PrimaryFilePath.Replace(VERSION_REPLACEMENT_TAG, RulesetVersion);
+            result.PrimaryFilePath = Environment.ExpandEnvironmentVariables(result.PrimaryFilePath);
+        }
+
+        if (string.IsNullOrEmpty(TempPath)) {
+            TempPath = Path.GetTempPath();
+        } else {
+            TempPath = Environment.ExpandEnvironmentVariables(TempPath);
+        }
+        result.TempPath = TempPath;
         if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
             result.DirectoryToTarget = DirectoryToTarget.EndsWith("\\") ? DirectoryToTarget[..^1] : DirectoryToTarget;
         }

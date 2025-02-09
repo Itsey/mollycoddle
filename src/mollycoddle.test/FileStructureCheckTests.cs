@@ -23,7 +23,7 @@ public class FileStructureCheckTests {
         mps.WithFile("%MASTEROOT%\\master.gitignore", "gitignorefilecontents");
 
         var sut = new MockFileStructureChecker(mps);
-        sut.AssignCompareWithMasterAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", DUMMYRULE);
+        sut.AssignCompareWithCommonAction("**/.gitignore", "%MASTEROOT%\\master.gitignore", DUMMYRULE);
 
         var cr = sut.Check();
 
@@ -147,7 +147,7 @@ public class FileStructureCheckTests {
         mps.WithRootedFile("src\\testproj2\\nested\\testproj.csproj", "basil was here");  // Fail - nested projects
 
         var sut = new MockFileStructureChecker(mps);
-        sut.AddMasterByPass("**");
+        sut.AddFullBypass("**");
         string[] secondary = new string[] { "**/src*/*/*.csproj" };
         sut.AssignIfItExistsItMustBeHereAction(DUMMYRULE, new MatchWithSecondaryMatches("**/*.csproj") { SecondaryList = secondary });
         var cr = sut.Check();

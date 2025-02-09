@@ -141,25 +141,25 @@ public class LoadStepTests {
 
     [Fact]
     [Integration]
-    public void LoadStep_FileChecks_MasterMatch_Loads() {
+    public void LoadStep_FileChecks_common_match_loads() {
         b.Info.Flow();
 
         string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
-        string jsonValidatorStep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MatchWithMaster\",\"AdditionalData\":[\"bob\"]}";
+        string jsonValidatorStep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MatchWithPrimary\",\"AdditionalData\":[\"bob\"]}";
         var rule = new MollyRuleFactory();
         var rl = (FileValidator)rule.LoadValidatorStep(testRuleName, jsonValidatorStep);
 
-        Assert.NotNull(rl.FilesThatMustMatchTheirMaster().First(x => x.PatternForSourceFile == pattern));
-        Assert.NotNull(rl.FilesThatMustMatchTheirMaster().First(x => x.FullPathForMasterFile == "bob"));
+        Assert.NotNull(rl.FilesThatMustMatchTheirCommon().First(x => x.PatternForSourceFile == pattern));
+        Assert.NotNull(rl.FilesThatMustMatchTheirCommon().First(x => x.FullPathForCommonFile == "bob"));
     }
 
     [Fact]
     [Integration]
-    public void LoadStep_FileChecks_MasterMatch_RequiresAdditionalData() {
+    public void LoadStep_FileChecks_common_match_RequiresAdditionalData() {
         b.Info.Flow();
 
         string pattern = @"c:\\ar\\%TEST%fle\\barflegloop";
-        string jsonValidatorStep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MatchWithMaster\",\"AdditionalData\":null}";
+        string jsonValidatorStep = "{\"ValidatorName\":\"FileValidationChecks\",\"PatternMatch\":\"" + pattern.Replace("\\", "\\\\") + "\",\"Control\":\"MatchWithPrimary\",\"AdditionalData\":null}";
         var rule = new MollyRuleFactory();
 
         Assert.Throws<InvalidOperationException>(() => {

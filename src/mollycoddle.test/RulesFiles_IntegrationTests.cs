@@ -172,15 +172,15 @@ public class RulesFiles_IntegrationTests {
         mps.WithRootedFolder("src");
 
         mps.WithRootedFile("src\\.editorconfig", ecfilecontents);
-        mps.WithFile("c:\\mastermadeup\\master.editorconfig", "mock-editorconfig-contents");
+        mps.WithFile("c:\\primarymadeup\\common.editorconfig", "mock-editorconfig-contents");
 
-        string js = tu.GetTestDataFile(TestResourcesReferences.MollyRule_EditorConfigMaster);
+        string js = tu.GetTestDataFile(TestResourcesReferences.MollyRule_EditorConfigSample);
 
         var sut = new MollyRuleFactory();
         var rls = sut.LoadRulesFromFile(js);
 
         var m = new Molly(new MollyOptions() {
-            PrimaryFilePath = @"c:\mastermadeup"
+            PrimaryFilePath = @"c:\primarymadeup"
         });
         m.AddProjectStructure(mps);
         m.ImportRules(rls);
@@ -201,7 +201,7 @@ public class RulesFiles_IntegrationTests {
         mps.WithRootedFolder("src");
 
         mps.WithRootedFile(".gitignore", ecfilecontents);
-        mps.WithFile("c:\\mastermadeup\\master.gitignore", "mock-gitignore-contents");
+        mps.WithFile("c:\\mastermadeup\\common.gitignore", "mock-gitignore-contents");
 
         string js = tu.GetTestDataFile(TestResourcesReferences.MollyRule_GitIgnoreMaster);
 
@@ -230,7 +230,7 @@ public class RulesFiles_IntegrationTests {
         mps.WithRootedFolder("src");
 
         mps.WithRootedFile("src\\nuget.config", ecfilecontents);
-        mps.WithFile("c:\\mastermadeup\\master.nuget.config", "mock-nugetconfig-contents");
+        mps.WithFile("c:\\mastermadeup\\common.nuget.config", "mock-nugetconfig-contents");
 
         string js = tu.GetTestDataFile(TestResourcesReferences.MollyRule_NugetConfigMaster);
 

@@ -22,6 +22,7 @@ public class Exploratory {
         mo = new MollyOptions();
     }
 
+
     public static IEnumerable<object[]> MustNotMatchDataMethod() {
         var resultData = new List<object[]>();
 
@@ -144,4 +145,104 @@ public class Exploratory {
 
         mm.IsMatch(filename).Should().Be(matchExpected);
     }
+
+
+
+
+    [Theory]
+    [ClassData(typeof(NexusRulesetTestData))]
+    public void NexusUrlParser2(string parseString, NexusConfig expected) {
+        var sut = new NexusSupport();
+        var result = sut.GetNexusSettings(parseString);
+
+        Assert.NotNull(result);
+        result.BasePathUrl.Should().Be(expected.BasePathUrl);
+        result.FilenameUrl.Should().Be(expected.FilenameUrl);
+        result.Username.Should().Be(expected.Username);
+        result.Password.Should().Be(expected.Password);
+        result.Server.Should().Be(expected.Server);
+    }
+
+    [Theory]
+    [ClassData(typeof(NexusPrimaryFilesTestData))]
+    public void NexusMasterUrlParser(string parseString, NexusConfig expected) {
+        var sut = new NexusSupport();
+        var result = sut.GetNexusSettings(parseString);
+
+        Assert.NotNull(result);
+        //result.BasePathUrl.Should().Be(expected.BasePathUrl);
+        result.Repository.Should().Be(expected.Repository);
+        result.SearchPath.Should().Be(expected.SearchPath);
+    }
+
+    [Fact]
+    public void Split_into_chunks_simple_works2() {
+        var sut = new NexusSupport();
+        string[] markers = new string[] { "[U::", "[P::", "[R::", "[G::", "[L::" };
+        var chunks = sut.GetChunks("[U::a[P::b[R::plisky[G::/primaryfiles/default[L::http://somenexusserver/repository/", markers);
+
+        chunks.Count.Should().Be(markers.Length);
+        chunks["[U::"].Marker.Should().Be("[U::");
+        chunks["[U::"].Value.Should().Be("a");
+        chunks["[P::"].Marker.Should().Be("[P::");
+        chunks["[P::"].Value.Should().Be("b");
+
+
+    }
+
+
+    [Fact]
+    public void Split_into_chunks_simple_works() {
+        var sut = new NexusSupport();
+        string[] markers = new string[] { "[a", "[b", "[c" };
+        var chunks = sut.GetChunks("[aone[btwo[cthree", markers);
+
+        chunks.Count.Should().Be(markers.Length);
+        chunks["[a"].Marker.Should().Be("[a");
+        chunks["[a"].Value.Should().Be("one");
+        chunks["[b"].Marker.Should().Be("[b");
+        chunks["[b"].Value.Should().Be("two");
+        chunks["[c"].Marker.Should().Be("[c");
+        chunks["[c"].Value.Should().Be("three");
+
+    }
+
+    [Fact]
+    public void Split_into_chunks_with_null_works() {
+        var sut = new NexusSupport();
+        var chunks = sut.GetChunks("[aone[btwo[cthree", new string[] { "[a", "[x", "[c" });
+
+        chunks.Count.Should().Be(3);
+        chunks["[a"].Marker.Should().Be("[a");
+        chunks["[a"].Value.Should().Be("one[btwo");
+        chunks["[c"].Marker.Should().Be("[c");
+        chunks["[c"].Value.Should().Be("three");
+        chunks["[x"].Marker.Should().Be("[x");
+        chunks["[x"].Value.Should().BeNull();
+    }
+
+    [Theory]
+    [ClassData(typeof(NexusRulesetTestData))]
+    public void NexusMasterUrlParser2(string primaryUrl, NexusConfig expected) {
+        var sut = new NexusSupport();
+        var result = sut.GetNexusSettings(primaryUrl);
+
+        Assert.NotNull(result);
+        result.BasePathUrl.Should().Be(expected.BasePathUrl);
+    }
+
+
+    [Theory]
+    [InlineData("/asdf", "/asdf/asdf/asdf.mols", "asdf", "asdf.mols")]
+    [InlineData("/molly", "/molly/default/defaultrules.mollyset", "default", "defaultrules.mollyset")]
+    public void ConvertDownloadPathToLocalPath(string molsbaseMarker, string downloadUrl, string versionMarker, string fileName) {
+        var sut = new NexusSupport();
+
+        var ret = sut.GetVersionAndFilenameFromNexusUrl(molsbaseMarker, downloadUrl);
+
+        ret.Item1.Should().Be(versionMarker);
+        ret.Item2.Should().Be(fileName);
+    }
+
+
 }

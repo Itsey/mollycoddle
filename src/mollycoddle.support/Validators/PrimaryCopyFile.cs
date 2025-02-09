@@ -4,9 +4,9 @@ public class PrimaryCopyFile {
 
     public PrimaryCopyFile(string pathToMatch, string masterToMatch) {
         PatternForSourceFile = pathToMatch;
-        FullPathForMasterFile = masterToMatch;
+        FullPathForCommonFile = masterToMatch;
     }
 
-    public string FullPathForMasterFile { get; set; }
+    public string FullPathForCommonFile { get; set; }
     public string PatternForSourceFile { get; set; }
 }

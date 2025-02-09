@@ -2,14 +2,14 @@
     "Rules": [
         {
             "Link": "https://itsey.github.io/molly-rules.html#MC0101",
-            "Name": "Local gitignore file must match master git ignore file.",
+            "Name": "Local gitignore file must match common git ignore file.",
             "RuleReference": "MC0101",
             "Validators": [
                 {
                     "AdditionalData": [
-                        "%MASTERROOT%\\master.gitignore"
+                        "%COMMONROOT%\\common.gitignore"
                     ],
-                    "Control": "MatchWithMaster",
+                    "Control": "MatchWithPrimary",
                     "PatternMatch": "%ROOT%\\.gitignore",
                     "ValidatorName": "FileValidationChecks"
                 }

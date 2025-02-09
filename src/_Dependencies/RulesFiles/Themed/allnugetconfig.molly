@@ -7,9 +7,9 @@
             "Validators": [
                 {
                     "AdditionalData": [
-                        "%MASTERROOT%\\master.nuget.config"
+                        "%COMMONROOT%\\common.nuget.config"
                     ],
-                    "Control": "MatchWithMaster",
+                    "Control": "MatchWithPrimary",
                     "PatternMatch": "%ROOT%\\src\\nuget.config",
                     "ValidatorName": "FileValidationChecks"
                 }

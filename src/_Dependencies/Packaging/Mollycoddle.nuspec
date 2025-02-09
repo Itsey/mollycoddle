@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Plisky.Mollycoddle</id>
+    <version>0.0.0.</version>
+    <authors>Itsey</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://itsey.github.io/</projectUrl>
+    <description>Plisky Mollycoddle, source structure linting tool.</description>
+    <releaseNotes>
+      XXX-VERSION-XXX        
+        Packaged to NugetTool using nuke.
+        
+      0.0.0
+        First version of a nuget tool release.
+        Basic support for rulesets and some default rules..
+    </releaseNotes>
+    <readme>.\readme.md</readme>
+    <tags>lint linting quality ci build </tags>    
+  </metadata>
+  <files>
+    <file src=".\nuget\readme.md" />
+    <file src=".\nuget\tools\**\*.*" exclude="**\*.log" />
+    <file src=".\nuget\rules\**\*.*"  />
+  </files>
+</package>

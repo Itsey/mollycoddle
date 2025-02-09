@@ -4,10 +4,15 @@
       "commandName": "Project",
       "commandLineArgs": "C:\\Files\\Code\\git\\PliskyDiagnostics -masterRoot=C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\TestMasterPath\\ -rulesfile=C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\defaultrules.mollyset"
     },
-    "testDir": {
+    "testDirectory": {
       "commandName": "Project",
       "commandLineArgs": "\"C:\\Files\\Code\\git\\mollycoddle\" -rulesfile=\"C:\\Files\\Code\\git\\mollycoddle\\src\\_Dependencies\\RulesFiles\\defaultrules.mollyset\" -primaryRoot=\"C:\\Files\\OneDrive\\Dev\\PrimaryFiles\" -formatter=\"plain\" -debug=v-**",
       "workingDirectory": "c:\\files\\code\\git"
+    },
+    "nexus": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Files\\Code\\git\\mollycoddle\" -rulesfile=\"%NEXUSCONFIG%[R::plisky[L::http://20.254.238.148:8081/repository/plisky/molly/default/defaultrules.mollyset\" -primaryRoot=\"%NEXUSCONFIG%[R::plisky[L::http://20.254.238.148:8081/repository/plisky/primaryfiles/default/\" -formatter=\"plain\" -debug=v-** -temppath=\"D:\\Scratch\\_working\\mctmp\"",
+      "workingDirectory": "c:\\files\\code\\git"      
     }
   }
 }
