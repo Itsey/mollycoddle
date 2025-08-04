@@ -5,7 +5,6 @@ using Serilog;
 
 public partial class Build : NukeBuild {
 
-
     // TestStep is the well known post release integration test step. Arrange Construct Examine Package Release [Test]
     public Target TestStep => _ => _
         .After(ConstructStep)

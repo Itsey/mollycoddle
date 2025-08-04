@@ -7,8 +7,8 @@ using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
 public class Program {
-    private static Action<string, OutputType> WriteOutput = WriteOutputDefault;
-    private static bool WarningMode = false;
+    private static Action<string, OutputType> writeOutput = WriteOutputDefault;
+    private static bool warningMode = false;
     private static int exitCode = 0;
     private static string timingMessage = "";
     private static long lastCheckpoint = 0;
@@ -30,69 +30,62 @@ public class Program {
             ArgumentPostfix = "="
         };
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
-        WarningMode = ma.WarningMode;
+        warningMode = ma.WarningMode;
 
         if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
-            WriteOutput = WriteOutputAzDo;
+            writeOutput = WriteOutputAzDo;
         }
 
-        WriteOutput("MollyCoddle Online", OutputType.Info);
+        writeOutput("MollyCoddle Online", OutputType.Info);
 
         if (ma.Disabled) {
-            WriteOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
+            writeOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
             exitCode = 0;
             goto TheEndIsNigh;
         }
 
-
         var mo = ma.GetOptions();
         if (mo.EnableDebug) {
-            WriteOutput($"Debug Mode {mo.DebugSetting}", OutputType.Info);
+            writeOutput($"Debug Mode {mo.DebugSetting}", OutputType.Info);
             ConfigureTrace(mo.DebugSetting);
         }
-
 
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");
 
         var mm = new MollyMain(mo, b);
-        mm.WriteOutput = WriteOutput;
+        mm.WriteOutput = writeOutput;
 
         if ((ma.DirectoryToTarget == "?") || (ma.DirectoryToTarget == "/?") || (ma.DirectoryToTarget.ToLower() == "/help")) {
             Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
             Console.WriteLine(clas.GenerateHelp(ma, "MollyCoddle"));
             exitCode = 0;
         } else {
-
             try {
                 sw.Start();
 
                 var cr = await mm.DoMollly();
                 exitCode = cr.DefectCount;
 
-
-
                 sw.Stop();
                 string elapsedString = $" Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
                 if (cr.DefectCount == 0) {
-                    WriteOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
+                    writeOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
                 } else {
-                    WriteOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", WarningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+                    writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
                 }
-
             } catch (Exception ex) {
-                WriteOutput(ex.Message, OutputType.Error);
+                writeOutput(ex.Message, OutputType.Error);
                 exitCode = -3;
                 goto TheEndIsNigh;
             }
 
-            if (WarningMode) {
+            if (warningMode) {
                 b.Info.Log("Warning mode, resetting exit code to zero");
                 exitCode = 0;
             }
         }
-
 
     TheEndIsNigh:
         // Who doesnt love a good goto, secretly.
@@ -100,8 +93,6 @@ public class Program {
         b?.Flush().Wait();
         return exitCode;
     }
-
-
 
     private static void ConfigureTrace(string debugSetting) {
         Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
@@ -132,7 +123,7 @@ public class Program {
 
     private static void WriteOutputAzDo(string v, OutputType ot) {
         string pfx = "";
-        string errType = WarningMode ? "warning" : "error";
+        string errType = warningMode ? "warning" : "error";
 
         switch (ot) {
             case OutputType.Violation: pfx = $"##vso[task.logissue type={errType}] 💩 Violation: "; break;
@@ -150,6 +141,4 @@ public class Program {
         }
         Console.WriteLine($"{pfx}{v}");
     }
-
-
 }

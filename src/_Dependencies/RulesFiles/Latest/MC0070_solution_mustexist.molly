@@ -1,0 +1,18 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0070",
+            "Name": "Solutions must exist under src.",
+            "RuleReference": "MC0070",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "MustExist",
+                    "PatternMatch": "**\\src\\*.sln",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

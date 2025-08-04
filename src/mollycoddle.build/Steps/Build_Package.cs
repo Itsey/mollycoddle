@@ -7,7 +7,6 @@ using Plisky.Nuke.Fusion;
 using Serilog;
 
 public partial class Build : NukeBuild {
-
     // Package Step - Well known step for bundling prior to the app release.   Arrange Construct Examine [Package] Release Test
 
     private Target PackageStep => _ => _
@@ -16,8 +15,6 @@ public partial class Build : NukeBuild {
         .DependsOn(Initialise, ExamineStep)
         .Triggers(BuildNugetPackage)
         .Executes(() => {
-
-
             var project = Solution.GetProject("mollycoddle");
             var dependenciesDir = Solution.GetProject("_Dependencies").Directory;
 
@@ -50,7 +47,6 @@ public partial class Build : NukeBuild {
             nugetPackageFile.CopyToDirectory(ArtifactsDirectory, ExistsPolicy.FileOverwrite);
         });
 
-
     public Target BuildNugetPackage => _ => _
       .DependsOn(PackageStep)
       .After(Compile, PackageStep)
@@ -76,8 +72,5 @@ public partial class Build : NukeBuild {
           NuGetTasks.NuGetPack(s => s
             .SetTargetPath(ArtifactsDirectory + "\\mollycoddle.nuspec")
             .SetOutputDirectory(ArtifactsDirectory));
-
-
-
       });
 }

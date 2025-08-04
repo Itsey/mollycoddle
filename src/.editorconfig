@@ -1,3 +1,4 @@
+#V1.1 - Added Versioning.
 # top-most EditorConfig file
 root = true
 
@@ -8,12 +9,8 @@ dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4
 indent_size = 4
 end_of_line = crlf
-dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
 dotnet_style_prefer_auto_properties = true:silent
-dotnet_style_object_initializer = true:suggestion
-dotnet_style_collection_initializer = true:suggestion
 dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
 dotnet_style_prefer_conditional_expression_over_assignment = true:silent
 dotnet_style_prefer_conditional_expression_over_return = true:silent
@@ -101,9 +98,12 @@ csharp_new_line_between_query_expression_clauses 		= false
 dotnet_naming_style.customPascalStyle.capitalization               = pascal_case
 dotnet_naming_style.customFullUppercaseStyle.capitalization        = all_upper
 dotnet_naming_style.customCamelCaseStyle.capitalization            = camel_case
-dotnet_naming_style.all_variables.required_prefix                  = [a-zA-z]
+dotnet_naming_style.customCamelCaseStyle.prefix = 
 
-#naming styles
+
+dotnet_naming_style.customFieldStyle.capitalization = camel_case
+dotnet_naming_style.customFieldStyle.required_prefix = 
+
 # Methods Be PascalCased
 dotnet_naming_rule.all_methods_pascalcased.symbols              = all_methods
 dotnet_naming_symbols.all_methods.applicable_kinds              = method
@@ -126,85 +126,64 @@ dotnet_naming_symbols.all_properties.applicable_accessibilities = *
 dotnet_naming_rule.all_properties_pascalcased.style = customPascalStyle
 dotnet_naming_rule.all_properties_pascalcased.severity = error
 
+#Fields Be camelCased with no prefix (checked)
+dotnet_naming_rule.customFields.symbols           = custom_field
+dotnet_naming_rule.customfields.style = customFieldStyle
+dotnet_naming_rule.customfields.severity = error
 
-#Constants be SHOUTEY
+dotnet_naming_symbols.custom_field.applicable_kinds           = field
+dotnet_naming_symbols.custom_field.applicable_accessibilities = *
+
+#Constants be SHOUTEY (checked)
 dotnet_naming_rule.all_constants_upper.symbols                  = all_constants
-dotnet_naming_symbols.all_constants.required_modifiers          = const
-dotnet_naming_symbols.all_constants.applicable_kinds            = field, local
-dotnet_naming_symbols.all_constants.applicable_accessibilities  = *
 dotnet_naming_rule.all_constants_upper.style = customFullUppercaseStyle
 dotnet_naming_rule.all_constants_upper.severity = error
 
+dotnet_naming_symbols.all_constants.required_modifiers          = const
+dotnet_naming_symbols.all_constants.applicable_kinds            = field, local
+dotnet_naming_symbols.all_constants.applicable_accessibilities  = *
 
-# prefix_interface_interface_with_i - Interfaces must be PascalCase and the first character of an interface must be an 'I'
-dotnet_naming_style.prefix_interface_interface_with_i.capitalization = lbgPascalStyle
-dotnet_naming_style.prefix_interface_interface_with_i.required_prefix = I
+# Interfaces Start with I and are Pascal Cased (checked)
+dotnet_naming_rule.customInterfaceRule.symbols = customInterfaceTypes
+dotnet_naming_rule.customInterfaceRule.applicable_kinds = interface
+dotnet_naming_rule.customInterfaceRule.applicable_accessibilities = *
+dotnet_naming_rule.customInterfaceRule.style = customInterfaceRule_style
+dotnet_naming_rule.customInterfaceRule.severity = error
 
-dotnet_naming_rule.interface_types_must_be_prefixed_with_i.severity = error
-dotnet_naming_rule.interface_types_must_be_prefixed_with_i.symbols = interface_types
-dotnet_naming_rule.interface_types_must_be_prefixed_with_i.style = prefix_interface_interface_with_i
+dotnet_naming_symbols.customInterfaceTypes.applicable_kinds = interface
+dotnet_naming_symbols.customInterfaceTypes.applicable_accessibilities = *
+
+dotnet_naming_style.customInterfaceRule_style.capitalization = pascal_case
+dotnet_naming_style.customInterfaceRule_style.required_prefix = I
+dotnet_naming_style.customInterfaceRule_style.required_suffix = 
 
 
-# SA1101: Prefix local calls with this
-dotnet_diagnostic.SA1101.severity = silent
-
-# SA1121: Use built-in type alias
-dotnet_diagnostic.SA1121.severity = error
-
-# SA1122: Use string.Empty for empty strings
-dotnet_diagnostic.SA1122.severity = error
-
-# SA1413: Use trailing comma in multi-line initializers
-dotnet_diagnostic.SA1413.severity = silent
-
-# SA1500: Braces for multi-line statements should not share line
-dotnet_diagnostic.SA1500.severity = silent
-
-# SA1623: Property summary documentation should match accessors
-dotnet_diagnostic.SA1623.severity = suggestion
-
-# SA1501: Statement should not be on a single line
-dotnet_diagnostic.SA1501.severity = silent
-
-# SA1505: Opening braces should not be followed by blank line
-dotnet_diagnostic.SA1505.severity = silent
-dotnet_diagnostic.SA1633.severity=silent
-dotnet_diagnostic.SA1634.severity=silent
-dotnet_diagnostic.SA1635.severity=silent
-dotnet_diagnostic.SA1636.severity=silent
-dotnet_diagnostic.SA1637.severity=silent
-dotnet_diagnostic.SA1638.severity=silent
-dotnet_diagnostic.SA1640.severity=silent
-dotnet_diagnostic.SA1641.severity=silent
-dotnet_diagnostic.SA1629.severity=suggestion
-dotnet_diagnostic.SA1117.severity=silent
-dotnet_diagnostic.SA1512.severity=silent
-dotnet_diagnostic.SA1515.severity=silent
-dotnet_diagnostic.SA1310.severity=silent
-dotnet_diagnostic.SA1309.severity=error
-dotnet_diagnostic.SA1302.severity=error
-dotnet_diagnostic.SA1128.severity=silent
-dotnet_diagnostic.SA1401.severity=silent
-dotnet_diagnostic.SA1403.severity=error
-dotnet_diagnostic.SA1306.severity=silent
-
-# IDE0130 : Namespace does not correspond to file location
-dotnet_diagnostic.IDE0130.severity = silent
-
-# SA1503: Braces should not be omitted
-dotnet_diagnostic.SA1503.severity = error
 csharp_indent_labels = one_less_than_current
-csharp_using_directive_placement = inside_namespace:suggestion
+csharp_using_directive_placement = outside_namespace:silent
 csharp_prefer_simple_using_statement = true:suggestion
-csharp_prefer_braces = true:silent
+csharp_prefer_braces = true:error
 csharp_style_namespace_declarations = block_scoped:silent
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_space_around_binary_operators = before_and_after
-dotnet_style_namespace_match_folder = false
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent
+
+
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_prefer_system_threading_lock = true:suggestion
-csharp_style_prefer_null_check_over_type_check = true:suggestion
+csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_operators = false:silent
+csharp_style_expression_bodied_properties = true:silent
+csharp_style_expression_bodied_indexers = true:silent
+csharp_style_expression_bodied_accessors = true:silent
+csharp_style_expression_bodied_lambdas = true:silent
+csharp_style_expression_bodied_local_functions = false:silent
 
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = error
+csharp_indent_case_contents = true
+csharp_indent_case_contents_when_block = true
+csharp_space_after_keywords_in_control_flow_statements = true

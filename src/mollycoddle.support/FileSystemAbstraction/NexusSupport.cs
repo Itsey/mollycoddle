@@ -1,6 +1,11 @@
 ﻿namespace mollycoddle;
+
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,18 +28,23 @@ public record NexusConfig {
 }
 
 public class MarkerPosition {
-    public required int Position { get; set; }
-    public required string Marker { get; set; }
+    public int Position { get; set; }
+    public string Marker { get; set; }
     public string? Value { get; set; }
-
 }
+
 public class NexusSupport {
     protected Bilge b = new Bilge("molly-nexus");
     public const string NEXUS_PREFIX = "[NEXUS]";
     private static readonly HttpClient client = new HttpClient();
+    protected readonly MollyOptions mo;
+    public string BasePathToSave { get; set; }
 
+    public NexusSupport(MollyOptions mox) {
+        mo = mox;
+    }
 
-    Action<byte[], string> SaveCreator(Action<byte[], string, string> saver, string path) {
+    private Action<byte[], string> SaveCreator(Action<byte[], string, string> saver, string path) {
         return (b, c) => saver(b, c, path);
     }
 
@@ -49,13 +59,12 @@ public class NexusSupport {
 
         var files = new List<Tuple<string, string>>();
 
-
         try {
-            b.Verbose.Log($"Attepting to connect  to {assetsApi}");
+            b.Verbose.Log($"MC-Nexus > Attepting to connect  to {assetsApi}");
             var request = new HttpRequestMessage(HttpMethod.Get, assetsApi);
 
             if (!string.IsNullOrEmpty(nc.Username)) {
-                b.Verbose.Log($"Adding authentication - {nc.Username}");
+                b.Verbose.Log($"MC-Nexus > Adding Authentication to Nexus Request - {nc.Username}");
                 byte[] byteArray = new System.Text.UTF8Encoding().GetBytes($"{nc.Username}:{nc.Password}");
                 request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
             }
@@ -64,15 +73,24 @@ public class NexusSupport {
             response.EnsureSuccessStatusCode();
 
             string content = await response.Content.ReadAsStringAsync();
-            b.Verbose.Log($"Content recieved {content.Length}");
+            b.Verbose.Log($"MC-Nexus > Nexus, List All Files > Content recieved {content.Length}");
             var jsonDocument = JsonDocument.Parse(content);
             var root = jsonDocument.RootElement;
+
+            string purl = nc.Url.Substring(nc.Url.IndexOf(identifier));
+            var pmr = GetVersionAndFilenameFromNexusUrl(identifier, purl);
 
             foreach (var item in root.GetProperty("items").EnumerateArray()) {
                 if (item.TryGetProperty("path", out var pathElement)) {
                     if (item.TryGetProperty("id", out var idElement)) {
-                        b.Verbose.Log($"Found file {pathElement} {idElement}");
-                        files.Add(new Tuple<string, string>(pathElement.GetString(), idElement.GetString()));
+                        b.Verbose.Log($"MC-Nexus > Nexus File Identified : {pathElement} {idElement}");
+                        string? pegs = pathElement.GetString();
+                        var thismr = GetVersionAndFilenameFromNexusUrl(identifier, pegs);
+
+                        if (pegs.StartsWith(identifier) && (thismr.Item1 == pmr.Item1)) {
+                            b.Verbose.Log($"MC-Nexus > Queuing File For Local Cache : {pegs}");
+                            files.Add(new Tuple<string, string>(pegs, idElement.GetString()));
+                        }
                     }
                 }
             }
@@ -80,15 +98,38 @@ public class NexusSupport {
             throw new InvalidOperationException($"Unable to connect to Nexus ({nc.Server}) correctly. Status:{hrx.StatusCode}", hrx);
         }
 
+        b.Info.Log($"MC-Nexus > {files.Count} files to download for cache {identifier}");
+
         foreach (var l in files) {
             string downloadPath = $"{nc.Server}/repository/{nc.Repository}{l.Item1}";
             if (l.Item1.StartsWith(identifier)) {
+                b.Info.Log($"MC-Nexus > Caching Local Copy : {downloadPath}");
                 DownloadFileAsync(downloadPath, SaveCreator(saveFile, identifier), l.Item1, nc.Username, nc.Password).Wait();
             }
         }
-
     }
 
+    public async Task UploadFileAsync(Stream fileContent, string repositoryPath, string? username, string? password) {
+        try {
+            using (var content = new StreamContent(fileContent)) {
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                var request = new HttpRequestMessage(HttpMethod.Put, repositoryPath) {
+                    Content = content
+                };
+
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)) {
+                    byte[] byteArray = new System.Text.UTF8Encoding().GetBytes($"{username}:{password}");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                }
+
+                var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+        } catch (HttpRequestException) {
+            throw;
+        }
+    }
 
     public async Task DownloadFileAsync(string downloadUrl, Action<byte[], string> saveFile, string fileName, string? username, string? password) {
         b.Info.Flow();
@@ -113,7 +154,6 @@ public class NexusSupport {
     }
 
     public Dictionary<string, MarkerPosition> GetChunks(string nexusUrl, string[] markers) {
-
         var result = new Dictionary<string, MarkerPosition>();
 
         var mrks = new List<MarkerPosition>();
@@ -121,14 +161,12 @@ public class NexusSupport {
             var m = new MarkerPosition() {
                 Marker = l,
                 Position = nexusUrl.IndexOf(l)
-
             };
             mrks.Add(m);
         }
 
         var mio = mrks.OrderBy(p => p.Position).ToList();
         for (int i = 0; i < mio.Count; i++) {
-
             if (mio[i].Position < 0) {
                 continue;
             }
@@ -191,5 +229,77 @@ public class NexusSupport {
         }
         b.Warning.Log($"download url did not start with marker ]{molsbaseMarker}[, returning empty");
         return new Tuple<string, string>(string.Empty, string.Empty);
+    }
+
+    public string GetUrlToUse(string sourceUrl, string marker) {
+        int mmOffset = sourceUrl.IndexOf(marker);
+
+        if (mmOffset < 0) {
+            throw new InvalidOperationException($"Nexus URL does not contain the expected marker '{marker}'");
+        }
+
+        string urlToUse = sourceUrl.Substring(mmOffset);
+
+        return urlToUse;
+    }
+
+    public void ActualSaver(byte[] fileContents, string fileName, string identifier) {
+        if (BasePathToSave == null) {
+            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Base path to save has not been set.");
+            throw new InvalidOperationException("The base path to save has not been set.");
+        }
+        var parts = GetVersionAndFilenameFromNexusUrl(identifier, fileName);
+        string localDir = Path.Combine(BasePathToSave, parts.Item1);
+        string localFile = Path.Combine(localDir, parts.Item2);
+
+        if (!Directory.Exists(localDir)) {
+            Directory.CreateDirectory(localDir);
+        }
+
+        File.WriteAllBytes(localFile, fileContents);
+    }
+
+    public async Task<string> ProcessNexusSupport(string rulesFile, ProcessKind rulesFile1) {
+        b.Info.Flow($"{rulesFile}");
+
+        Action<byte[], string, string> saveFileAction = (fileContents, fileName, identifier) => {
+            ActualSaver(fileContents, fileName, identifier);
+        };
+
+        string result = rulesFile;
+
+        if (rulesFile1 == ProcessKind.RulesFile) {
+            if (rulesFile.StartsWith(NexusSupport.NEXUS_PREFIX)) {
+                var ns = GetNexusSettings(rulesFile);
+                if (ns != null) {
+                    string nexusMollyMarker = "/molly";
+
+                    string urlToUse = GetUrlToUse(ns.Url, nexusMollyMarker);
+                    await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
+                    var fnn = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
+                    result = Path.Combine(BasePathToSave, fnn.Item1, fnn.Item2);
+                }
+            }
+        } else {
+            if ((!string.IsNullOrEmpty(mo.PrimaryFilePath)) && (mo.PrimaryFilePath.StartsWith(NexusSupport.NEXUS_PREFIX))) {
+                var ns = GetNexusSettings(mo.PrimaryFilePath);
+                if (ns != null) {
+                    string nexusMollyMarker = "/primaryfiles";
+
+                    int nmmOffset = ns.Url.IndexOf(nexusMollyMarker);
+
+                    if (nmmOffset < 0) {
+                        throw new InvalidOperationException($"Nexus URL does not contain the expected marker '{nexusMollyMarker}'");
+                    }
+
+                    string urlToUse = ns.Url.Substring(nmmOffset);
+                    await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
+                    var fnn = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
+                    // TODO : Why was this here?  If not seen an issue DELETE string rulesFile = Path.GetFileName(mo.PrimaryFilePath);
+                    mo.PrimaryFilePath = Path.Combine(BasePathToSave, fnn.Item1);
+                }
+            }
+        }
+        return result;
     }
 }

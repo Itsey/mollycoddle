@@ -22,6 +22,18 @@ public class Exploratory {
         mo = new MollyOptions();
     }
 
+    [Fact(DisplayName = nameof(Nexus_rules_missing_marker_throws))]
+    [Trait(Traits.Age, Traits.Fresh)]
+    [Trait(Traits.Style, Traits.Unit)]
+    public void Nexus_rules_missing_marker_throws() {
+        b.Info.Flow();
+
+        var sut = new NexusSupport(mo);
+
+        Assert.Throws<InvalidOperationException>(() => {
+            _ = sut.GetUrlToUse("http://nomarker/no/marker", "personify");
+        });
+    }
 
     public static IEnumerable<object[]> MustNotMatchDataMethod() {
         var resultData = new List<object[]>();
@@ -146,13 +158,10 @@ public class Exploratory {
         mm.IsMatch(filename).Should().Be(matchExpected);
     }
 
-
-
-
     [Theory]
     [ClassData(typeof(NexusRulesetTestData))]
     public void NexusUrlParser2(string parseString, NexusConfig expected) {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         var result = sut.GetNexusSettings(parseString);
 
         Assert.NotNull(result);
@@ -166,7 +175,7 @@ public class Exploratory {
     [Theory]
     [ClassData(typeof(NexusPrimaryFilesTestData))]
     public void NexusMasterUrlParser(string parseString, NexusConfig expected) {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         var result = sut.GetNexusSettings(parseString);
 
         Assert.NotNull(result);
@@ -177,7 +186,7 @@ public class Exploratory {
 
     [Fact]
     public void Split_into_chunks_simple_works2() {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         string[] markers = new string[] { "[U::", "[P::", "[R::", "[G::", "[L::" };
         var chunks = sut.GetChunks("[U::a[P::b[R::plisky[G::/primaryfiles/default[L::http://somenexusserver/repository/", markers);
 
@@ -186,14 +195,11 @@ public class Exploratory {
         chunks["[U::"].Value.Should().Be("a");
         chunks["[P::"].Marker.Should().Be("[P::");
         chunks["[P::"].Value.Should().Be("b");
-
-
     }
-
 
     [Fact]
     public void Split_into_chunks_simple_works() {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         string[] markers = new string[] { "[a", "[b", "[c" };
         var chunks = sut.GetChunks("[aone[btwo[cthree", markers);
 
@@ -204,12 +210,11 @@ public class Exploratory {
         chunks["[b"].Value.Should().Be("two");
         chunks["[c"].Marker.Should().Be("[c");
         chunks["[c"].Value.Should().Be("three");
-
     }
 
     [Fact]
     public void Split_into_chunks_with_null_works() {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         var chunks = sut.GetChunks("[aone[btwo[cthree", new string[] { "[a", "[x", "[c" });
 
         chunks.Count.Should().Be(3);
@@ -224,25 +229,20 @@ public class Exploratory {
     [Theory]
     [ClassData(typeof(NexusRulesetTestData))]
     public void NexusMasterUrlParser2(string primaryUrl, NexusConfig expected) {
-        var sut = new NexusSupport();
+        var sut = new NexusSupport(mo);
         var result = sut.GetNexusSettings(primaryUrl);
 
         Assert.NotNull(result);
         result.BasePathUrl.Should().Be(expected.BasePathUrl);
     }
 
-
     [Theory]
     [InlineData("/asdf", "/asdf/asdf/asdf.mols", "asdf", "asdf.mols")]
     [InlineData("/molly", "/molly/default/defaultrules.mollyset", "default", "defaultrules.mollyset")]
     public void ConvertDownloadPathToLocalPath(string molsbaseMarker, string downloadUrl, string versionMarker, string fileName) {
-        var sut = new NexusSupport();
-
+        var sut = new NexusSupport(mo);
         var ret = sut.GetVersionAndFilenameFromNexusUrl(molsbaseMarker, downloadUrl);
-
         ret.Item1.Should().Be(versionMarker);
         ret.Item2.Should().Be(fileName);
     }
-
-
 }

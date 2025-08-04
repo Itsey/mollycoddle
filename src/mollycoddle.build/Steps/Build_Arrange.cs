@@ -15,7 +15,6 @@ public partial class Build : NukeBuild {
             Log.Information("--> Arrange <-- ");
         });
 
-
     private Target Clean => _ => _
         .DependsOn(Initialise)
         .After(ArrangeStep, Initialise)
@@ -29,10 +28,6 @@ public partial class Build : NukeBuild {
 
             settings.ArtifactsDirectory.CreateOrCleanDirectory();
         });
-
-
-
-
 
     private Target MollyCheck => _ => _
        .After(Clean, ArrangeStep)
@@ -65,6 +60,5 @@ public partial class Build : NukeBuild {
           .SetDirectory(GitRepository.LocalDirectory));
 
            Log.Information("Mollycoddle Structure Linting Completes.");
-
        });
 }

@@ -10,28 +10,25 @@ using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
 using Serilog;
 
-partial class Build : NukeBuild {
+internal partial class Build : NukeBuild {
     public Bilge b = new("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
-
 
     public static int Main() => Execute<Build>(x => x.Compile);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
-    readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
+    private readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     [GitRepository]
-    readonly GitRepository GitRepository;
+    private readonly GitRepository GitRepository;
 
     [Solution]
-    readonly Solution Solution;
+    private readonly Solution Solution;
 
-    AbsolutePath ArtifactsDirectory => @"D:\Scratch\_build\mcbld\";
-
+    private AbsolutePath ArtifactsDirectory => @"D:\Scratch\_build\mcbld\";
 
     private LocalBuildConfig settings;
 
     protected const string VersionStorePath = @"D:\Scratch\_build\vstore\mollycoddle-version.vstore";
-
 
     public Target Wrapup => _ => _
         .DependsOn(Initialise)
@@ -44,13 +41,11 @@ partial class Build : NukeBuild {
         });
 
     protected override void OnBuildFinished() {
-
         string lb = !Build.IsLocalBuild ? $"Server [{settings.ExecutingMachineName}]" : $"Local [{settings.ExecutingMachineName}]";
 
         string wrked = string.Empty;
         if (IsSucceeding) {
             wrked = "Succeeded";
-
         } else {
             wrked = "Failed (";
             FailedTargets.ForEach(x => {
@@ -59,8 +54,6 @@ partial class Build : NukeBuild {
             wrked += ")";
         }
         Log.Information($"Build>Wrapup>  {wrked}.");
-
-
     }
 
     public Target Initialise => _ => _
@@ -80,10 +73,8 @@ partial class Build : NukeBuild {
 
               b = new Bilge("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
 
-
               Bilge.Alert.Online("Listify-Build");
               b.Info.Log("Listify Build Process Initialised, preparing Initialisation section.");
-
 
               settings = new LocalBuildConfig();
               settings.ExecutingMachineName = Environment.MachineName;
@@ -99,9 +90,5 @@ partial class Build : NukeBuild {
               } else {
                   Log.Information("Build>Initialise> Finish - In Destructive Mode.");
               }
-
-
           });
-
-
 }

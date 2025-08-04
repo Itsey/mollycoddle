@@ -22,5 +22,4 @@ public partial class Build : NukeBuild {
             .SetSource("https://api.nuget.org/v3/index.json")
             .SetApiKey(Environment.GetEnvironmentVariable("PLISKY_PUBLISH_KEY")));
       });
-
 }

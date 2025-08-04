@@ -21,7 +21,7 @@ public class NugetPackageValidator : ValidatorBase {
     public List<NugetValidationCheck> valCheck = new();
 
     public NugetPackageValidator(string owningRuleName) : base(owningRuleName) {
-        b = new Bilge("mc-validators-nuget");
+        b = new Bilge("molly-validators-nuget");
     }
 
     public void AddMustReferencePackageList(string filenamePatternToMatch, params string[] mustReferencePackageList) {

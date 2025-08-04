@@ -34,7 +34,8 @@
                         result.AddDefect(new Violation(isPathProhibited.Item1) {
                             Additional = $"({folderName}) is a prohibited path."
                         });
-                    };
+                    }
+                    ;
                 }
             }
 

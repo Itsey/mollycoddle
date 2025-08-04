@@ -4,7 +4,6 @@ using Plisky.Nuke.Fusion;
 using Serilog;
 
 public partial class Build : NukeBuild {
-
     // Standard entrypoint for compiling the app.  Arrange [Construct] Examine Package Release Test
 
     public Target ConstructStep => _ => _
@@ -15,16 +14,13 @@ public partial class Build : NukeBuild {
         .Executes(() => {
         });
 
-
     private Target Restore => _ => _
        .After(ConstructStep)
        .Before(Compile)
        .Executes(() => {
        });
 
-
     public Target VersionSource => _ => _.Executes(() => {
-
         /*  if (IsLocalBuild) {
               Log.Information("Local build, skipping versioning");
               return;
@@ -48,7 +44,6 @@ public partial class Build : NukeBuild {
 
         //Logger.Info($"Version is {version}");
     });
-
 
     private Target Compile => _ => _
         .Before(ExamineStep)

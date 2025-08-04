@@ -15,8 +15,6 @@ public partial class Build : NukeBuild {
             Log.Information("--> Examine Step <-- ");
         });
 
-
-
     private Target UnitTest => _ => _
       .After(ExamineStep)
       .Before(PackageStep)

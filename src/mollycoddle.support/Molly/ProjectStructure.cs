@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using Plisky.Diagnostics;
 
 public class ProjectStructure {
-    private Bilge b = new Bilge("mc-projectstructure");
+    private Bilge b = new Bilge("molly-projectstructure");
 
     public ProjectStructure() {
         Root = string.Empty;
