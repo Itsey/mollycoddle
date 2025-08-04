@@ -1,9 +1,9 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/molly-rules.html#MC0001",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0002",
             "Name": "Lazy file deny list, common errors and mistakes.",
-            "RuleReference": "MC0001",
+            "RuleReference": "MC0002",
             "Validators": [
                 {
                     "AdditionalData": null,

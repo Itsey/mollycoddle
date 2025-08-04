@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/molly-rules.html#MC0201",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0202",
             "Name": "Moq versions which include sponsorlink are banned.",
             "RuleReference": "MC0202",
             "Validators": [

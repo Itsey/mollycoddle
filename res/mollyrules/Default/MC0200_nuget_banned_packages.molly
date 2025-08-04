@@ -1,9 +1,9 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/molly-rules.html#MC0200",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0201",
             "Name": "Nuget banned package list.",
-            "RuleReference": "MC0200",
+            "RuleReference": "MC0201",
             "Validators": [
                 {
                     "AdditionalData": [

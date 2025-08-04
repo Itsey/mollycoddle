@@ -3,7 +3,7 @@
         {
             "Link": "https://itsey.github.io/molly-rules.html#MC0103",
             "Name": "Directory.Props must match common file.",
-            "RuleReference": "MC0102",
+            "RuleReference": "MC0103",
             "Validators": [
                 {
                     "AdditionalData": [

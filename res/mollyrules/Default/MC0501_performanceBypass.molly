@@ -1,7 +1,7 @@
 {
     "Rules": [
         {
-            "Link": "https://itsey.github.io/molly-rules.html#MC0500",
+            "Link": "https://itsey.github.io/molly-rules.html#MC0501",
             "Name": "Skip well known pattens for performance reasons",
             "RuleReference": "MC0501",
             "Validators": [
