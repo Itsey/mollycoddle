@@ -1,0 +1,20 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0103",
+            "Name": "Directory.Props must match common file.",
+            "RuleReference": "MC0102",
+            "Validators": [
+                {
+                    "AdditionalData": [
+                        "%COMMONROOT%\\common.directory.props"
+                    ],
+                    "Control": "MatchWithPrimary",
+                    "PatternMatch": "%ROOT%\\src\\directory.props",
+                    "ValidatorName": "FileValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

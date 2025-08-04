@@ -1,0 +1,14 @@
+MC0001_bannedFileExtensions.molly
+MC0002_lazyFile_denylist.molly
+MC0050_file_readme.molly
+MC0060_rootfolders_src.molly
+MC0065_root_folder_allowlist.molly
+MC0070_solution_mustexist.molly
+MC0100_common_editorconfig.molly
+MC0101_common_gitignore.molly
+MC0102_common_nugetconfig.molly
+MC0201_sponsorlink_banned.molly
+MC0202_duffLicense_banned.molly
+MC0300_nuget_banned_packages.molly
+MC0500_archivedFilesBypass.molly
+MC0501_performanceBypass.molly

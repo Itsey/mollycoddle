@@ -1,0 +1,25 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/molly-rules.html#MC0500",
+            "Name": "Skip rules for Archive folders.",
+            "RuleReference": "MC0500",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\Archive\\**\\*",
+                    "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "FullBypass",
+                    "PatternMatch": "%ROOT%\\Archive**",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        }
+       
+    ],
+    "RulesetName": "Archive Enablement"
+}

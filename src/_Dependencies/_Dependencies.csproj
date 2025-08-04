@@ -5,9 +5,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="nDepend\mollycoddle.ndproj" />
+    <Compile Remove="TestData\**" />
+    <EmbeddedResource Remove="TestData\**" />
+    <None Remove="TestData\**" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="TestData\" />
+    <None Include="nDepend\mollycoddle.ndproj" />
   </ItemGroup>
 </Project>
