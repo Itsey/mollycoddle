@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Minimatch;
 using Plisky.Diagnostics;
 using Plisky.Test;
+using Shouldly;
 using Xunit;
 
 public class Exploratory {
@@ -244,5 +246,46 @@ public class Exploratory {
         var ret = sut.GetVersionAndFilenameFromNexusUrl(molsbaseMarker, downloadUrl);
         ret.Item1.Should().Be(versionMarker);
         ret.Item2.Should().Be(fileName);
+    }
+
+
+
+
+
+    public class CommonFilesFetcherTests {
+        [Fact]
+        public async Task FetchCommonFilesAsync_Throws_WhenRepositoryRootIsNullOrEmpty() {
+            var options = new MollyOptions();
+            var bilge = new Bilge("test");
+            var sut = new CommonFilesFetcher(options, bilge);
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync(null, "primaryRoot"));
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync(string.Empty, "primaryRoot"));
+        }
+
+        [Fact]
+        public async Task FetchCommonFilesAsync_Throws_WhenPrimaryRootIsNullOrEmpty() {
+            var options = new MollyOptions();
+            var bilge = new Bilge("test");
+            var sut = new CommonFilesFetcher(options, bilge);
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("repoRoot", null));
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("repoRoot", string.Empty));
+        }
+
+        [Fact]
+        public async Task FetchCommonFilesAsync_Throws_WhenNexusTokenIsInvalid() {
+            var options = new MollyOptions();
+            var bilge = new Bilge("test");
+            var sut = new CommonFilesFetcher(options, bilge);
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("repoRoot", "[NEXUS]badtoken"));
+        }
+
+        [Fact]
+        public async Task FetchCommonFilesAsync_Throws_WhenSourceUrlIsInvalid() {
+            var options = new MollyOptions();
+            var bilge = new Bilge("test");
+            var sut = new CommonFilesFetcher(options, bilge);
+            // This will try to create an invalid URI
+            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("repoRoot", "http://invalid-url-with-space .com"));
+        }
     }
 }

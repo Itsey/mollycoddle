@@ -50,6 +50,23 @@ public class Program {
             ConfigureTrace(mo.DebugSetting);
         }
 
+        if (ma.GetCommonFiles) {
+            b = new Bilge("mollycoddle-get");
+            if (mo.EnableDebug) {
+                ConfigureTrace(mo.DebugSetting);
+            }
+            var fetcher = new CommonFilesFetcher(mo, b);
+            int getResult = await fetcher.FetchCommonFilesAsync(ma.DirectoryToTarget, ma.PrimaryPath);
+            if (getResult == 0) {
+                writeOutput($"Common files fetched successfully for repository root '{ma.DirectoryToTarget}'.", OutputType.EndSuccess);
+                exitCode = 0;
+            } else {
+                writeOutput($"One or more files failed to download for repository root '{ma.DirectoryToTarget}'.", OutputType.EndFailure);
+                exitCode = -getResult;
+            }
+            goto TheEndIsNigh;
+        }
+
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
         b.Verbose.Dump(args, "command line arguments");

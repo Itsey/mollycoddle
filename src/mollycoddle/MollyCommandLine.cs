@@ -52,6 +52,9 @@ public class MollyCommandLine {
     [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages.")]
     public bool WarningsIncludeLinks { get; set; }
 
+    [CommandLineArg("get", FullDescription = "If set, invokes the get command to fetch common files for the specified repository.")]
+    public bool GetCommonFiles { get; set; }
+
     public MollyOptions GetOptions() {
         RulesFile ??= string.Empty;
 
