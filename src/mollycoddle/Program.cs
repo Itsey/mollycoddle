@@ -56,12 +56,12 @@ public class Program {
                 ConfigureTrace(mo.DebugSetting);
             }
             var fetcher = new CommonFilesFetcher(mo, b);
-            int getResult = await fetcher.FetchCommonFilesAsync(ma.DirectoryToTarget, ma.PrimaryPath);
+            (int getResult, string savedDirectory) = await fetcher.FetchCommonFilesAsync(ma.PrimaryPath);
             if (getResult == 0) {
-                writeOutput($"Common files fetched successfully for repository root '{ma.DirectoryToTarget}'.", OutputType.EndSuccess);
+                writeOutput($"Common files fetched successfully and saved to: {savedDirectory}", OutputType.EndSuccess);
                 exitCode = 0;
             } else {
-                writeOutput($"One or more files failed to download for repository root '{ma.DirectoryToTarget}'.", OutputType.EndFailure);
+                writeOutput($"One or more files failed to download.", OutputType.EndFailure);
                 exitCode = -getResult;
             }
             goto TheEndIsNigh;

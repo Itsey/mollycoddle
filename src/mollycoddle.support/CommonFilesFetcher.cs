@@ -6,8 +6,9 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
     private readonly Bilge b = bilge;
     private readonly MollyOptions options = options;
 
-    public async Task<int> FetchCommonFilesAsync(string repositoryRoot, string? primaryRoot) {
-        ValidateParameters(repositoryRoot, primaryRoot);
+    public async Task<(int errorCount, string savedDirectory)> FetchCommonFilesAsync(string? primaryRoot) {
+        b.Info.Log($"Starting fetch of common files using primaryRoot: '{primaryRoot}'");
+        ValidateParameters(primaryRoot);
         primaryRoot = ResolvePrimaryRoot(primaryRoot!);
 
         string baseUrl = primaryRoot.TrimEnd('/');
@@ -45,7 +46,8 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
             }
         }
 
-        b.Info.Log($"Fetching common files from '{baseUrl}' for repository root '{repositoryRoot}'.");
+        string savedDirectory = isSolutionRoot ? currentDir : tempFolder ?? currentDir;
+        b.Info.Log($"Fetching common files from '{baseUrl}'.");
         int errorCount = 0;
         for (int i = 0; i < files.Length; i++) {
             string sourceUrl = $"{baseUrl}/{files[i]}";
@@ -59,15 +61,12 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
             }
         }
         b.Info.Log($"Common files fetch completed with {errorCount} errors.");
-        return errorCount;
+        return (errorCount, savedDirectory);
     }
 
-    private static void ValidateParameters(string repositoryRoot, string? primaryRoot) {
-        if (string.IsNullOrWhiteSpace(repositoryRoot)) {
-            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Repository root must be specified for get command.");
-        }
+    private static void ValidateParameters(string? primaryRoot) {
         if (string.IsNullOrWhiteSpace(primaryRoot)) {
-            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Primary root (base URL) must be specified for get command.");
+            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Repository root and Primary root (base URL) must be specified for get command.");
         }
     }
 
