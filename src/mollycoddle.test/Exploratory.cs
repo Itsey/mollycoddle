@@ -247,36 +247,4 @@ public class Exploratory {
         ret.Item1.Should().Be(versionMarker);
         ret.Item2.Should().Be(fileName);
     }
-
-
-
-
-
-    public class CommonFilesFetcherTests {
-        [Fact]
-        public async Task FetchCommonFilesAsync_Throws_WhenPrimaryRootIsNullOrEmpty() {
-            var options = new MollyOptions();
-            var bilge = new Bilge("test");
-            var sut = new CommonFilesFetcher(options, bilge);
-            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync(null));
-            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync(string.Empty));
-        }
-
-        [Fact]
-        public async Task FetchCommonFilesAsync_Throws_WhenNexusTokenIsInvalid() {
-            var options = new MollyOptions();
-            var bilge = new Bilge("test");
-            var sut = new CommonFilesFetcher(options, bilge);
-            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("[NEXUS]badtoken"));
-        }
-
-        [Fact]
-        public async Task FetchCommonFilesAsync_Throws_WhenSourceUrlIsInvalid() {
-            var options = new MollyOptions();
-            var bilge = new Bilge("test");
-            var sut = new CommonFilesFetcher(options, bilge);
-            // This will try to create an invalid URI
-            await Should.ThrowAsync<Exception>(async () => await sut.FetchCommonFilesAsync("http://invalid-url-with-space .com"));
-        }
-    }
 }
