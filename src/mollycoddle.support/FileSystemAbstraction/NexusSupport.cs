@@ -281,8 +281,8 @@ public class NexusSupport {
                 }
             }
         } else {
-            if ((!string.IsNullOrEmpty(mo.PrimaryFilePath)) && (mo.PrimaryFilePath.StartsWith(NexusSupport.NEXUS_PREFIX))) {
-                var ns = GetNexusSettings(mo.PrimaryFilePath);
+            if ((!string.IsNullOrEmpty(rulesFile)) && (rulesFile.StartsWith(NexusSupport.NEXUS_PREFIX))) {
+                var ns = GetNexusSettings(rulesFile);
                 if (ns != null) {
                     string nexusMollyMarker = "/primaryfiles";
 
@@ -296,7 +296,7 @@ public class NexusSupport {
                     await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
                     var fnn = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
                     // TODO : Why was this here?  If not seen an issue DELETE string rulesFile = Path.GetFileName(mo.PrimaryFilePath);
-                    mo.PrimaryFilePath = Path.Combine(BasePathToSave, fnn.Item1);
+                    result = Path.Combine(BasePathToSave, fnn.Item1, fnn.Item2);
                 }
             }
         }
