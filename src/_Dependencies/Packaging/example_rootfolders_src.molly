@@ -1,0 +1,24 @@
+{
+    "Rules": [
+        {
+            "Link": "https://itsey.github.io/",
+            "Name": "Source Code should live in src.",
+            "RuleReference": "EXAMPLE2",
+            "Validators": [
+                {
+                    "AdditionalData": null,
+                    "Control": "MustExist",
+                    "PatternMatch": "%ROOT%\\src",
+                    "ValidatorName": "DirectoryValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "%ROOT%\\src\\src",
+                    "ValidatorName": "DirectoryValidationChecks"
+                }
+            ]
+        }
+    ],
+    "RulesetName": "Basic Quality Rules"
+}

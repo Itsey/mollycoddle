@@ -31,18 +31,23 @@ internal class MollyMain {
         var ps = new ProjectStructure {
             Root = mo.DirectoryToTarget
         };
+        b.Info.Flow("Project Structure");
         ps.PopulateProjectStructure();
 
         var mrf = new MollyRuleFactory();
         var molly = new Molly(mo);
+        b.Info.Flow("Add Project Structure");
         molly.AddProjectStructure(ps);
         try {
+            b.Info.Log($"Loading Rules from {mo.RulesFile}");
             molly.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
         } catch (InvalidOperationException iox) {
+            b.Error.ReportRecord(new ErrorDescription((short)ErrorModule.Main, (short)ErrorCode.ImportMollyRules), $"Error Context: {iox.Message}");
+            b.Error.Log($"Exception occured reading rules files |{iox.Message}|");
             WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
             Exception? eox = iox;
             while (eox != null) {
-                WriteOutput($"Error: {eox.Message}", OutputType.Error);
+                WriteOutput($"RulesFiles::Error: {eox.Message}", OutputType.Error);
                 eox = eox.InnerException;
             }
             throw;
@@ -69,12 +74,12 @@ internal class MollyMain {
 
     private void ValidateMollyOptions() {
         if (!ValidateDirectory(mo.DirectoryToTarget)) {
-            WriteOutput($"InvalidCommand - Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
+            WriteOutput($"InvalidCommand:  -Dir Parameter Validation >  Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
             throw new DirectoryNotFoundException($"Directory not found [{mo.DirectoryToTarget}]");
         }
 
         if (!ValidateRulesFile(mo.RulesFile)) {
-            WriteOutput($"InvalidCommand - RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
+            WriteOutput($"InvalidCommand: -rulesfile parameter validation > RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
             throw new FileNotFoundException($"Rules file not found [{mo.RulesFile}]");
         }
     }

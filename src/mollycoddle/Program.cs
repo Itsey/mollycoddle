@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Diagnostics;
+using System.Reflection;
 using mollycoddle;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
@@ -15,6 +16,7 @@ public class Program {
 
     private static async Task<int> Main(string[] args) {
         var sw = new Stopwatch();
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         Hub.Current.UseStrongReferences = true;
         Hub.Current.LookFor<CheckpointMessage>((a) => {
@@ -36,7 +38,8 @@ public class Program {
             writeOutput = WriteOutputAzDo;
         }
 
-        writeOutput("MollyCoddle Online", OutputType.Info);
+        WriteGreetingMessage();
+
 
         if (ma.Disabled) {
             writeOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
@@ -52,7 +55,8 @@ public class Program {
 
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
-        b.Verbose.Dump(args, "command line arguments");
+        WriteDebuggingInfoOnStartup(args, ma);
+
 
         var mm = new MollyMain(mo, b);
         mm.WriteOutput = writeOutput;
@@ -64,10 +68,10 @@ public class Program {
         } else {
             try {
                 sw.Start();
-
+                b.Verbose.Log("MC starts, about to execute molly checks");
                 var cr = await mm.DoMollly();
                 exitCode = cr.DefectCount;
-
+                b.Verbose.Log($"MC completes {cr.DefectCount} defects identified.");
                 sw.Stop();
                 string elapsedString = $" Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
                 if (cr.DefectCount == 0) {
@@ -76,6 +80,7 @@ public class Program {
                     writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
                 }
             } catch (Exception ex) {
+                b.Error.Dump(ex, "exception captured during mc execution");
                 writeOutput(ex.Message, OutputType.Error);
                 exitCode = -3;
                 goto TheEndIsNigh;
@@ -94,6 +99,18 @@ public class Program {
         return exitCode;
     }
 
+    private static void WriteDebuggingInfoOnStartup(string[] args, MollyCommandLine ma) {
+        string mver = Assembly.GetExecutingAssembly()?.GetName().Version?.ToString() ?? "unknown";
+
+        Bilge.Default.Verbose.Log($"Molly Startup Debug Info {mver}");
+        Bilge.Default.Verbose.Dump(args, "command line arguments");
+        Bilge.Default.Verbose.Log($"MolCommandLine : Rules : {ma.RulesFile}");
+        Bilge.Default.Verbose.Log($"MolCommandLine : Primary : {ma.PrimaryPath}");
+        Bilge.Default.Verbose.Log($"MolCommandLine : Directory : {ma.DirectoryToTarget}");
+        Bilge.Default.Verbose.Log($"MolCommandLine : Disabled : {ma.Disabled}");
+
+    }
+
     private static void ConfigureTrace(string debugSetting) {
         Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
         // TODO: Currently hardcoded trace, move this to configuration.
@@ -109,14 +126,21 @@ public class Program {
         Bilge.AddHandler(new ConsoleHandler());
     }
 
+    private static void WriteGreetingMessage() {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+        string verString = Assembly.GetExecutingAssembly()?.GetName().Version?.ToString() ?? "unknown";
+        writeOutput($"🚼 MollyCoddle Online. ({verString})", OutputType.Info);
+    }
+
     private static void WriteOutputDefault(string v, OutputType ot) {
         string pfx = "";
         switch (ot) {
-            case OutputType.Violation: pfx = "💩 Violation: "; break;
-            case OutputType.Error: pfx = "⚠ Error: "; break;
+            case OutputType.Violation: pfx = "💩  Violation: "; break;
+            case OutputType.Error: pfx = "⚠  Error: "; break;
             case OutputType.Info: pfx = "Info: "; break;
-            case OutputType.EndSuccess: pfx = "😎 Completed."; break;
-            case OutputType.EndFailure: pfx = "😢 Completed."; break;
+            case OutputType.EndSuccess: pfx = "😎  Completed."; break;
+            case OutputType.EndFailure: pfx = "😢  Completed."; break;
         }
         Console.WriteLine($"{pfx}{v}");
     }

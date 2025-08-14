@@ -31,7 +31,7 @@ public class MollyCommandLine {
     public bool Disabled { get; set; }
 
     [CommandLineArg("formatter", FullDescription = "If set to azdo then azure build pipelines formatting will be used, otherwise plain text output.")]
-    public string OutputFormat { get; set; } = "azdo";
+    public string OutputFormat { get; set; } = "default";
 
     [CommandLineArg("primaryRoot", FullDescription = "If Primary Source files based rules are used this is the location of the primary Root for these files")]
     [CommandLineArg("masterRoot")]  // compat mode.

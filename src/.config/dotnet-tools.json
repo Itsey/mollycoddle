@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "plisky.versonify": {
+      "version": "1.0.1",
+      "commands": [
+        "versonify"
+      ],
+      "rollForward": false
+    }
+  }
+}
