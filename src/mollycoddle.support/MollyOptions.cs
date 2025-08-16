@@ -4,10 +4,10 @@
 /// MollyOptions are cross cutting options relating to how the program works.
 /// </summary>
 public class MollyOptions {
-    public static string PRIMARYPATHLITERAL = "%COMMONROOT%";
+    public const string PRIMARYPATHLITERAL = "%COMMONROOT%";
 
     public MollyOptions() {
-        DebugSetting = DirectoryToTarget = RulesFile = string.Empty;
+        DebugSetting = DirectoryToTarget = RulesFile = TempPath = string.Empty;
     }
 
     /// <summary>

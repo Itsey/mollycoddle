@@ -259,47 +259,31 @@ public class NexusSupport {
         File.WriteAllBytes(localFile, fileContents);
     }
 
-    public async Task<string> ProcessNexusSupport(string rulesFile, ProcessKind rulesFile1) {
-        b.Info.Flow($"{rulesFile}");
+    public async Task<string> ProcessNexusSupport(string nexusFile, ProcessKind fileType) {
+        b.Info.Flow($"{nexusFile}");
 
         Action<byte[], string, string> saveFileAction = (fileContents, fileName, identifier) => {
             ActualSaver(fileContents, fileName, identifier);
         };
 
-        string result = rulesFile;
-
-        if (rulesFile1 == ProcessKind.RulesFile) {
-            if (rulesFile.StartsWith(NexusSupport.NEXUS_PREFIX)) {
-                var ns = GetNexusSettings(rulesFile);
-                if (ns != null) {
-                    string nexusMollyMarker = "/molly";
-
-                    string urlToUse = GetUrlToUse(ns.Url, nexusMollyMarker);
-                    await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
-                    var fnn = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
-                    result = Path.Combine(BasePathToSave, fnn.Item1, fnn.Item2);
-                }
-            }
-        } else {
-            if ((!string.IsNullOrEmpty(rulesFile)) && (rulesFile.StartsWith(NexusSupport.NEXUS_PREFIX))) {
-                var ns = GetNexusSettings(rulesFile);
-                if (ns != null) {
-                    string nexusMollyMarker = "/primaryfiles";
-
-                    int nmmOffset = ns.Url.IndexOf(nexusMollyMarker);
-
-                    if (nmmOffset < 0) {
-                        throw new InvalidOperationException($"Nexus URL does not contain the expected marker '{nexusMollyMarker}'");
-                    }
-
-                    string urlToUse = ns.Url.Substring(nmmOffset);
-                    await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
-                    var fnn = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
-                    // TODO : Why was this here?  If not seen an issue DELETE string rulesFile = Path.GetFileName(mo.PrimaryFilePath);
-                    result = Path.Combine(BasePathToSave, fnn.Item1, fnn.Item2);
-                }
-            }
+        string result = nexusFile;
+        var ns = GetNexusSettings(nexusFile);
+        if (string.IsNullOrEmpty(nexusFile) || !nexusFile.StartsWith(NEXUS_PREFIX) || ns == null) {
+            return result;
         }
+
+        string nexusMollyMarker = fileType == ProcessKind.RulesFile ? "/molly" : "/primaryfiles";
+        string urlToUse = GetUrlToUse(ns.Url, nexusMollyMarker);
+        
+        await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
+        var (version, filename) = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
+
+        if (fileType == ProcessKind.RulesFile) {
+            result = Path.Combine(BasePathToSave, version, filename);
+        } else {
+            result = Path.Combine(BasePathToSave, version);
+        }
+
         return result;
     }
 }
