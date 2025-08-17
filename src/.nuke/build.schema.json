@@ -24,8 +24,8 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
+        "ApplyVersion",
         "ArrangeStep",
-        "BuildNugetPackage",
         "Clean",
         "Compile",
         "ConstructStep",
@@ -34,11 +34,12 @@
         "IntegrationTest",
         "MollyCheck",
         "PackageStep",
+        "QueryNextVersion",
         "ReleaseStep",
         "Restore",
         "TestStep",
         "UnitTest",
-        "VersionSource",
+        "VersionQuickStep",
         "Wrapup"
       ]
     },
@@ -120,6 +121,14 @@
             "Debug",
             "Release"
           ]
+        },
+        "PreRelease": {
+          "type": "boolean",
+          "description": "PreRelease will only release a pre-release verison of the package.  Uses pre-release versioning"
+        },
+        "QuickVersion": {
+          "type": "string",
+          "description": "Specifies a quick version command for the versioning quick step"
         },
         "Solution": {
           "type": "string",

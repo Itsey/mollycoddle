@@ -13,64 +13,33 @@ public partial class Build : NukeBuild {
         .After(ExamineStep)
         .Before(ReleaseStep, Wrapup)
         .DependsOn(Initialise, ExamineStep)
-        .Triggers(BuildNugetPackage)
         .Executes(() => {
-            var project = Solution.GetProject("mollycoddle");
-            var dependenciesDir = Solution.GetProject("_Dependencies").Directory;
 
+
+            if (Solution == null) {
+                Log.Error("Build>PackageStep>Solution is null.");
+                throw new InvalidOperationException("The solution must be set");
+            }
+
+            if (settings == null) {
+                Log.Error("Build>PackageStep>Settings is null.");
+                throw new InvalidOperationException("The settings must be set");
+            }
+
+            var project = Solution.GetProject("mollycoddle");
             if (project == null) { throw new InvalidOperationException("Project not found"); }
 
-            var publishDirectory = ArtifactsDirectory + "\\publish\\mollycoddle";
-            var nugetStructure = ArtifactsDirectory / "nuget";
-            var nugetTools = nugetStructure / "tools";
-            var mcRules = nugetStructure / "rules";
-            var mcQuickStart = dependenciesDir / "RulesFiles" / "QuickStart";
+            var publishDirectory = settings.ArtifactsDirectory + "\\publish\\";
+            var nugetStructure = settings.ArtifactsDirectory + "\\nuget";
 
-            DotNetTasks.DotNetPublish(s => s
+            DotNetTasks.DotNetPack(s => s
               .SetProject(project)
               .SetConfiguration(Configuration)
-              .SetOutput(publishDirectory)
+              .SetOutputDirectory(nugetStructure)
+              .EnableNoBuild()
               .EnableNoRestore()
-              .SetSelfContained(false)
-              .EnableNoBuild());
-
-            nugetTools.DeleteDirectory();
-            mcRules.DeleteDirectory();
-
-            publishDirectory.CopyToDirectory(nugetTools, ExistsPolicy.FileOverwrite);
-            mcQuickStart.CopyToDirectory(mcRules, ExistsPolicy.FileOverwrite);
-
-            var readmeFile = dependenciesDir + "\\packaging\\readme.md";
-
-            readmeFile.CopyToDirectory(nugetStructure, ExistsPolicy.FileOverwrite);
-            var nugetPackageFile = Solution.GetProject("_Dependencies").Directory + "\\packaging\\mollycoddle.nuspec";
-            nugetPackageFile.CopyToDirectory(ArtifactsDirectory, ExistsPolicy.FileOverwrite);
+            );
         });
 
-    public Target BuildNugetPackage => _ => _
-      .DependsOn(PackageStep)
-      .After(Compile, PackageStep)
-      .Before(ReleaseStep)
-      .Executes(() => {
-          var vf = new VersonifyTasks();
 
-          Log.Information("Creating Nuget Package");
-
-          vf.PassiveExecute(s => s
-            .SetRoot(Solution.Directory)
-            .SetVersionPersistanceValue(VersionStorePath)
-            .SetDebug(true));
-
-          vf.PerformFileUpdate(s => s
-           .SetRoot(ArtifactsDirectory)
-           .AddMultimatchFile($"{Solution.Directory}\\_Dependencies\\Automation\\NuspecVersion.txt")
-           .SetVersionPersistanceValue(@"D:\Scratch\_build\vstore\mc-nuget-tool.vstore")
-           .SetDebug(true)
-
-           .SetRelease(""));
-
-          NuGetTasks.NuGetPack(s => s
-            .SetTargetPath(ArtifactsDirectory + "\\mollycoddle.nuspec")
-            .SetOutputDirectory(ArtifactsDirectory));
-      });
 }

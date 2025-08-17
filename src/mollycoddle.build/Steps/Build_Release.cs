@@ -18,7 +18,7 @@ public partial class Build : NukeBuild {
 
           Log.Information("--> Release Step - Releasing Nuget Package <-- ");
           NuGetTasks.NuGetPush(s => s
-            .SetTargetPath(ArtifactsDirectory + "\\Plisky.Mollycoddle*.nupkg")
+            .SetTargetPath(ArtifactsDirectory + "\\nuget\\Plisky.Mollycoddle*.nupkg")
             .SetSource("https://api.nuget.org/v3/index.json")
             .SetApiKey(Environment.GetEnvironmentVariable("PLISKY_PUBLISH_KEY")));
       });

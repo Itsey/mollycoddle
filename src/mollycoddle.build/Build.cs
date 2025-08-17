@@ -10,7 +10,7 @@ using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
 using Serilog;
 
-internal partial class Build : NukeBuild {
+public partial class Build : NukeBuild {
     public Bilge b = new("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
 
     public static int Main() => Execute<Build>(x => x.Compile);
@@ -24,11 +24,17 @@ internal partial class Build : NukeBuild {
     [Solution]
     private readonly Solution Solution;
 
-    private AbsolutePath ArtifactsDirectory => @"D:\Scratch\_build\mcbld\";
+    [Parameter("Specifies a quick version command for the versioning quick step", Name = "QuickVersion")]
+    readonly string QuickVersion = "";
+
+    [Parameter("PreRelease will only release a pre-release verison of the package.  Uses pre-release versioning.")]
+    readonly bool PreRelease = true;
+
+
+    private AbsolutePath ArtifactsDirectory = Path.Combine(Path.GetTempPath(), "_build\\mcbld\\");
 
     private LocalBuildConfig settings;
 
-    protected const string VersionStorePath = @"D:\Scratch\_build\vstore\mollycoddle-version.vstore";
 
     public Target Wrapup => _ => _
         .DependsOn(Initialise)
@@ -82,6 +88,9 @@ internal partial class Build : NukeBuild {
               settings.MainProjectName = "Listify";
               settings.ArtifactsDirectory = ArtifactsDirectory;
               settings.DependenciesDirectory = Solution.Projects.First(x => x.Name == "_Dependencies").Directory;
+              settings.VersioningPersistanceTokenPre = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly-pre.vstore";
+              settings.VersioningPersistanceTokenRelease = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly.vstore";
+
 
               string configPath = Path.Combine(settings.DependenciesDirectory, "configuration\\");
 
