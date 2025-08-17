@@ -1,31 +1,51 @@
+parameters:
+  - name: PreRelease
+    displayName: 'PreRelease'
+    type: boolean
+    default: true  
+
 trigger: none
 
-pool:
- name: 'FarawayLand'  
+stages:
+  - stage: MollycoddleRelease
+    displayName: 'Mollycoddle Release'
+    dependsOn: [  ]
 
-variables:
-  solution: '$(build.sourcesDirectory)\src\mollycoddle.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Debug'
-  buildVersionNumber: '0.0.0.0'
+    pool:
+      name: 'FarawayLand'  
 
-steps:
-- task: NuGetToolInstaller@1
+    jobs:
+      - job: Build
+        displayName: 'Mollycoddle CCD'
+        dependsOn: [  ]
+        steps:
+          - task: CmdLine@2
+            displayName: 'Run: ArrangeStep'
+            inputs:
+              script: '.\src\build.cmd ArrangeStep Clean MollyCheck --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-    restoreDirectory: '$(build.sourcesDirectory)\packages\'
+          - task: CmdLine@2
+            displayName: 'Run: ConstructStep'
+            name: ConstructStep
+            inputs:
+              script: '.\src\build.cmd ConstructStep Compile --skip ArrangeStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
+      
+          - task: CmdLine@2
+            displayName: 'Run: ExamineStep'
+            inputs:
+              script: '.\src\build.cmd ExamineStep --skip ArrangeStep ConstructStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
+              
+          - task: CmdLine@2
+            displayName: 'Run: PackageStep'
+            inputs:
+              script: '.\src\build.cmd PackageStep --skip ArrangeStep ConstructStep ExamineStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
 
- 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+          - task: CmdLine@2
+            displayName: 'Run: ReleaseStep'
+            inputs:
+              script: '.\src\build.cmd ReleaseStep --skip ArrangeStep ConstructStep ExamineStep PackageStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}  --FullVersionNumber ${ConstructStep.FullVersionNumber}'
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+          - task: CmdLine@2
+            displayName: 'Run: TestStep'
+            inputs:
+              script: '.\src\build.cmd TestStep --skip ArrangeStep ConstructStep ExamineStep PackageStep ReleaseStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'

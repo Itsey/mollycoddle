@@ -1,31 +1,30 @@
-trigger: none
+trigger:
+  - main
 
-pool:
- name: 'FarawayLand'  
+stages:
+  - stage: MollycoddleCIBuild
+    displayName: 'Mollycoddle CI Build'
+    dependsOn: [  ]
 
-variables:
-  solution: '$(build.sourcesDirectory)\src\mollycoddle.sln'
-  buildPlatform: 'Any CPU'
-  buildConfiguration: 'Debug'
-  buildVersionNumber: '0.0.0.0'
+    pool:
+      name: 'FarawayLand'  
 
-steps:
-- task: NuGetToolInstaller@1
+    jobs:
+      - job: Build
+        displayName: 'Mollycoddle CI Build.'
+        dependsOn: [  ]
+        steps:
+          - task: CmdLine@2
+            displayName: 'Run: ArrangeStep'
+            inputs:
+              script: '.\src\build.cmd ArrangeStep --root .\src\'
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '$(solution)'
-    restoreDirectory: '$(build.sourcesDirectory)\packages\'
-
- 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+          - task: CmdLine@2
+            displayName: 'Run: ConstructStep'
+            inputs:
+              script: '.\src\build.cmd ConstructStep --skip ArrangeStep --root .\src\'
+      
+          - task: CmdLine@2
+            displayName: 'Run: ExamineStep'
+            inputs:
+              script: '.\src\build.cmd ExamineStep --skip ArrangeStep ConstructStep --root .\src\'

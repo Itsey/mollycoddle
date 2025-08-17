@@ -103,7 +103,7 @@ public partial class Build : NukeBuild {
           if (IsLocalBuild) {
               // Passive Get Current Version
               Log.Information("Local Build - Versioning Set To Dry Run");
-              //dryRunMode = true;
+              dryRunMode = true;
           }
 
           string versioningType = "Pre-Release";
