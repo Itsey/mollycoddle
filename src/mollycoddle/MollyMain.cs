@@ -26,6 +26,18 @@ internal class MollyMain {
         b.Verbose.Log($"Targeting Directory ]{mo.DirectoryToTarget}");
 
         await HandleMcRuleSources(mo);
+        if (mo.GetCommonFiles) {
+            var fetcher = new CommonFilesFetcher(mo, b);
+            (int getResult, string savedDirectory) = fetcher.FetchCommonFiles();
+            if (getResult == 0) {
+                b.Verbose.Log($"Common files fetched successfully and saved to: {savedDirectory}");
+            } else {
+                b.Verbose.Log($"One or more files failed to download.");
+                result.AddDefect("CommonFilesFetchError", $"Failed to fetch common files. {getResult} errors occurred.");
+            }
+            return result;
+
+        }
         Hub.Current.Launch(new CheckpointMessage { Name = "rules." });
 
         var ps = new ProjectStructure {
@@ -78,7 +90,7 @@ internal class MollyMain {
             throw new DirectoryNotFoundException($"Directory not found [{mo.DirectoryToTarget}]");
         }
 
-        if (!ValidateRulesFile(mo.RulesFile)) {
+        if (!ValidateRulesFile(mo.RulesFile) && !mo.GetCommonFiles) {
             WriteOutput($"InvalidCommand: -rulesfile parameter validation > RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
             throw new FileNotFoundException($"Rules file not found [{mo.RulesFile}]");
         }
