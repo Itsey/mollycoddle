@@ -16,7 +16,6 @@ public class Program {
 
     private static async Task<int> Main(string[] args) {
         var sw = new Stopwatch();
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         Hub.Current.UseStrongReferences = true;
         Hub.Current.LookFor<CheckpointMessage>((a) => {
@@ -55,7 +54,7 @@ public class Program {
 
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
-        WriteDebuggingInfoOnStartup(args, ma);
+        WriteDebuggingInfoOnStartup(args, ma, b);
 
 
         var mm = new MollyMain(mo, b);
@@ -99,29 +98,24 @@ public class Program {
         return exitCode;
     }
 
-    private static void WriteDebuggingInfoOnStartup(string[] args, MollyCommandLine ma) {
+    private static void WriteDebuggingInfoOnStartup(string[] args, MollyCommandLine ma, Bilge b) {
         string mver = Assembly.GetExecutingAssembly()?.GetName().Version?.ToString() ?? "unknown";
 
-        Bilge.Default.Verbose.Log($"Molly Startup Debug Info {mver}");
-        Bilge.Default.Verbose.Dump(args, "command line arguments");
-        Bilge.Default.Verbose.Log($"MolCommandLine : Rules : {ma.RulesFile}");
-        Bilge.Default.Verbose.Log($"MolCommandLine : Primary : {ma.PrimaryPath}");
-        Bilge.Default.Verbose.Log($"MolCommandLine : Directory : {ma.DirectoryToTarget}");
-        Bilge.Default.Verbose.Log($"MolCommandLine : Disabled : {ma.Disabled}");
+        b.Verbose.Log($"Molly Startup Debug Info {mver}");
+        b.Verbose.Dump(args, "command line arguments");
+        b.Verbose.Log($"MolCommandLine : Rules : {ma.RulesFile}");
+        b.Verbose.Log($"MolCommandLine : Primary : {ma.PrimaryPath}");
+        b.Verbose.Log($"MolCommandLine : Directory : {ma.DirectoryToTarget}");
+        b.Verbose.Log($"MolCommandLine : Disabled : {ma.Disabled}");
 
     }
 
     private static void ConfigureTrace(string debugSetting) {
         Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
-        // TODO: Currently hardcoded trace, move this to configuration.
-        Bilge.SetConfigurationResolver(debugSetting);
+        Bilge.Default.ActiveTraceLevel = Bilge.SetConfigurationResolver(debugSetting)("default", Bilge.Default.ActiveTraceLevel);
 
 #if DEBUG && true
-        Bilge.SetConfigurationResolver((x, y) => {
-            return System.Diagnostics.SourceLevels.Verbose;
-        });
         Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
-
 #endif
         Bilge.AddHandler(new ConsoleHandler());
     }
