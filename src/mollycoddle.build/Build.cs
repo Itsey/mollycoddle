@@ -5,6 +5,8 @@ using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
+using Nuke.Common.Tools.PowerShell;
 using Nuke.Common.Utilities.Collections;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
@@ -63,6 +65,29 @@ public partial class Build : NukeBuild {
         }
         Log.Information($"Build>Wrapup>  {wrked}.");
     }
+    public Target NexusLive => _ => _
+      .After(Initialise)
+      .DependsOn(Initialise)
+      .Executes(() => {
+          string? dotb = Environment.GetEnvironmentVariable("DOTB_BUILDTOOLS");
+          if (!string.IsNullOrWhiteSpace(dotb)) {
+              Log.Information($"Build> Ensure Nexus Is Live>  Build Tools Directory: {dotb}");
+
+              string nexusInitScript = Path.Combine(dotb, "scripts", "nexusInit.ps1");
+              if (File.Exists(nexusInitScript)) {
+                  PowerShellTasks.PowerShell(x =>
+                     x.SetFile(nexusInitScript)
+                     .SetFileArguments("checkup")
+                     .SetProcessToolPath("pwsh")
+                  );
+              } else {
+                  Log.Error($"Build>Initialise>  Build Tools Directory: {nexusInitScript} - Nexus Init Script not found.");
+              }
+
+          } else {
+              Log.Information("Build>Initialise>  Build Tools Directory: Not Set, no additional initialisation taking place.");
+          }
+      });
 
     public Target Initialise => _ => _
           .Before(ExamineStep, Wrapup)
@@ -84,14 +109,18 @@ public partial class Build : NukeBuild {
               Bilge.Alert.Online("Mollycoddle-Build");
               b.Info.Log("Mollycoddle Build Process Initialised, preparing Initialisation section.");
 
-              settings = new LocalBuildConfig();
-              settings.ExecutingMachineName = Environment.MachineName;
-              settings.NonDestructive = false;
-              settings.MainProjectName = "Mollycoddle";
-              settings.ArtifactsDirectory = ArtifactsDirectory;
-              settings.DependenciesDirectory = Solution.Projects.First(x => x.Name == "_Dependencies").Directory;
-              settings.VersioningPersistanceTokenPre = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly-pre.vstore";
-              settings.VersioningPersistanceTokenRelease = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly.vstore";
+              settings = new LocalBuildConfig {
+                  ExecutingMachineName = Environment.MachineName,
+                  NonDestructive = false,
+                  MainProjectName = "Mollycoddle",
+                  MollyPrimaryToken = "%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX/",
+                  MollyRulesToken = "%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.mollyset",
+                  MollyRulesVersion = "default",
+                  ArtifactsDirectory = ArtifactsDirectory,
+                  DependenciesDirectory = Solution.Projects.First(x => x.Name == "_Dependencies").Directory,
+                  VersioningPersistanceTokenPre = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly-pre.vstore",
+                  VersioningPersistanceTokenRelease = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly.vstore"
+              };
 
 
               string configPath = Path.Combine(settings.DependenciesDirectory, "configuration\\");

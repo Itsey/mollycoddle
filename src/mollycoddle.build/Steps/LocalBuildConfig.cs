@@ -8,4 +8,7 @@ public class LocalBuildConfig {
     public AbsolutePath DependenciesDirectory { get; internal set; }
     public object ExecutingMachineName { get; internal set; }
     public string VersioningPersistanceTokenRelease { get; internal set; }
+    public string MollyRulesToken { get; set; }
+    public string MollyPrimaryToken { get; set; }
+    public string MollyRulesVersion { get; set; }
 }

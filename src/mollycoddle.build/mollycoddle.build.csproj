@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -20,7 +21,7 @@
     <PackageReference Include="Nuke.Common" Version="9.0.4" />
     <PackageReference Include="Plisky.Diagnostics" Version="3.2.5" />
     <PackageReference Include="Plisky.Listeners" Version="3.2.5" />
-    <PackageReference Include="Plisky.Mollycoddle" Version="0.1.2" />
+    <PackageReference Include="Plisky.Mollycoddle" Version="0.1.4" />
     <PackageReference Include="Plisky.Nuke.Fusion" Version="0.3.0-pre.0.3" />
   </ItemGroup>
 

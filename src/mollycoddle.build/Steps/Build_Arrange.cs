@@ -1,4 +1,7 @@
-﻿using Nuke.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.Tools.DotNet;
 using Plisky.Nuke.Fusion;
@@ -30,35 +33,65 @@ public partial class Build : NukeBuild {
         });
 
     private Target MollyCheck => _ => _
-       .After(Clean, ArrangeStep)
-       .Before(ConstructStep)
-       .Executes(() => {
-           Log.Information("Mollycoddle Structure Linting Starts.");
+          .After(Clean, ArrangeStep)
+          .DependsOn(Initialise, NexusLive)
+          .Before(ConstructStep)
+          .Executes(() => {
+              Log.Information("Mollycoddle Structure Linting Starts.");
 
-           string mollyEnabledMachihnes = "UNICORN,DAVYJONESx";
-           bool molsActive = false;
-           string thisMachine = System.Environment.MachineName.ToUpperInvariant();
-           foreach (string item in mollyEnabledMachihnes.Split(",")) {
-               if (item.ToUpperInvariant() == thisMachine) {
-                   b.Verbose.Log($"Molly Active - {thisMachine}");
-                   molsActive = true;
-                   break;
-               }
-           }
+              if (settings == null) {
+                  throw new InvalidOperationException("The settings are not configured, Mollycoddle cannot run.");
+              }
+              if (GitRepository == null) {
+                  throw new InvalidOperationException("The Git Repository is not configured, Mollycoddle cannot run.");
+              }
 
-           //TODO: Bug LFY-8. https://plisky.atlassian.net/browse/LFY-8
-           if (!molsActive) {
-               Log.Information("Mollycoddle Structure Linting Skipped - Machine Wide Disablement.");
-               return;
-           }
+              var mcOk = ValidateMollySettings(settings.MollyRulesToken, GitRepository.LocalDirectory.Exists());
+              if (mcOk != ValidationResult.Success) {
+                  Log.Error("Mollycoddle Structure Linting Skipped - Validation Failed.");
+                  foreach (string item in mcOk!.MemberNames) {
+                      Log.Error(item);
+                  }
+                  return;
+              }
 
-           var mc = new MollycoddleTasks();
-           mc.PerformScan(s => s
-               .AddRuleHelp(true)
-               .SetRulesFile(@"C:\files\code\git\mollycoddle\src\_Dependencies\RulesFiles\XXVERSIONNAMEXX\defaultrules.mollyset")
-          .SetPrimaryRoot(@"C:\Files\OneDrive\Dev\PrimaryFiles")
-          .SetDirectory(GitRepository.LocalDirectory));
 
-           Log.Information("Mollycoddle Structure Linting Completes.");
-       });
+              Log.Verbose($"MC ({settings.MollyRulesToken}) ({settings.MollyPrimaryToken}) ({GitRepository.LocalDirectory})");
+              var mc = new MollycoddleTasks();
+
+
+              string formatter = IsLocalBuild ? "plain" : "azdo";
+
+              var mcs = new MollycoddleSettings();
+              mcs.AddRuleHelp(true);
+
+              if (!string.IsNullOrEmpty(settings.MollyRulesVersion)) {
+                  mcs.AddRulesetVersion(settings.MollyRulesVersion);
+              }
+
+              mcs.SetRulesFile(settings.MollyRulesToken);
+              mcs.SetPrimaryRoot(settings.MollyPrimaryToken);
+              mcs.SetFormatter(formatter);
+              mcs.SetDirectory(GitRepository.LocalDirectory);
+
+              mc.PerformScan(mcs);
+
+              Log.Information("Mollycoddle Structure Linting Completes.");
+          });
+    private ValidationResult ValidateMollySettings(string mollyRulesToken, bool localDirectoryExists) {
+        var errors = new List<string>();
+
+        if (!localDirectoryExists) {
+            errors.Add("Mollycoddle: Local Working Directory Error.  Directory Does Not Exist.");
+        }
+        if (string.IsNullOrWhiteSpace(mollyRulesToken)) {
+            errors.Add("Mollycoddle: Ruleset Initialisation Token Not Set.");
+        }
+
+        if (errors.Count > 0) {
+            return new ValidationResult("Mollycoddle: Parameter Validation Failed.", errors);
+        }
+        return ValidationResult.Success;
+
+    }
 }
