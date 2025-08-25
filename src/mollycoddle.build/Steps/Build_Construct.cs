@@ -8,7 +8,6 @@ using Serilog;
 public partial class Build : NukeBuild {
     // Standard entrypoint for compiling the app.  Arrange [Construct] Examine Package Release Test
 
-    public string FullVersionNumber { get; set; } = string.Empty;
 
     public Target ConstructStep => _ => _
         .Before(ExamineStep, Wrapup)
@@ -142,7 +141,7 @@ public partial class Build : NukeBuild {
              .SetRoot(Solution.Directory)
          );
 
-          Log.Information($"[Versioning]{versioningType} Increment and Update Exsiting Files.({vc.VersionLiteral})");
+          Log.Information($"[Versioning]{versioningType} Increment and Update Existing Files.({vc.VersionLiteral})");
 
           if (!PreRelease) {
               // Hack.  Curently the return from versonify is not set to be different display types, we need 3 digit for semver so hacking the last digit off.
@@ -179,6 +178,9 @@ public partial class Build : NukeBuild {
 
           FullVersionNumber = vc.VersionLiteral;
           Log.Information($"[Versioning]Version applied:{vc.VersionLiteral}");
+
+          // Set Azure DevOps variable for use in pipeline/release steps
+          Console.WriteLine($"##vso[task.setvariable variable=FullVersionNumber;isOutput=true]{FullVersionNumber}");
       });
 
     private Target Compile => _ => _
@@ -190,6 +192,6 @@ public partial class Build : NukeBuild {
               .SetConfiguration(Configuration)
               .SetDeterministic(IsServerBuild)
               .SetContinuousIntegrationBuild(IsServerBuild)
-          );
+            );
         });
 }

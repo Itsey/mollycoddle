@@ -30,6 +30,8 @@ public partial class Build : NukeBuild {
     [Parameter("PreRelease will only release a pre-release verison of the package.  Uses pre-release versioning.")]
     readonly bool PreRelease = true;
 
+    [Parameter("Full version number")]
+    private string FullVersionNumber = string.Empty;
 
     private AbsolutePath ArtifactsDirectory = Path.Combine(Path.GetTempPath(), "_build\\mcbld\\");
 
@@ -79,13 +81,13 @@ public partial class Build : NukeBuild {
 
               b = new Bilge("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
 
-              Bilge.Alert.Online("Listify-Build");
-              b.Info.Log("Listify Build Process Initialised, preparing Initialisation section.");
+              Bilge.Alert.Online("Mollycoddle-Build");
+              b.Info.Log("Mollycoddle Build Process Initialised, preparing Initialisation section.");
 
               settings = new LocalBuildConfig();
               settings.ExecutingMachineName = Environment.MachineName;
               settings.NonDestructive = false;
-              settings.MainProjectName = "Listify";
+              settings.MainProjectName = "Mollycoddle";
               settings.ArtifactsDirectory = ArtifactsDirectory;
               settings.DependenciesDirectory = Solution.Projects.First(x => x.Name == "_Dependencies").Directory;
               settings.VersioningPersistanceTokenPre = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly-pre.vstore";

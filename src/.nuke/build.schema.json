@@ -24,6 +24,7 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
+        "ApplyGitTag",
         "ApplyVersion",
         "ArrangeStep",
         "Clean",
@@ -121,6 +122,10 @@
             "Debug",
             "Release"
           ]
+        },
+        "FullVersionNumber": {
+          "type": "string",
+          "description": "Full version number"
         },
         "PreRelease": {
           "type": "boolean",
