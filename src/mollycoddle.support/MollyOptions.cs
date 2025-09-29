@@ -44,4 +44,10 @@ public class MollyOptions {
     /// Working path for caching files etc, used when a non disk based rules and primary source is used.
     /// </summary>
     public string TempPath { get; set; }
+
+    /// <summary>
+    /// If set, invokes the get command to fetch common files and copy them to the specified repository.
+    /// </summary>
+    public bool GetCommonFiles { get; set; } = false;
+
 }

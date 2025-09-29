@@ -52,6 +52,9 @@ public class MollyCommandLine {
     [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages.")]
     public bool WarningsIncludeLinks { get; set; }
 
+    [CommandLineArg("fix", FullDescription = "If set, invokes the get command to fetch common files for the specified repository.")]
+    public bool GetCommonFiles { get; set; }
+
     public MollyOptions GetOptions() {
         RulesFile ??= string.Empty;
 
@@ -84,10 +87,11 @@ public class MollyCommandLine {
         }
         result.TempPath = TempPath;
         if (!string.IsNullOrWhiteSpace(DirectoryToTarget)) {
-            result.DirectoryToTarget = DirectoryToTarget.EndsWith("\\") ? DirectoryToTarget[..^1] : DirectoryToTarget;
+            result.DirectoryToTarget = DirectoryToTarget.EndsWith('\\') ? DirectoryToTarget[..^1] : DirectoryToTarget;
         }
         OutputFormat = "default";
         result.RulesFile = RulesFile;
+        result.GetCommonFiles = GetCommonFiles;
         return result;
     }
 }

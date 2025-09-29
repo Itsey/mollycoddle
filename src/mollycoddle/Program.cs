@@ -73,7 +73,9 @@ public class Program {
                 b.Verbose.Log($"MC completes {cr.DefectCount} defects identified.");
                 sw.Stop();
                 string elapsedString = $" Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
-                if (cr.DefectCount == 0) {
+                if (mo.GetCommonFiles) {
+                    WriteGetEndMessage(cr, mo, elapsedString);
+                } else if (cr.DefectCount == 0) {
                     writeOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
                 } else {
                     writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
@@ -158,5 +160,12 @@ public class Program {
                 break;
         }
         Console.WriteLine($"{pfx}{v}");
+    }
+    private static void WriteGetEndMessage(CheckResult cr, MollyOptions mo, string elapsedString) {
+        if (cr.DefectCount == 0) {
+            writeOutput($" Common files saved successfully to {mo.DirectoryToTarget}. ({elapsedString})", OutputType.EndSuccess);
+        } else {
+            writeOutput($" {cr.DefectCount} errors occurred while fetching common files. ({elapsedString})", OutputType.EndFailure);
+        }
     }
 }
