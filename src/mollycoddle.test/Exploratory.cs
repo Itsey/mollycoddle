@@ -237,6 +237,20 @@ public class Exploratory {
         Assert.NotNull(result);
         result.BasePathUrl.Should().Be(expected.BasePathUrl);
     }
+    [Theory]
+    [ClassData(typeof(NexusRulesetTestData))]
+    public void NexusMasterUrlParserNoTrailingSlash(string primaryUrl, NexusConfig expected) {
+        var sut = new NexusSupport(mo);
+
+        // remove trailing slash
+        if (primaryUrl.EndsWith('/')) {
+            primaryUrl = primaryUrl.Substring(0, primaryUrl.Length - 1);
+        }
+        var result = sut.GetNexusSettings(primaryUrl);
+
+        Assert.NotNull(result);
+        result.BasePathUrl.Should().Be(expected.BasePathUrl);
+    }
 
     [Theory]
     [InlineData("/asdf", "/asdf/asdf/asdf.mols", "asdf", "asdf.mols")]

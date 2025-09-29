@@ -201,6 +201,14 @@ public class NexusSupport {
             return null;
         }
 
+        // Ensure it ends with a slash if it looks like a folder not a file.
+        if (!nexusUrl.EndsWith('/')) {
+            string lastSegment = nexusUrl.Substring(nexusUrl.LastIndexOf('/') + 1);
+            if (!Path.HasExtension(lastSegment)) {
+                nexusUrl += "/";
+            }
+        }
+
         int httpPos = nexusUrl.IndexOf("://");
         int afterHttp = nexusUrl.IndexOf('/', httpPos + 3);
         string server = nexusUrl.Substring(0, afterHttp);
@@ -274,7 +282,7 @@ public class NexusSupport {
 
         string nexusMollyMarker = fileType == ProcessKind.RulesFile ? "/molly" : "/primaryfiles";
         string urlToUse = GetUrlToUse(ns.Url, nexusMollyMarker);
-        
+
         await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
         var (version, filename) = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
 
