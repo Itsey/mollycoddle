@@ -1,13 +1,36 @@
 ﻿namespace mollycoddle {
 
     using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using GitignoreParserNet;
     using Minimatch;
 
     public class FileStructureChecker : StructureCheckerBase {
-        protected List<MinmatchActionCheckEntity> Actions = new List<MinmatchActionCheckEntity>();
-        protected List<MinmatchActionCheckEntity> ViolatedActions = new List<MinmatchActionCheckEntity>();
+        protected List<MinmatchActionCheckEntity> actions = new List<MinmatchActionCheckEntity>();
+        protected List<MinmatchActionCheckEntity> violatedActions = new List<MinmatchActionCheckEntity>();
+
+        // Cache for gitignore matchers by path
+        private readonly Dictionary<string, Func<string, bool>> gitignoreMatchers = new();
 
         public FileStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
+        }
+
+        private Func<string, bool>? GetOrLoadGitignoreMatcher(string gitignorePath) {
+            if (gitignoreMatchers.TryGetValue(gitignorePath, out var matcher)) { // check cache
+                return matcher;
+            }
+
+            string? gitignoreContent = GetFileContents(gitignorePath);
+            if (string.IsNullOrWhiteSpace(gitignoreContent)) {
+                return null;
+            }
+
+            var parser = new GitignoreParser(gitignoreContent);
+            matcher = parser.Denies;
+            gitignoreMatchers[gitignorePath] = matcher;
+
+            return matcher;
         }
 
         public virtual void AssignCompareWithCommonAction(string patternToMatch, string pathToCommon, string ruleName) {
@@ -18,14 +41,14 @@
             fca.PerformCheck = GetContentsCheckerAction(pm);
             fca.DoesMatch = new Minimatcher(patternToMatch, o);
 
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         public void AssignFileMustNotContainAction(string violationRuleName, string patternForFile, string textToFind) {
             var fca = new MinmatchActionCheckEntity(violationRuleName);
             fca.PerformCheck = GetFileContentsMustChecker(textToFind, false);
             fca.DoesMatch = new Minimatcher(patternForFile, o);
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         /// <summary>
@@ -37,7 +60,7 @@
             var fca = new MinmatchActionCheckEntity(ruleName);
             fca.PerformCheck = GetMustMatchOneOfTheseChecker(patternForFiles.SecondaryList);
             fca.DoesMatch = new Minimatcher(patternForFiles.PrimaryPattern, o);
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         public void AssignMustExistAction(string ruleName, string patternForFile) {
@@ -50,23 +73,22 @@
             fca.PerformCheck = GetFileExistChecker();
             fca.DoesMatch = new Minimatcher(patternForFile, o);
 
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         public void AssignMustNotExistAction(string ruleName, MatchWithSecondaryMatches patternForFile) {
             var fca = new MinmatchActionCheckEntity(ruleName);
-            // Must Exist defaults to having not passed.  It passes if the file is then found.
             string pff = ValidateActualPath(patternForFile.PrimaryPattern);
             fca.Passed = true;
             fca.AdditionalInfo = $"{patternForFile} must not exist.";
             fca.PerformCheck = GetFileExistChecker(false, patternForFile.SecondaryList);
             fca.DoesMatch = new Minimatcher(pff, o);
 
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
-            if (Actions.Count == 0) {
+            if (actions.Count == 0) {
                 b.Warning.Log("There are no loaded actions for the file structure checker, no file based checks occur.");
                 return result;
             }
@@ -90,17 +112,17 @@
                 b.Verbose.Log($"fsc - {fn}");
 
                 int i = 0;
-                while (i < Actions.Count) {
-                    var chk = Actions[i];
+                while (i < actions.Count) {
+                    var chk = actions[i];
 
                     if (chk.IsInViolation) {
                         continue;
                     }
 
                     if (chk.ExecuteCheckWasViolation(fn)) {
-                        b.Info.Log($"Violation {fn}, {chk.OwningRuleIdentity} {chk.AdditionalInfo} {Actions[i].DiagnosticDescriptor} {i}");
-                        ViolatedActions.Add(chk);
-                        Actions.Remove(chk);
+                        b.Info.Log($"Violation {fn}, {chk.OwningRuleIdentity} {chk.AdditionalInfo} {actions[i].DiagnosticDescriptor} {i}");
+                        violatedActions.Add(chk);
+                        actions.Remove(chk);
                     } else {
                         i++;
                     }
@@ -110,18 +132,18 @@
 
             // Loop to catch those violations which require to actively pass, e.g. Must exist or Must not exist, they
             // need to check each file to determine if they have passed or not.
-            foreach (var a in Actions) {
+            foreach (var a in actions) {
                 if (!a.Passed) {
                     b.Verbose.Log($"{a.OwningRuleIdentity} failed.  After all checks it was not marked as passed.  Additional Info: {a.AdditionalInfo}");
                     result.AddDefect(a.OwningRuleIdentity, a.GetViolationMessage());
                 }
             }
-            foreach (var l in ViolatedActions) {
+            foreach (var l in violatedActions) {
                 b.Verbose.Log($"Violation: {l.OwningRuleIdentity} failed {l.AdditionalInfo}");
                 result.AddDefect(l.OwningRuleIdentity, l.GetViolationMessage());
-                Actions.Add(l);
+                actions.Add(l);
             }
-            ViolatedActions.Clear();
+            violatedActions.Clear();
 
             return result;
         }
@@ -177,25 +199,31 @@
             b.Verbose.Log($"MustExistChecker {shouldExist}");
 
             List<Minimatcher>? possiblePatterns = null;
+            Func<string, bool>? gitignoreMatcher = null;
+            string? gitignorePath = null;
 
             if (exceptionList != null) {
                 possiblePatterns = new List<Minimatcher>();
-
                 foreach (string l in exceptionList) {
+                    if (l.Equals("%ROOT%\\.gitignore", StringComparison.OrdinalIgnoreCase)) {
+                        gitignorePath = ValidateActualPath(l);
+                        if (!string.IsNullOrWhiteSpace(gitignorePath) || ps.DoesFileExist(gitignorePath)) {
+                            gitignoreMatcher = GetOrLoadGitignoreMatcher(gitignorePath);
+                        }
+                        continue;
+                    }
                     possiblePatterns.Add(new Minimatcher(l, o));
                 }
             }
-
             var result = new Action<MinmatchActionCheckEntity, string>((resultant, filenameToCheck) => {
-                if (possiblePatterns != null) {
-                    foreach (var l in possiblePatterns) {
-                        if (l.IsMatch(filenameToCheck)) {
-                            resultant.Passed = true;
-                            return;
-                        }
-                    }
+                if (IsBypassedByGitignore(gitignoreMatcher, filenameToCheck)) {
+                    resultant.Passed = true;
+                    return;
                 }
-
+                if (IsBypassedByPattern(possiblePatterns, filenameToCheck)) {
+                    resultant.Passed = true;
+                    return;
+                }
                 if (ps.DoesFileExist(filenameToCheck) == shouldExist) {
                     resultant.Passed = true;
                 } else {
@@ -267,6 +295,22 @@
                 }
             });
             return result;
+        }
+
+        private static bool IsBypassedByGitignore(Func<string, bool>? gitignoreMatcher, string filenameToCheck) {
+            return gitignoreMatcher != null && gitignoreMatcher(filenameToCheck);
+        }
+
+        private static bool IsBypassedByPattern(List<Minimatcher>? possiblePatterns, string filenameToCheck) {
+            if (possiblePatterns == null) {
+                return false;
+            }
+            foreach (var pattern in possiblePatterns) {
+                if (pattern.IsMatch(filenameToCheck)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

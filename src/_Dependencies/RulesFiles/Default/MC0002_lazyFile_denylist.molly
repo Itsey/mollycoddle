@@ -12,13 +12,17 @@
                     "ValidatorName": "FileValidationChecks"
                 },
                 {
-                    "AdditionalData": null,
+                    "AdditionalData": [
+                        "%ROOT%\\.gitignore"
+                    ],
                     "Control": "MustNotExist",
                     "PatternMatch": "**/*(2).*",
                     "ValidatorName": "FileValidationChecks"
                 },
                 {
-                    "AdditionalData": null,
+                    "AdditionalData": [
+                        "%ROOT%\\.gitignore"
+                    ],
                     "Control": "MustNotExist",
                     "PatternMatch": "**/*(1).*",
                     "ValidatorName": "FileValidationChecks"

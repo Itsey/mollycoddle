@@ -261,4 +261,58 @@ public class Exploratory {
         ret.Item1.Should().Be(versionMarker);
         ret.Item2.Should().Be(fileName);
     }
+
+    [Fact]
+    public void MustNotExistRule_DoesNotViolate_WhenFileIsIgnoredByGitignore() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("node_modules");
+        mps.WithRootedFile("node_modules\\1.js", "some node stuff");
+        mps.WithRootedFile("%ROOT%\\.gitignore", "node_modules/");
+        var sut = new MockFileStructureChecker(mps);
+        var pattern = new MatchWithSecondaryMatches("**/1.js") {
+            SecondaryList = new[] { "%ROOT%\\.gitignore" }
+        };
+
+        sut.AssignMustNotExistAction("TestRule", pattern);
+        var result = sut.Check();
+
+        result.DefectCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public void MustNotExistRule_Violates_WhenFileIsNotIgnoredByGitignore() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("node_modules");
+        mps.WithRootedFile("node_modules\\1.js", "some node stuff");
+        mps.WithRootedFile("%ROOT%\\.gitignore", "nothing to see here");
+        var sut = new MockFileStructureChecker(mps);
+        var pattern = new MatchWithSecondaryMatches("**/1.js") {
+            SecondaryList = new[] { "%ROOT%\\.gitignore" }
+        };
+
+        sut.AssignMustNotExistAction("TestRule", pattern);
+        var result = sut.Check();
+
+        result.DefectCount.ShouldBe(1);
+    }
+
+
+    [Fact]
+    public void MustNotExistRule_Violates_WhenGitignoreMissingOrEmpty() {
+        string root = @"c:\MadeUpPath";
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        _ = mps.WithRootedFolder("node_modules");
+        mps.WithRootedFile("node_modules\\1.js", "some node stuff");
+        var sut = new MockFileStructureChecker(mps);
+        var pattern = new MatchWithSecondaryMatches("**/1.js") {
+            SecondaryList = new[] { "%ROOT%\\.gitignore" }
+        };
+
+        sut.AssignMustNotExistAction("TestRule", pattern);
+        var result = sut.Check();
+
+        result.DefectCount.ShouldBe(1);
+    }
 }
