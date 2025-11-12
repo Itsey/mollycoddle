@@ -35,6 +35,6 @@
     <EmbeddedResource Include="NugetFiles\testproject_withxunit.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Plisky.Diagnostics" Version="3.2.2" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.2.5" />
   </ItemGroup>
 </Project>

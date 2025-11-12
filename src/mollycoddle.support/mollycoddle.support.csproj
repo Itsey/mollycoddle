@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="GitignoreParserNet" Version="0.2.0.14" />
     <PackageReference Include="Minimatch" Version="2.0.0" />
-    <PackageReference Include="Plisky.Diagnostics" Version="3.2.2" />
+    <PackageReference Include="Plisky.Diagnostics" Version="3.2.5" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Plisky.Versioning">

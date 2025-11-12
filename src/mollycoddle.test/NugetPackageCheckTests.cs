@@ -2,7 +2,7 @@
 
     using System;
     using System.Linq;
-    using FluentAssertions;
+    using AwesomeAssertions;
     using Plisky.Diagnostics;
     using Plisky.Test;
     using Xunit;
