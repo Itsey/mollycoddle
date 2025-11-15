@@ -9,6 +9,8 @@ internal class MollyMain {
     protected Bilge b;
     protected MollyOptions mo;
     protected string? basePathToSave = null;
+    public bool fixApplied = false;
+    public const string CFFVIOLATION = "CommonFilesFetchError";
 
     public Action<string, OutputType> WriteOutput { get; set; } = (a, b) => { };
 
@@ -26,18 +28,6 @@ internal class MollyMain {
         b.Verbose.Log($"Targeting Directory ]{mo.DirectoryToTarget}");
 
         await HandleMcRuleSources(mo);
-        if (mo.GetCommonFiles) {
-            var fetcher = new CommonFilesFetcher(mo, b);
-            (int getResult, string savedDirectory) = fetcher.FetchCommonFiles();
-            if (getResult == 0) {
-                b.Verbose.Log($"Common files fetched successfully and saved to: {savedDirectory}");
-            } else {
-                b.Verbose.Log($"One or more files failed to download.");
-                result.AddDefect("CommonFilesFetchError", $"Failed to fetch common files. {getResult} errors occurred.");
-            }
-            return result;
-
-        }
         Hub.Current.Launch(new CheckpointMessage { Name = "rules." });
 
         var ps = new ProjectStructure {
@@ -55,7 +45,7 @@ internal class MollyMain {
             molly.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
         } catch (InvalidOperationException iox) {
             b.Error.ReportRecord(new ErrorDescription((short)ErrorModule.Main, (short)ErrorCode.ImportMollyRules), $"Error Context: {iox.Message}");
-            b.Error.Log($"Exception occured reading rules files |{iox.Message}|");
+            b.Error.Log($"Exception occurred reading rules files |{iox.Message}|");
             WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
             Exception? eox = iox;
             while (eox != null) {
@@ -67,6 +57,17 @@ internal class MollyMain {
 
         result = molly.ExecuteAllChecks();
         Hub.Current.Launch(new CheckpointMessage { Name = "checks." });
+
+        // If requested, attempt to get common files for any violations found
+        if (mo.GetCommonFiles && result.ViolationsFound.Count > 0) {
+            (int applyFixResult, string logMessage) = molly.ApplyMollyFix();
+            if (applyFixResult > 0) {
+                b.Verbose.Log($"One or more files failed to download.");
+                result.AddDefect(CFFVIOLATION, logMessage);
+            } else if (applyFixResult == 0) {
+                fixApplied = true;
+            }
+        }
 
         string lastWrittenRule = string.Empty;
         foreach (var l in result.ViolationsFound.OrderBy(p => p.RuleName)) {
@@ -90,7 +91,7 @@ internal class MollyMain {
             throw new DirectoryNotFoundException($"Directory not found [{mo.DirectoryToTarget}]");
         }
 
-        if (!ValidateRulesFile(mo.RulesFile) && !mo.GetCommonFiles) {
+        if (!ValidateRulesFile(mo.RulesFile)) {
             WriteOutput($"InvalidCommand: -rulesfile parameter validation > RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
             throw new FileNotFoundException($"Rules file not found [{mo.RulesFile}]");
         }
@@ -123,6 +124,9 @@ internal class MollyMain {
 
         fileManager.BasePathToSave = basePathToSave;
         mo.RulesFile = await fileManager.ProcessNexusSupport(mo.RulesFile, ProcessKind.RulesFile);
-        mo.PrimaryFilePath = await fileManager.ProcessNexusSupport(mo.PrimaryFilePath, ProcessKind.PrimaryFile);
+
+        if (!string.IsNullOrWhiteSpace(mo.PrimaryFilePath)) {
+            mo.PrimaryFilePath = await fileManager.ProcessNexusSupport(mo.PrimaryFilePath, ProcessKind.PrimaryFile);
+        }
     }
 }

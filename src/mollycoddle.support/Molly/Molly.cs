@@ -68,5 +68,24 @@
                 }
             }
         }
+
+        public (int errorCount, string logMessage) ApplyMollyFix() {
+            string logMessage;
+            // Only fixing file structure violations for now
+            if (fst != null) {
+                int getResult = fst.ApplyFix();
+                if (getResult == 0) {
+                    logMessage = $"Common files fetched successfully.";
+                    b.Verbose.Log(logMessage);
+                } else {
+                    logMessage = $"Failed to fetch common files. {getResult} errors occurred.";
+                }
+                return (getResult, logMessage);
+            } else {
+                logMessage = "ApplyMollyFix only supported for file structure violations at this time.";
+                b.Warning.Log(logMessage);
+                return (-1, logMessage);
+            }
+        }
     }
 }

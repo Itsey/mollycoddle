@@ -312,5 +312,10 @@
             }
             return false;
         }
+
+        internal int ApplyFix() {
+            var fetcher = new CommonFilesFetcher(mo, b);
+            return fetcher.FetchCommonFiles();
+        }
     }
 }

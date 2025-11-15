@@ -72,14 +72,8 @@ public class Program {
                 exitCode = cr.DefectCount;
                 b.Verbose.Log($"MC completes {cr.DefectCount} defects identified.");
                 sw.Stop();
-                string elapsedString = $" Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
-                if (mo.GetCommonFiles) {
-                    WriteGetEndMessage(cr, mo, elapsedString);
-                } else if (cr.DefectCount == 0) {
-                    writeOutput($"No Violations, Mollycoddle Pass. ({elapsedString})", OutputType.EndSuccess);
-                } else {
-                    writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
-                }
+                string elapsedString = $"Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
+                WriteEndMessage(cr, mm, mo, elapsedString);
             } catch (Exception ex) {
                 b.Error.Dump(ex, "exception captured during mc execution");
                 writeOutput(ex.Message, OutputType.Error);
@@ -161,11 +155,15 @@ public class Program {
         }
         Console.WriteLine($"{pfx}{v}");
     }
-    private static void WriteGetEndMessage(CheckResult cr, MollyOptions mo, string elapsedString) {
+    private static void WriteEndMessage(CheckResult cr, MollyMain mm, MollyOptions mo, string elapsedString) {
+        if (mo.GetCommonFiles && mm.fixApplied) {
+            writeOutput("Fix applied for supported violations: Rerun MollyCoddle to perform validation against fixed files.", OutputType.Info);
+        }
+
         if (cr.DefectCount == 0) {
-            writeOutput($" Common files saved successfully to {mo.DirectoryToTarget}. ({elapsedString})", OutputType.EndSuccess);
+            writeOutput($"No Violations, Mollycoddle Pass.  {elapsedString}", OutputType.EndSuccess);
         } else {
-            writeOutput($" {cr.DefectCount} errors occurred while fetching common files. ({elapsedString})", OutputType.EndFailure);
+            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
         }
     }
 }
