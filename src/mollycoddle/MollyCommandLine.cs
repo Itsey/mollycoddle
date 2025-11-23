@@ -44,7 +44,7 @@ public class MollyCommandLine {
     public string? RulesFile { get; set; }
 
     [CommandLineArg("temppath", FullDescription = "Working directory for molly, and cache location. Supports environment variables.")]
-    public string TempPath { get; set; }
+    public string? TempPath { get; set; }
 
     [CommandLineArg("warnonly", FullDescription = "If set then MollyCoddle will return zero even if faults are found, but the faults will be outputted.")]
     public bool WarningMode { get; set; }
@@ -52,8 +52,8 @@ public class MollyCommandLine {
     [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages.")]
     public bool WarningsIncludeLinks { get; set; }
 
-    [CommandLineArg("fix", FullDescription = "If set, invokes the get command to fetch common files for the specified repository.")]
-    public bool GetCommonFiles { get; set; }
+    [CommandLineArg("fix", FullDescription = "If set, then Mollycoddle will attempt apply a fix to resolve discovered violations.")]
+    public bool Fix { get; set; }
 
     public MollyOptions GetOptions() {
         RulesFile ??= string.Empty;
@@ -91,7 +91,7 @@ public class MollyCommandLine {
         }
         OutputFormat = "default";
         result.RulesFile = RulesFile;
-        result.GetCommonFiles = GetCommonFiles;
+        result.Fix = Fix;
         return result;
     }
 }

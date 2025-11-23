@@ -46,8 +46,8 @@ public class MollyOptions {
     public string TempPath { get; set; }
 
     /// <summary>
-    /// If set, invokes the get command to fetch common files and copy them to the specified repository.
+    /// If set, a fix operation will be applied to attempt to resolve violations.
     /// </summary>
-    public bool GetCommonFiles { get; set; } = false;
+    public bool Fix { get; set; } = false;
 
 }

@@ -156,7 +156,7 @@ public class Program {
         Console.WriteLine($"{pfx}{v}");
     }
     private static void WriteEndMessage(CheckResult cr, MollyMain mm, MollyOptions mo, string elapsedString) {
-        if (mo.GetCommonFiles && mm.fixApplied) {
+        if (mo.Fix && mm.fixApplied) {
             writeOutput("Fix applied for supported violations: Rerun MollyCoddle to perform validation against fixed files.", OutputType.Info);
         }
 

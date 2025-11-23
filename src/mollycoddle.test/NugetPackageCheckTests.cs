@@ -42,7 +42,7 @@
         [InlineData("packageName[>1.0]", "packageName", "0.0.0.0", "1.0.0.0", PackageVersionMatchType.NotMoreThan)]
         [InlineData("packageName[1.0-2.0]", "packageName", "1.0.0.0", "2.0.0.0", PackageVersionMatchType.RangeProhibited)]
         [InlineData("moq[4.18.4-4.20.69]", "moq", "4.18.4.0", "4.20.69.0", PackageVersionMatchType.RangeProhibited)]
-        public void ParseNugetString_Works(string packageString, string packageName, string mustBeAtLeast, string mustBeAtMost, PackageVersionMatchType mt) {
+        public void ParseNugetString_Works(string packageString, string packageName, string? mustBeAtLeast, string? mustBeAtMost, PackageVersionMatchType mt) {
             b.Info.Flow();
             var nvpi = new NugetPackageValidatorInternals("dummy-rule");
             var sut = nvpi.ParsePackageListStringToPackageReference_Test(packageString);

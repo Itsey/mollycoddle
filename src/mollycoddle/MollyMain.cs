@@ -59,7 +59,7 @@ internal class MollyMain {
         Hub.Current.Launch(new CheckpointMessage { Name = "checks." });
 
         // If requested, attempt to get common files for any violations found
-        if (mo.GetCommonFiles && result.ViolationsFound.Count > 0) {
+        if (mo.Fix && result.ViolationsFound.Count > 0) {
             (int applyFixResult, string logMessage) = molly.ApplyMollyFix();
             if (applyFixResult > 0) {
                 b.Verbose.Log($"One or more files failed to download.");
