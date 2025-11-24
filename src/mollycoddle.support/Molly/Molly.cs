@@ -12,6 +12,7 @@
         private FileStructureChecker? fst;
         private NugetPackageStructureChecker? nst;
         private bool projectStructureLoaded = false;
+        public const string CFFVIOLATION = "CommonFilesFetchError";
 
         public Molly(MollyOptions mo) {
             this.mo = mo;
@@ -69,23 +70,28 @@
             }
         }
 
-        public (int errorCount, string logMessage) ApplyMollyFix() {
+        public Dictionary<string, string>? ApplyMollyFix() {
+            bool fixApplied = false;
             string logMessage;
-            // Only fixing file structure violations for now
-            if (fst != null) {
+            var defects = new Dictionary<string, string>();
+            // Only fix for file structure violations implemented
+            if (fst != null && fst.violationCountTotal > 0) {
                 int getResult = fst.ApplyFix();
                 if (getResult == 0) {
                     logMessage = $"Common files fetched successfully.";
-                    b.Verbose.Log(logMessage);
+                    fixApplied = true;
                 } else {
                     logMessage = $"Failed to fetch common files. {getResult} errors occurred.";
+                    defects.Add(CFFVIOLATION, logMessage);
                 }
-                return (getResult, logMessage);
-            } else {
-                logMessage = "ApplyMollyFix only supported for file structure violations at this time.";
-                b.Warning.Log(logMessage);
-                return (-1, logMessage);
+                b.Verbose.Log(logMessage);
             }
+            if ((dst != null && dst.violationsCountTotal > 0) || (nst != null && nst.violationCountTotal > 0)) {
+                logMessage = "ApplyMollyFix not supported for directory or nugetpackage structure violations at this time.";
+                b.Warning.Log(logMessage);
+            }
+            var result = (fixApplied || defects.Count > 0) ? defects : null;
+            return result;
         }
     }
 }

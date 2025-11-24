@@ -8,8 +8,9 @@
     /// to highlight violations, such as banned packages or must have packages.
     /// </summary>
     public class NugetPackageStructureChecker : StructureCheckerBase {
-        protected List<MinmatchActionCheckEntity> Actions = new();
-        protected List<MinmatchActionCheckEntity> ViolatedActions = new();
+        protected List<MinmatchActionCheckEntity> actions = new();
+        protected List<MinmatchActionCheckEntity> violatedActions = new();
+        public int violationCountTotal;
 
         public NugetPackageStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
             this.ps = ps;
@@ -54,16 +55,16 @@
         protected override CheckResult ActualExecuteChecks(CheckResult result) {
             foreach (string fn in ps.AllFiles) {
                 int i = 0;
-                while (i < Actions.Count) {
-                    var chk = Actions[i];
+                while (i < actions.Count) {
+                    var chk = actions[i];
 
                     if (chk.IsInViolation) {
                         continue;
                     }
 
                     if (chk.ExecuteCheckWasViolation(fn)) {
-                        ViolatedActions.Add(chk);
-                        _ = Actions.Remove(chk);
+                        violatedActions.Add(chk);
+                        _ = actions.Remove(chk);
                     } else {
                         i++;
                     }
@@ -72,16 +73,18 @@
 
             // Loop to catch those violations which require to actively pass, e.g. Must exist or Must not exist, they
             // need to check each file to determine if they have passed or not.
-            foreach (var a in Actions) {
+            foreach (var a in actions) {
                 if (!a.Passed) {
                     result.AddDefect(a.OwningRuleIdentity, a.GetViolationMessage());
                 }
             }
-            foreach (var l in ViolatedActions) {
+            foreach (var l in violatedActions) {
                 result.AddDefect(l.OwningRuleIdentity, l.GetViolationMessage());
-                Actions.Add(l);
+                actions.Add(l);
             }
-            ViolatedActions.Clear();
+
+            violationCountTotal += violatedActions.Count;
+            violatedActions.Clear();
 
             return result;
         }
@@ -230,7 +233,7 @@
                 PerformCheck = GetBannedPackageListChecker(prohibitedPackages),
                 DoesMatch = new Minimatcher(pattern, o)
             };
-            Actions.Add(fca);
+            actions.Add(fca);
         }
 
         private void AddNugetMustIncludeAction(string ruleName, string pattern, PackageReference[] mustIncludePackages) {
@@ -239,7 +242,7 @@
                 PerformCheck = GetMustIncludeListChecker(mustIncludePackages),
                 DoesMatch = new Minimatcher(pattern, o)
             };
-            Actions.Add(fca);
+            actions.Add(fca);
         }
     }
 }

@@ -9,6 +9,7 @@
     public class FileStructureChecker : StructureCheckerBase {
         protected List<MinmatchActionCheckEntity> actions = new List<MinmatchActionCheckEntity>();
         protected List<MinmatchActionCheckEntity> violatedActions = new List<MinmatchActionCheckEntity>();
+        public int violationCountTotal;
 
         // Cache for gitignore matchers by path
         private readonly Dictionary<string, Func<string, bool>> gitignoreMatchers = new();
@@ -136,11 +137,13 @@
                 if (!a.Passed) {
                     b.Verbose.Log($"{a.OwningRuleIdentity} failed.  After all checks it was not marked as passed.  Additional Info: {a.AdditionalInfo}");
                     result.AddDefect(a.OwningRuleIdentity, a.GetViolationMessage());
+                    violationCountTotal++;
                 }
             }
             foreach (var l in violatedActions) {
                 b.Verbose.Log($"Violation: {l.OwningRuleIdentity} failed {l.AdditionalInfo}");
                 result.AddDefect(l.OwningRuleIdentity, l.GetViolationMessage());
+                violationCountTotal++;
                 actions.Add(l);
             }
             violatedActions.Clear();

@@ -10,7 +10,6 @@ internal class MollyMain {
     protected MollyOptions mo;
     protected string? basePathToSave = null;
     public bool fixApplied = false;
-    public const string CFFVIOLATION = "CommonFilesFetchError";
 
     public Action<string, OutputType> WriteOutput { get; set; } = (a, b) => { };
 
@@ -60,11 +59,14 @@ internal class MollyMain {
 
         // If requested, attempt to get common files for any violations found
         if (mo.Fix && result.ViolationsFound.Count > 0) {
-            (int applyFixResult, string logMessage) = molly.ApplyMollyFix();
-            if (applyFixResult > 0) {
-                b.Verbose.Log($"One or more files failed to download.");
-                result.AddDefect(CFFVIOLATION, logMessage);
-            } else if (applyFixResult == 0) {
+            var defects = molly.ApplyMollyFix();
+            if (defects == null) {
+                b.Verbose.Log("No defects were found that could be fixed.");
+            } else if (defects != null && defects.Count > 0) {
+                foreach (var def in defects) {
+                    result.AddDefect(def.Key, def.Value);
+                }
+            } else {
                 fixApplied = true;
             }
         }

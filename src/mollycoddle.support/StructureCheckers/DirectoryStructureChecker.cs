@@ -7,6 +7,7 @@
     /// </summary>
     public class DirectoryStructureChecker : StructureCheckerBase {
         private readonly Dictionary<string, CheckEntityBase> directoriesThatMustExist = new();
+        public int violationsCountTotal;
 
         public DirectoryStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
         }
@@ -34,6 +35,7 @@
                         result.AddDefect(new Violation(isPathProhibited.Item1) {
                             Additional = $"({folderName}) is a prohibited path."
                         });
+                        violationsCountTotal++;
                     }
                     ;
                 }
@@ -45,6 +47,7 @@
                     result.AddDefect(new Violation(directoriesThatMustExist[k].OwningRuleIdentity) {
                         Additional = $"({k}) must exist and it does not."
                     });
+                    violationsCountTotal++;
                 }
             }
 
