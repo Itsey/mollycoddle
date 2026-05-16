@@ -9,6 +9,9 @@
     public class MollyRuleFactory {
         private Bilge b = new Bilge("molly-rules");
 
+        public const int MAXRETRIES = 2;
+        public const int RETRYDELAYMS = 1000;
+
         public MollyRuleFactory() {
         }
 
@@ -161,8 +164,28 @@
             return vv;
         }
 
+        public virtual string PhysicallyReadMollyRulefile(string fileName) {
+            int count = 0;
+
+            while (true) {
+                try {
+                    return File.ReadAllText(fileName);
+                } catch (IOException ex) when (ex.HResult == unchecked((int)0x80070020)) {
+                    count++;
+                    b.Action.Occured("retry", $"count {count}");
+                    b.Warning.Log($"Rules file {fileName} locked, attempt {count} of {MAXRETRIES}.");
+                    if (count >= MAXRETRIES) {
+                        b.Error.Log($"Unable to read rules file: {fileName} after {MAXRETRIES} attempts. Exception: {ex.Message}");
+                        throw;
+                    }
+                    Task.Delay(RETRYDELAYMS).Wait();
+                }
+            }
+
+        }
+
         private IEnumerable<MollyRule> LoadAllMollyRules(string filename) {
-            string json = File.ReadAllText(filename);
+            string json = PhysicallyReadMollyRulefile(filename);
             MollyRuleStorage? mrs;
             try {
                 mrs = JsonSerializer.Deserialize<MollyRuleStorage>(json);

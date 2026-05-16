@@ -1,7 +1,16 @@
-﻿using Plisky.Diagnostics;
+﻿using System.Diagnostics.CodeAnalysis;
+using Plisky.Diagnostics;
 
 namespace mollycoddle;
 
+public enum ErrorCode : short {
+    Unknown = 0x0000,
+    NexusMarkerNotFound = 0x0101,
+    ProgramCommandLineInvalidCommonDirectory = 0x0001,
+    ProgramCommandLineRulesFileMissing = 0x0002,
+    MustMatchRuleMissingMatchConditions = 0x0003,
+    ImportMollyRules = 0x0010,
+}
 
 public enum ErrorModule : short {
     Unknown = 0x0001,
@@ -14,18 +23,10 @@ public enum ErrorModule : short {
     Main = 0x0104,
 }
 
-public enum ErrorCode : short {
-    Unknown = 0x0000,
-    NexusMarkerNotFound = 0x0101,
-    ProgramCommandLineInvalidCommonDirectory = 0x0001,
-    ProgramCommandLineRulesFileMissing = 0x0002,
-    MustMatchRuleMissingMatchConditions = 0x0003,
-    ImportMollyRules = 0x0010,
-}
-
 public static class MollyError {
     public static Bilge b = new Bilge("mollycoddle.errors");
 
+    [DoesNotReturn]
     public static void Throw(ErrorModule module, ErrorCode code, string message) {
         b.Error.Report((short)module, (short)code, message);
 

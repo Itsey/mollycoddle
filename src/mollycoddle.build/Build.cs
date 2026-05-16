@@ -85,7 +85,7 @@ public partial class Build : NukeBuild {
       .After(Initialise)
       .DependsOn(Initialise)
       .Executes(() => {
-          string? dotb = Environment.GetEnvironmentVariable("DOTB_BUILDTOOLS");
+          string dotb = Environment.GetEnvironmentVariable("DOTB_BUILDTOOLS");
           if (!string.IsNullOrWhiteSpace(dotb)) {
               Log.Information($"Build> Ensure Nexus Is Live>  Build Tools Directory: {dotb}");
 

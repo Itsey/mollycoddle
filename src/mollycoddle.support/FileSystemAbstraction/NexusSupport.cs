@@ -28,24 +28,46 @@ public record NexusConfig {
 }
 
 public class MarkerPosition {
+    public required string Marker { get; set; }
     public int Position { get; set; }
-    public string Marker { get; set; }
     public string? Value { get; set; }
 }
 
 public class NexusSupport {
-    protected Bilge b = new Bilge("molly-nexus");
     public const string NEXUS_PREFIX = "[NEXUS]";
-    private static readonly HttpClient client = new HttpClient();
+    protected const int MAXRETRIES = 2;
+    protected const int RETRYDELAYMS = 1000;
+    protected const int SHARINGVIOLATIONHRESULT = unchecked((int)0x80070020);
     protected readonly MollyOptions mo;
-    public string BasePathToSave { get; set; }
+    protected Bilge b = new Bilge("molly-nexus");
+    private static readonly HttpClient client = new HttpClient();
 
     public NexusSupport(MollyOptions mox) {
         mo = mox;
     }
 
-    private Action<byte[], string> SaveCreator(Action<byte[], string, string> saver, string path) {
-        return (b, c) => saver(b, c, path);
+    public string? BasePathToSave { get; set; }
+
+    /// <summary>
+    /// This takes the formatted filenames for nexus and turns it into a local filename by parsing out the sections of the nexus
+    /// path that hold the group names
+    /// </summary>
+    /// <param name="fileContents">The raw data to write to the file.</param>
+    /// <param name="filenameWithRulesPathing">The full path in the nexus repo e.g. /molly/default/filename.xtn this must be a full path</param>
+    /// <param name="ruleGroupName">The group name which is the start of the full path e.g. /molly</param>
+    public void ActualSaver(byte[] fileContents, string filenameWithRulesPathing, string ruleGroupName) {
+        if (BasePathToSave == null) {
+            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Base path to save has not been set.");
+        }
+        var parts = GetVersionAndFilenameFromNexusUrl(ruleGroupName, filenameWithRulesPathing);
+        string localDir = Path.Combine(BasePathToSave, parts.Item1);
+        string localFile = Path.Combine(localDir, parts.Item2);
+
+        if (!Directory.Exists(localDir)) {
+            Directory.CreateDirectory(localDir);
+        }
+
+        PhysicallyWriteFile(fileContents, localFile);
     }
 
     public async Task CacheNexusFiles(NexusConfig nc, string identifier, Action<byte[], string, string> saveFile) {
@@ -85,6 +107,12 @@ public class NexusSupport {
                     if (item.TryGetProperty("id", out var idElement)) {
                         b.Verbose.Log($"MC-Nexus > Nexus File Identified : {pathElement} {idElement}");
                         string? pegs = pathElement.GetString();
+
+                        if (pegs == null) {
+                            b.Warning.Log($"The pathElement is invalid, can not parse this path element");
+                            throw new NullReferenceException("Nexus file path is null");
+                        }
+
                         var thismr = GetVersionAndFilenameFromNexusUrl(identifier, pegs);
 
                         if (pegs.StartsWith(identifier) && (thismr.Item1 == pmr.Item1)) {
@@ -106,28 +134,6 @@ public class NexusSupport {
                 b.Info.Log($"MC-Nexus > Caching Local Copy : {downloadPath}");
                 DownloadFileAsync(downloadPath, SaveCreator(saveFile, identifier), l.Item1, nc.Username, nc.Password).Wait();
             }
-        }
-    }
-
-    public async Task UploadFileAsync(Stream fileContent, string repositoryPath, string? username, string? password) {
-        try {
-            using (var content = new StreamContent(fileContent)) {
-                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-                var request = new HttpRequestMessage(HttpMethod.Put, repositoryPath) {
-                    Content = content
-                };
-
-                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)) {
-                    byte[] byteArray = new System.Text.UTF8Encoding().GetBytes($"{username}:{password}");
-                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-                }
-
-                var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-            }
-        } catch (HttpRequestException) {
-            throw;
         }
     }
 
@@ -166,6 +172,10 @@ public class NexusSupport {
         }
 
         var mio = mrks.OrderBy(p => p.Position).ToList();
+        if (mio == null) {
+            throw new NullReferenceException("mio can not be null here");
+        }
+
         for (int i = 0; i < mio.Count; i++) {
             if (mio[i].Position < 0) {
                 continue;
@@ -225,6 +235,18 @@ public class NexusSupport {
         return result;
     }
 
+    public string GetUrlToUse(string sourceUrl, string marker) {
+        int mmOffset = sourceUrl.IndexOf(marker);
+
+        if (mmOffset < 0) {
+            throw new InvalidOperationException($"Nexus URL does not contain the expected marker '{marker}'");
+        }
+
+        string urlToUse = sourceUrl.Substring(mmOffset);
+
+        return urlToUse;
+    }
+
     public Tuple<string, string> GetVersionAndFilenameFromNexusUrl(string molsbaseMarker, string downloadUrl) {
         b.Info.Flow($"{downloadUrl}");
         if (downloadUrl.StartsWith(molsbaseMarker)) {
@@ -239,32 +261,31 @@ public class NexusSupport {
         return new Tuple<string, string>(string.Empty, string.Empty);
     }
 
-    public string GetUrlToUse(string sourceUrl, string marker) {
-        int mmOffset = sourceUrl.IndexOf(marker);
+    public virtual void PhysicallyWriteFile(byte[] fileContents, string localFile) {
+        int count = 0;
 
-        if (mmOffset < 0) {
-            throw new InvalidOperationException($"Nexus URL does not contain the expected marker '{marker}'");
+        while (true) {
+            try {
+                if (File.Exists(localFile)) {
+                    byte[] existingContents = File.ReadAllBytes(localFile);
+                    if (existingContents.AsSpan().SequenceEqual(fileContents)) {
+                        b.Verbose.Log($"MC-Nexus > Skipping write, contents identical: {localFile}");
+                        return;
+                    }
+                }
+                File.WriteAllBytes(localFile, fileContents);
+                return;
+            } catch (IOException ex) when (ex.HResult == SHARINGVIOLATIONHRESULT) {
+                count++;
+                b.Action.Occured("retry", $"count {count}");
+                b.Warning.Log($"NexusCache file {localFile} in use.  Try {count} of {MAXRETRIES}.");
+                if (count >= MAXRETRIES) {
+                    b.Error.Log($"NexusCache file {localFile} still in use after {MAXRETRIES} attempts. Exception: {ex.Message}");
+                    throw;
+                }
+                Task.Delay(RETRYDELAYMS).Wait();
+            }
         }
-
-        string urlToUse = sourceUrl.Substring(mmOffset);
-
-        return urlToUse;
-    }
-
-    public void ActualSaver(byte[] fileContents, string fileName, string identifier) {
-        if (BasePathToSave == null) {
-            MollyError.Throw(ErrorModule.NexusModule, ErrorCode.NexusMarkerNotFound, "Base path to save has not been set.");
-            throw new InvalidOperationException("The base path to save has not been set.");
-        }
-        var parts = GetVersionAndFilenameFromNexusUrl(identifier, fileName);
-        string localDir = Path.Combine(BasePathToSave, parts.Item1);
-        string localFile = Path.Combine(localDir, parts.Item2);
-
-        if (!Directory.Exists(localDir)) {
-            Directory.CreateDirectory(localDir);
-        }
-
-        File.WriteAllBytes(localFile, fileContents);
     }
 
     public async Task<string> ProcessNexusSupport(string nexusFile, ProcessKind fileType) {
@@ -293,5 +314,31 @@ public class NexusSupport {
         }
 
         return result;
+    }
+
+    public async Task UploadFileAsync(Stream fileContent, string repositoryPath, string? username, string? password) {
+        try {
+            using (var content = new StreamContent(fileContent)) {
+                content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+                var request = new HttpRequestMessage(HttpMethod.Put, repositoryPath) {
+                    Content = content
+                };
+
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password)) {
+                    byte[] byteArray = new System.Text.UTF8Encoding().GetBytes($"{username}:{password}");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
+                }
+
+                var response = await client.SendAsync(request);
+                response.EnsureSuccessStatusCode();
+            }
+        } catch (HttpRequestException) {
+            throw;
+        }
+    }
+
+    private Action<byte[], string> SaveCreator(Action<byte[], string, string> saver, string path) {
+        return (b, c) => saver(b, c, path);
     }
 }
