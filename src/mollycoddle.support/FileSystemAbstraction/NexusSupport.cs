@@ -106,18 +106,19 @@ public class NexusSupport {
                 if (item.TryGetProperty("path", out var pathElement)) {
                     if (item.TryGetProperty("id", out var idElement)) {
                         b.Verbose.Log($"MC-Nexus > Nexus File Identified : {pathElement} {idElement}");
-                        string? pegs = pathElement.GetString();
+                        string? nexusPathValue = pathElement.GetString();
+                        string? nexusIdValue = idElement.GetString();
 
-                        if (pegs == null) {
+                        if ((nexusPathValue == null) || (nexusIdValue == null)) {
                             b.Warning.Log($"The pathElement is invalid, can not parse this path element");
                             throw new NullReferenceException("Nexus file path is null");
                         }
 
-                        var thismr = GetVersionAndFilenameFromNexusUrl(identifier, pegs);
+                        var thismr = GetVersionAndFilenameFromNexusUrl(identifier, nexusPathValue);
 
-                        if (pegs.StartsWith(identifier) && (thismr.Item1 == pmr.Item1)) {
-                            b.Verbose.Log($"MC-Nexus > Queuing File For Local Cache : {pegs}");
-                            files.Add(new Tuple<string, string>(pegs, idElement.GetString()));
+                        if (nexusPathValue.StartsWith(identifier) && (thismr.Item1 == pmr.Item1)) {
+                            b.Verbose.Log($"MC-Nexus > Queuing File For Local Cache : {nexusPathValue}");
+                            files.Add(new Tuple<string, string>(nexusPathValue, nexusIdValue));
                         }
                     }
                 }
@@ -306,6 +307,9 @@ public class NexusSupport {
 
         await CacheNexusFiles(ns, nexusMollyMarker, saveFileAction);
         var (version, filename) = GetVersionAndFilenameFromNexusUrl(nexusMollyMarker, urlToUse);
+        if (string.IsNullOrEmpty(BasePathToSave)) {
+            throw new InvalidOperationException("BasePath must be set before the file saves are processed.");
+        }
 
         if (fileType == ProcessKind.RulesFile) {
             result = Path.Combine(BasePathToSave, version, filename);

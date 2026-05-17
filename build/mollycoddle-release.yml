@@ -34,7 +34,12 @@ stages:
             displayName: 'Run: ExamineStep'
             inputs:
               script: '.\src\build.cmd ExamineStep --skip ArrangeStep ConstructStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
-              
+          
+          - task: CmdLine@2
+            displayName: 'Run: TestStep'
+            inputs:
+              script: '.\src\build.cmd TestStep --skip ArrangeStep ConstructStep ExamineStep PackageStep ReleaseStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
+
           - task: CmdLine@2
             displayName: 'Run: PackageStep'
             inputs:
@@ -45,7 +50,4 @@ stages:
             inputs:
               script: '.\src\build.cmd ReleaseStep --skip ArrangeStep ConstructStep ExamineStep PackageStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}  --FullVersionNumber ${ConstructStep.FullVersionNumber}'
 
-          - task: CmdLine@2
-            displayName: 'Run: TestStep'
-            inputs:
-              script: '.\src\build.cmd TestStep --skip ArrangeStep ConstructStep ExamineStep PackageStep ReleaseStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}'
+          

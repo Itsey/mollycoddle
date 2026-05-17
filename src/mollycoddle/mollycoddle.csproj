@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
@@ -15,8 +15,7 @@
     <Summary>Mollycoddle, structure linting. When you just cant let the babbers code on their own.</Summary>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>mollycoddle</ToolCommandName>
-    <ReleaseNotesFile>..\_Dependencies\packaging\changelog.md</ReleaseNotesFile>
+    <ToolCommandName>mollycoddle</ToolCommandName>    
     <PackageId>Plisky.MollyCoddle</PackageId>
     <Authors>https://github.com/Itsey</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -24,7 +23,7 @@
     <PackageProjectUrl>https://itsey.github.io/</PackageProjectUrl>
     <PackageIcon>molly-icon.png</PackageIcon>
     <Description>Plisky MollyCoddle, Structure Linting Tool.</Description>
-    <Copyright>Copyright 2025</Copyright>
+    <Copyright>Copyright 2026</Copyright>
     <PackageTags>linting;cli;build;structure;repository;standards</PackageTags>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

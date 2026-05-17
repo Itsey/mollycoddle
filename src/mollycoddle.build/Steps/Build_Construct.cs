@@ -159,6 +159,7 @@ public partial class Build : NukeBuild {
             .PerformIncrement(true)
             .AsDryRun(dryRunMode)
             .SetRoot(Solution.Directory / "_Dependencies" / "Utils")
+            .SetZeroReturnCode(true)
         );
     }
 }

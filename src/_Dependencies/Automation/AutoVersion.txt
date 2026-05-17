@@ -7,3 +7,4 @@
 **/src/**/mollycoddle.test.csproj|StdAssembly
 **/src/**/mollycoddle.test.csproj|StdInformational
 **/src/**/mollycoddle.test.csproj|StdFile
+**/src/**/packaging/changelog.md|TextFile
