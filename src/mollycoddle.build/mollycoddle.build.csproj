@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <PackageDownload Include="Plisky.Versonify" Version="[1.0.1]" />
+    <PackageDownload Include="Plisky.Mollycoddle" Version="[1.0.1]" />
   </ItemGroup>
 
 </Project>
