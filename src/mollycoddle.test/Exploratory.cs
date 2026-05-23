@@ -183,7 +183,7 @@ public class Exploratory {
         cr.DefectCount.ShouldBe(data.Item3 == true ? 1 : 0);
     }
 
-    [Fact(DisplayName = nameof(Nexus_rules_missing_marker_throws))]
+    [Fact]
     [Trait(Traits.Age, Traits.Fresh)]
     [Trait(Traits.Style, Traits.Unit)]
     public void Nexus_rules_missing_marker_throws() {

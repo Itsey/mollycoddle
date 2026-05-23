@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using Plisky.Diagnostics;
 using Plisky.Test;
@@ -20,9 +20,9 @@ public class FileLockTests {
         mo = new MollyOptions();
     }
 
-    [Fact(DisplayName = nameof(File_does_not_lock_when_filecontents_unchanged))]
+    [Fact]
     [Trait(Traits.Style, Traits.Integration)]
-    [Trait(Traits.LiveBug, "Issue#1")]
+    [Trait(Traits.LiveBug, "#LFY-60")]
     public void File_does_not_lock_when_filecontents_unchanged() {
         b.Info.Flow();
         bool didFileLockRetryOccur = false;
@@ -54,7 +54,7 @@ public class FileLockTests {
         }
     }
 
-    [Fact(DisplayName = nameof(File_lock_retry_allows_update_when_locked))]
+    [Fact]
     [Trait(Traits.Style, Traits.Integration)]
     [Trait(Traits.LiveBug, "#LFY-60")]
     public void File_lock_retry_allows_update_when_locked() {
@@ -86,9 +86,9 @@ public class FileLockTests {
         }
     }
 
-    [Fact(DisplayName = nameof(Molly_file_reads_do_not_lock_other_reads))]
+    [Fact]
     [Trait(Traits.Style, Traits.Integration)]
-    [Trait(Traits.LiveBug, "Issue#1")]
+    [Trait(Traits.LiveBug, "#LFY-60")]
     public void Molly_file_reads_do_not_lock_other_reads() {
         b.Info.Flow();
 
@@ -118,9 +118,9 @@ public class FileLockTests {
         }
     }
 
-    [Fact(DisplayName = nameof(Molly_file_reads_do_not_lock_other_reads))]
+    [Fact]
     [Trait(Traits.Style, Traits.Integration)]
-    [Trait(Traits.LiveBug, "Issue#1")]
+    [Trait(Traits.LiveBug, "#LFY-60")]
     public void Molly_read_retry_allows_lock_to_be_removed() {
         b.Info.Flow();
 

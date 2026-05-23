@@ -1,4 +1,4 @@
-﻿namespace mollycoddle.test;
+namespace mollycoddle.test;
 
 using System;
 using System.Linq;
@@ -37,7 +37,7 @@ public class NugetPackageCheckTests {
         Assert.Equal(1, cr.DefectCount);
     }
 
-    [Fact(DisplayName = nameof(NugetMustContainPackage_ErrorsIfNotFound))]
+    [Fact]
     [Build(BuildType.Release)]
     [Integration]
     public void NugetMustContainPackage_ErrorsIfNotFound() {
@@ -61,7 +61,7 @@ public class NugetPackageCheckTests {
         Assert.Equal(1, cr.DefectCount);
     }
 
-    [Fact(DisplayName = nameof(NugetMustContainPackage_NoErrorIfFound))]
+    [Fact]
     [Build(BuildType.Release)]
     [Integration]
     public void NugetMustContainPackage_NoErrorIfFound() {
@@ -139,7 +139,7 @@ public class NugetPackageCheckTests {
         Assert.NotNull(ngps.First(x => x.RawVersion == "2.0.0"));
     }
 
-    [Theory(DisplayName = nameof(NugetVersion_HasBannedVersion))]
+    [Theory]
     // Test data file has xunit 2.4.1
     [InlineData("xunit", 1)]
     [InlineData("xunit[2.4.1]", 1)]
@@ -176,7 +176,7 @@ public class NugetPackageCheckTests {
         Assert.Equal(expectedDefectCount, cr.DefectCount);
     }
 
-    [Fact(DisplayName = nameof(ParseNugetString_ThrowsIfNull))]
+    [Fact]
     [Trait(Traits.Age, Traits.Fresh)]
     [Trait(Traits.Style, Traits.Unit)]
     public void ParseNugetString_ThrowsIfNull() {
@@ -191,7 +191,7 @@ public class NugetPackageCheckTests {
         });
     }
 
-    [Theory(DisplayName = nameof(ParseNugetString_Works))]
+    [Theory]
     [Trait(Traits.Age, Traits.Fresh)]
     [Trait(Traits.Style, Traits.Unit)]
     [InlineData("packageName", "packageName", null, null, PackageVersionMatchType.AllVersions)]

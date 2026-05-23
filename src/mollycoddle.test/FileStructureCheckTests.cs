@@ -1,4 +1,4 @@
-﻿namespace mollycoddle.test;
+namespace mollycoddle.test;
 
 using Plisky.Diagnostics;
 using Plisky.Test;
@@ -11,9 +11,9 @@ public class FileStructureCheckTests {
     public FileStructureCheckTests() {
     }
 
-    [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+    [Fact]
     [Integration]
-    public void CompareWithMasterFile_RuleWorks() {
+    public void Compare_target_with_master_file_works() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -32,7 +32,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void FileMustExist_FailsIfFileDoesNotExist() {
+    public void File_must_exist_rule_defect_if_no_file() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -49,7 +49,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void FileMustExist_PassesIfFileExists() {
+    public void File_must_exist_rule_no_defect_if_file() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -64,9 +64,9 @@ public class FileStructureCheckTests {
         Assert.Equal(0, cr.DefectCount);
     }
 
-    [Fact(DisplayName = nameof(CompareWithMasterFile_RuleWorks))]
+    [Fact]
     [Integration]
-    public void FileMustNotContain_RuleWorks() {
+    public void File_must_not_contain_rule_defect_if_value_found() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -83,7 +83,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void FileMustNotExist_AllowsForExceptions() {
+    public void File_must_not_exist_rule_no_defect_if_exception_specified() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -102,7 +102,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void FileMustNotExist_FailsIfFileExists() {
+    public void File_must_not_exist_rule_defect_if_file_exists() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -120,7 +120,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void FileMustNotExist_PassesIfFileDoesNotExist() {
+    public void File_must_not_exist_rule_no_defect_if_file_does_not_exist() {
         b.Info.Flow();
 
         string root = @"c:\MadeUpPath";
@@ -137,7 +137,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Build(BuildType.CI)]
-    public void FileSystem_MasterBypass_Works() {
+    public void File_system_master_bypass_no_defect() {
         string root = @"C:\MadeUpFolder";
         var mps = MockProjectStructure.Get().WithRoot(root);
         _ = mps.WithRootedFolder("src");
@@ -157,7 +157,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Fresh]
-    public void IfExistsMustBeHere_Action_AddsViolationOnFail() {
+    public void If_exists_must_be_here_action_adds_violation_on_fail() {
         string root = @"C:\MadeUpFolder";
         var mps = MockProjectStructure.Get().WithRoot(root);
         _ = mps.WithRootedFolder("src");
@@ -176,7 +176,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void MustExistInSpecificLocation_FailsIfNotMatchSecondary() {
+    public void Must_exist_in_specific_location_fails_if_not_match_secondary() {
         string root = @"C:\MadeUpFolder";
         var mps = MockProjectStructure.Get().WithRoot(root);
         _ = mps.WithRootedFolder("src");
@@ -195,7 +195,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Integration]
-    public void MustExistInSpecificLocation_PassesIfValid() {
+    public void Must_exist_in_specific_location_no_defect_if_valid() {
         string root = @"C:\MadeUpFolder";
         var mps = MockProjectStructure.Get().WithRoot(root);
         _ = mps.WithRootedFolder("src");
@@ -212,7 +212,7 @@ public class FileStructureCheckTests {
 
     [Fact]
     [Fresh]
-    public void OneLanguage_FileStructureTest_Passes() {
+    public void File_must_not_contain_defect_if_value_present() {
         b.Info.Flow();
 
         string root = @"C:\MadeUpFolder";
