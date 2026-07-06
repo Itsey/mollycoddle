@@ -6,16 +6,28 @@ Mollycoddle is a directory and file linting solution for source control projects
 
 #### Using Mollycoddle
 
-Execute Mollycoddle from the command line, passing a parameter of the path to scan, a -primaryRoot parameter for using common files, and -rulesFile parameter for the ruleset to use.
+Mollycoddle is published as a .NET tool. Install it with:
 
 ```text
-❯ .\mollycoddle.exe C:\Files\Code\git\mollycoddle -primaryRoot=C:\Files\Code\git\mollycoddle\src\mollycoddle.testdata\TestMasterPath\ -rulesFile=C:\Files\Code\git\mollycoddle\src\_Dependencies\RulesFiles\Default\defaultrules.mollyset
+dotnet tool install --global Plisky.MollyCoddle
+```
+
+Then run it as `mollycoddle`, passing a parameter of the path to scan, a `-primaryRoot` parameter for using common files, and a `-rulesFile` parameter for the ruleset to use.
+
+```text
+❯ mollycoddle C:\Files\Code\git\mollycoddle -primaryRoot=C:\Files\Code\git\mollycoddle\src\mollycoddle.testdata\TestMasterPath\ -rulesFile=C:\Files\Code\git\mollycoddle\src\_Dependencies\RulesFiles\Default\defaultrules.mollyset
+```
+
+To show command-line usage, run:
+
+```text
+❯ mollycoddle --help
 ```
 
 When Mollycoddle executes violations will be returned to standard output.  The number of violations will be returned as the exit code for using in automations and scripts.
 
 ```text
-❯ .\mollycoddle.exe C:\Files\Code\git\mollycoddle -primaryRoot=C:\Files\Code\git\mollycoddle\src\mollycoddle.testdata\TestMasterPath\ -rulesFile=C:\Files\Code\git\mollycoddle\src\_Dependencies\RulesFiles\Default\defaultrules.mollyset
+❯ mollycoddle C:\Files\Code\git\mollycoddle -primaryRoot=C:\Files\Code\git\mollycoddle\src\mollycoddle.testdata\TestMasterPath\ -rulesFile=C:\Files\Code\git\mollycoddle\src\_Dependencies\RulesFiles\Default\defaultrules.mollyset
 💩 Violation:  Local gitignore file must match common git ignore file. (c:\files\code\git\mollycoddle\.gitignore does not match common file definition.)
 😢 Completed.Total Violations 1.
 ```
@@ -31,4 +43,3 @@ This includes information relating to the rules and how to run it as part of a p
 ### Developer Notes.
 
 Attempted to migrate to the Microsoft Globbing implementation but it does not support windows paths, or filters or directories.  Ultimately aborted this and rolled back to the existing globbing implementation. 
-

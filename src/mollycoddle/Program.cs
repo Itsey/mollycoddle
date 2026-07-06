@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using mollycoddle;
 using Plisky.Diagnostics;
@@ -30,6 +28,12 @@ public class Program {
             ArgumentPrefix = "-",
             ArgumentPostfix = "="
         };
+
+        if (IsHelpRequested(args)) {
+            WriteHelp(clas);
+            return 0;
+        }
+
         var ma = clas.ProcessArguments<MollyCommandLine>(args);
         warningMode = ma.WarningMode;
 
@@ -55,36 +59,28 @@ public class Program {
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
         WriteDebuggingInfoOnStartup(args, ma, b);
-
-
         var mm = new MollyMain(mo, b);
         mm.WriteOutput = writeOutput;
 
-        if ((ma.DirectoryToTarget == "?") || (ma.DirectoryToTarget == "/?") || (ma.DirectoryToTarget.ToLower() == "/help")) {
-            Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
-            Console.WriteLine(clas.GenerateHelp(ma, "MollyCoddle"));
-            exitCode = 0;
-        } else {
-            try {
-                sw.Start();
-                b.Verbose.Log("MC starts, about to execute molly checks");
-                var cr = await mm.DoMollly();
-                exitCode = cr.DefectCount;
-                b.Verbose.Log($"MC completes {cr.DefectCount} defects identified.");
-                sw.Stop();
-                string elapsedString = $"Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
-                WriteEndMessage(cr, mm, mo, elapsedString);
-            } catch (Exception ex) {
-                b.Error.Dump(ex, "exception captured during mc execution");
-                writeOutput(ex.Message, OutputType.Error);
-                exitCode = -3;
-                goto TheEndIsNigh;
-            }
+        try {
+            sw.Start();
+            b.Verbose.Log("MC starts, about to execute molly checks");
+            var cr = await mm.DoMollly();
+            exitCode = cr.DefectCount;
+            b.Verbose.Log($"MC completes {cr.DefectCount} defects identified.");
+            sw.Stop();
+            string elapsedString = $"Took {sw.ElapsedMilliseconds}ms. {timingMessage}";
+            WriteEndMessage(cr, mm, mo, elapsedString);
+        } catch (Exception ex) {
+            b.Error.Dump(ex, "exception captured during mc execution");
+            writeOutput(ex.Message, OutputType.Error);
+            exitCode = -3;
+            goto TheEndIsNigh;
+        }
 
-            if (warningMode) {
-                b.Info.Log("Warning mode, resetting exit code to zero");
-                exitCode = 0;
-            }
+        if (warningMode) {
+            b.Info.Log("Warning mode, resetting exit code to zero");
+            exitCode = 0;
         }
 
     TheEndIsNigh:
@@ -121,6 +117,20 @@ public class Program {
 
         string verString = Assembly.GetExecutingAssembly()?.GetName().Version?.ToString() ?? "unknown";
         writeOutput($"🚼 MollyCoddle Online. ({verString})", OutputType.Info);
+    }
+
+    private static void WriteHelp(CommandArgumentSupport clas) {
+        WriteGreetingMessage();
+        Console.WriteLine("MollyCoddle, for when you cant let the babbers code on their own....");
+        Console.WriteLine(clas.GenerateHelp(new MollyCommandLine(), "MollyCoddle"));
+    }
+
+    internal static bool IsHelpRequested(string[] args) {
+        string? firstArg = args.FirstOrDefault();
+
+        return args.Any(a => a is "--help" or "-h" or "-help") ||
+               firstArg is "?" or "/?" ||
+               string.Equals(firstArg, "/help", StringComparison.OrdinalIgnoreCase);
     }
 
     private static void WriteOutputDefault(string v, OutputType ot) {

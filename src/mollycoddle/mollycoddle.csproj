@@ -54,4 +54,7 @@
   <ItemGroup>
     <ProjectReference Include="..\mollycoddle.support\mollycoddle.support.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="mollycoddle.test" />
+  </ItemGroup>
 </Project>

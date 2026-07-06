@@ -22,6 +22,23 @@ public class Exploratory {
         mo = new MollyOptions();
     }
 
+    [Theory]
+    [InlineData("--help")]
+    [InlineData("-h")]
+    [InlineData("-help")]
+    [InlineData("?")]
+    [InlineData("/?")]
+    [InlineData("/help")]
+    public void IsHelpRequested_ReturnsTrue_ForHelpTokens(string token) {
+        Program.IsHelpRequested([token]).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void IsHelpRequested_ReturnsFalse_ForNormalArguments() {
+        Program.IsHelpRequested(["src"]).ShouldBeFalse();
+        Program.IsHelpRequested(["src", "/help"]).ShouldBeFalse();
+    }
+
     public static IEnumerable<object[]> MustNotMatchDataMethod() {
         var resultData = new List<object[]>();
 
