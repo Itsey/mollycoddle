@@ -35,9 +35,6 @@
     <None Include="..\_Dependencies\packaging\molly-icon.png" Pack="true" PackagePath="" />
     <None Include="..\_Dependencies\packaging\readme.md" Pack="true" PackagePath="" />
     <!-- Include the simple example rules in the package -->
-    <None Include="..\_Dependencies\packaging\example.mollyset" Pack="true" PackagePath="rules\" />
-    <None Include="..\_Dependencies\packaging\example_file_readme.molly" Pack="true" PackagePath="rules\" />
-    <None Include="..\_Dependencies\packaging\example_rootfolders_src.molly" Pack="true" PackagePath="rules\" />
   </ItemGroup>
   <Target Name="AddReleaseNotesToPackage" BeforeTargets="GenerateNuspec">
     <Message Importance="high" Text="Creating Custom Release Notes." />

@@ -43,7 +43,6 @@ public class Program {
 
         WriteGreetingMessage();
 
-
         if (ma.Disabled) {
             writeOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
             exitCode = 0;
@@ -99,23 +98,28 @@ public class Program {
         b.Verbose.Log($"MolCommandLine : Primary : {ma.PrimaryPath}");
         b.Verbose.Log($"MolCommandLine : Directory : {ma.DirectoryToTarget}");
         b.Verbose.Log($"MolCommandLine : Disabled : {ma.Disabled}");
-
     }
 
     private static void ConfigureTrace(string debugSetting) {
-        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
-        Bilge.Default.ActiveTraceLevel = Bilge.SetConfigurationResolver(debugSetting)("default", Bilge.Default.ActiveTraceLevel);
+        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting),
+            "The debugSetting can not be empty at this point");
+        Bilge.Default.ActiveTraceLevel =
+            Bilge.SetConfigurationResolver(debugSetting)("default", Bilge.Default.ActiveTraceLevel);
 
 #if DEBUG && true
         Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
-#endif
+#else
         Bilge.AddHandler(new ConsoleHandler());
+#endif
     }
 
     private static void WriteGreetingMessage() {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         string verString = Assembly.GetExecutingAssembly()?.GetName().Version?.ToString() ?? "unknown";
+#if DEBUG
+        verString += " - debug";
+#endif
         writeOutput($"🚼 MollyCoddle Online. ({verString})", OutputType.Info);
     }
 
@@ -165,15 +169,17 @@ public class Program {
         }
         Console.WriteLine($"{pfx}{v}");
     }
+
     private static void WriteEndMessage(CheckResult cr, MollyMain mm, MollyOptions mo, string elapsedString) {
         if (mo.Fix && mm.fixApplied) {
-            writeOutput("Fix applied for supported violations: Rerun MollyCoddle to perform validation against fixed files.", OutputType.Info);
+            writeOutput("Fix applied for supported violations: Rerun MollyCoddle to validate.", OutputType.Info);
         }
 
         if (cr.DefectCount == 0) {
             writeOutput($"No Violations, Mollycoddle Pass.  {elapsedString}", OutputType.EndSuccess);
         } else {
-            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}",
+                warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
         }
     }
 }

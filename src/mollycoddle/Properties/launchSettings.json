@@ -2,7 +2,7 @@
   "profiles": {
     "mollycoddle": {
       "commandName": "Project",
-      "commandLineArgs": "-dir=X:\\Code\\ghub\\Plisky.Versioning -rulesFile=%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.mollyset -formatter=plain -version=default -primaryRoot=%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX/ -Debug=v-**"
+      "commandLineArgs": "-dir=X:\\Code\\ghub\\mollycoddle -version=Stress -rulesFile=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.molly\" -formatter=plain -version=default -primaryRoot=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX/\" -debug=v-**"
     },
     "testDirectory": {
       "commandName": "Project",
