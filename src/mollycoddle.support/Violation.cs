@@ -1,9 +1,12 @@
-﻿namespace mollycoddle;
+﻿using System.Diagnostics;
+
+namespace mollycoddle;
 
 /// <summary>
 /// Violations indicate failures in the rules compliance.  Each violation has an owning rule identity
 /// and some additional data to describe the fault ( usually the file or path that failed ).
 /// </summary>
+[DebuggerDisplay("RuleName = {RuleName}")]
 public class Violation {
 
     public Violation(string owningRuleIdentity) {

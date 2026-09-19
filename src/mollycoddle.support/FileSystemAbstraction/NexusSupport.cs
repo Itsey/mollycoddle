@@ -149,11 +149,14 @@ namespace mollycoddle {
                     }
                 } while (!string.IsNullOrEmpty(continuationToken));
             } catch (HttpRequestException hrx) {
-                throw new InvalidOperationException(
-                    $"Unable to connect to Nexus ({nc.Server}) correctly. Status:{hrx.StatusCode}", hrx);
+                throw new InvalidOperationException($"Unable to connect to Nexus ({nc.Server}) correctly. Status:{hrx.StatusCode}", hrx);
             }
 
             b.Info.Log($"MC-Nexus > {files.Count} files to download for cache {identifier}");
+
+            if (files.Count == 0) {
+                throw new InvalidOperationException($"Nexus ({nc.Server}) is incorrect. No files were found to retrieve. Check {nc.Url}");
+            }
 
             var parallelOptions = new ParallelOptions {
                 MaxDegreeOfParallelism = MAXCONCURRENTDOWNLOADS
@@ -198,7 +201,8 @@ namespace mollycoddle {
             var mrks = new List<MarkerPosition>();
             foreach (string l in markers) {
                 var m = new MarkerPosition() {
-                    Marker = l, Position = nexusUrl.IndexOf(l)
+                    Marker = l,
+                    Position = nexusUrl.IndexOf(l)
                 };
                 mrks.Add(m);
             }
