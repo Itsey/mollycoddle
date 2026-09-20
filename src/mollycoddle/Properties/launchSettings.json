@@ -2,12 +2,12 @@
   "profiles": {
     "mollycoddle-stress": {
       "commandName": "Project",
-      "commandLineArgs": "-dir=X:\\Code\\ghub\\mollycoddle -version=Stress -rulesFile=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.molly\" -formatter=plain -version=default -primaryRoot=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX/\" -debug=v-**"
+      "commandLineArgs": "-dir=X:\\Code\\ghub\\mollycoddle -version=Stress -rulesFile=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/stress.mollyset\" -formatter=plain -version=default -primaryRoot=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX/\" "
     },
     "mollycoddle-nexus": {
       "commandName": "Project",
       "workingDirectory": "x:\\code\\azdo",
-      "commandLineArgs": " -dir=.\\BettyServices -rulesfile=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.mollyset\" -primaryroot=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX\" -debug=v-**"
+      "commandLineArgs": " -dir=.\\BettyServices -rulesfile=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.mollyset\" -primaryroot=\"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/primaryfiles/XXVERSIONNAMEXX\" -version=default -debug=v-**"
     },
     "testDirectory": {
       "commandName": "Project",

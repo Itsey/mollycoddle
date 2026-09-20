@@ -2,12 +2,12 @@
     "Rules": [
         {
             "Link": "https://itsey.github.io/molly-rules.html#MC0202",
-            "Name": "Moq versions which include sponsorlink are banned.",
+            "Name": "Packages which changed their licensing are banned.",
             "RuleReference": "MC0202",
             "Validators": [
                 {
                     "AdditionalData": [
-                        "fulent.assertions[8.0.0-4.20.68]"
+                        "fluent.assertions[8.0.0-4.20.68]"
                     ],
                     "Control": "ProhibitedPackagesList",
                     "PatternMatch": "**\\*.csproj",

@@ -8,6 +8,10 @@ This is a dotnet tool which provides repository linting.  This was originally co
 
 ## Release Notes
 
+#### VNext
+
+Added in paging support and then added in an index file to use sha1 to determine whether or not the cache needed refreshing and this meant stopping it clearing the cache on startup.  Very likely that the cache clear was also causing the locking issue that is reported.  Lots of code tidyup following the addition of stylecop and roslynator analysers to the main projects.  Not yet fixed the version comparison issue.  Stress test ruleset added with 3000 files to check that the paging and caching was working.  Small update to the error message if the file isn't found to make it clearer what the issue is.
+
 #### 1.0.3 
 
 Added net 10 multi targeting in for net 8,9,10.  Release note for 101 stated that it was present but could not find any evidence of it in the tools package code. 

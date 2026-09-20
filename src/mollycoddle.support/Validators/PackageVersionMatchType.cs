@@ -1,10 +1,9 @@
-﻿namespace mollycoddle {
+﻿namespace mollycoddle;
 
-    public enum PackageVersionMatchType {
-        AllVersions,
-        RangeProhibited,
-        Exact,
-        NotLessThan,
-        NotMoreThan,
-    }
+public enum PackageVersionMatchType {
+    AllVersions,
+    RangeProhibited,
+    Exact,
+    NotLessThan,
+    NotMoreThan,
 }

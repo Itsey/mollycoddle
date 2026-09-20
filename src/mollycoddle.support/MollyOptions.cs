@@ -31,6 +31,11 @@ public class MollyOptions {
     public bool EnableDebug { get; set; }
 
     /// <summary>
+    /// If set, a fix operation will be applied to attempt to resolve violations.
+    /// </summary>
+    public bool Fix { get; set; } = false;
+
+    /// <summary>
     /// The Path to the common files for any primary file comparisons that need to be made
     /// </summary>
     public string? PrimaryFilePath { get; set; }
@@ -44,10 +49,4 @@ public class MollyOptions {
     /// Working path for caching files etc, used when a non disk based rules and primary source is used.
     /// </summary>
     public string TempPath { get; set; }
-
-    /// <summary>
-    /// If set, a fix operation will be applied to attempt to resolve violations.
-    /// </summary>
-    public bool Fix { get; set; } = false;
-
 }

@@ -30,11 +30,14 @@ public class MollyCommandLine {
     [CommandLineArg("disabled", FullDescription = "If Disabled is set the mollycoddle will not execute but will return 0 instead.")]
     public bool Disabled { get; set; }
 
+    [CommandLineArg("fix", FullDescription = "If set, then Mollycoddle will attempt apply a fix to resolve discovered violations.")]
+    public bool Fix { get; set; }
+
     [CommandLineArg("formatter", FullDescription = "If set to azdo then azure build pipelines formatting will be used, otherwise plain text output.")]
     public string OutputFormat { get; set; } = "default";
 
     [CommandLineArg("primaryRoot", FullDescription = "If Primary Source files based rules are used this is the location of the primary Root for these files")]
-    [CommandLineArg("masterRoot")]  // compat mode.
+    [CommandLineArg("masterRoot")] // compat mode.
     public string? PrimaryPath { get; set; }
 
     [CommandLineArg("version", FullDescription = "If set then will replace {{VER}} in the rules loading path or file with the string value passed.  Defaults to not used.")]
@@ -51,9 +54,6 @@ public class MollyCommandLine {
 
     [CommandLineArg("addrulehelp", FullDescription = "If set then MollyCoddle will output hyperlinks in the error messages.")]
     public bool WarningsIncludeLinks { get; set; }
-
-    [CommandLineArg("fix", FullDescription = "If set, then Mollycoddle will attempt apply a fix to resolve discovered violations.")]
-    public bool Fix { get; set; }
 
     public MollyOptions GetOptions() {
         RulesFile ??= string.Empty;

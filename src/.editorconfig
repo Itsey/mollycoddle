@@ -1,4 +1,6 @@
-#V1.1 - Added Versioning.
+#V1.5 - 
+#Added that parameters must be on the same line SA1117. SA1616 documentation warning set to none.
+
 # top-most EditorConfig file
 root = true
 
@@ -9,18 +11,7 @@ dotnet_style_operator_placement_when_wrapping = beginning_of_line
 tab_width = 4
 indent_size = 4
 end_of_line = crlf
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
-dotnet_style_prefer_auto_properties = true:silent
-dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
-dotnet_style_prefer_conditional_expression_over_assignment = true:silent
-dotnet_style_prefer_conditional_expression_over_return = true:silent
-dotnet_style_explicit_tuple_names = true:warning
-dotnet_style_prefer_inferred_tuple_names = true:suggestion
-dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
-dotnet_style_prefer_compound_assignment = true:suggestion
-dotnet_style_prefer_simplified_interpolation = true:suggestion
-dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
-dotnet_style_namespace_match_folder = false:suggestion
+
 
 # Code files
 [*.{cs,csx}]
@@ -38,8 +29,20 @@ indent_size = 2
 [*.json]
 indent_size = 2
 
-# Dotnet code style settings:
-[*.{cs}]
+# CSharp code style settings:
+[*.cs]
+dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
+dotnet_style_prefer_auto_properties = true:silent
+dotnet_style_prefer_simplified_boolean_expressions = true:suggestion
+dotnet_style_prefer_conditional_expression_over_assignment = true:silent
+dotnet_style_prefer_conditional_expression_over_return = true:silent
+dotnet_style_prefer_inferred_tuple_names = true:suggestion
+dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
+dotnet_style_prefer_compound_assignment = true:suggestion
+dotnet_style_prefer_simplified_interpolation = true:suggestion
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
+dotnet_style_namespace_match_folder = false:suggestion
+
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first                        = true
 # Avoid "this." and "Me." if not necessary
@@ -59,29 +62,16 @@ dotnet_style_coalesce_expression                           = true : suggestion
 dotnet_style_null_propagation                              = true : suggestion
 dotnet_style_explicit_tuple_names                          = true : warning
 
-# CSharp code style settings:
-
-[*.cs]
 # Prefer "var" everywhere
 csharp_style_var_for_built_in_types                             = false : warning
 csharp_style_var_when_type_is_apparent                          = true : warning
 csharp_style_var_elsewhere                                      = true : warning
 
-# Prefer method-like constructs to have a block body
-csharp_style_expression_bodied_methods                          = false:none
-csharp_style_expression_bodied_constructors                     = false:none
-csharp_style_expression_bodied_operators                        = false:none
-
-# Prefer property-like constructs to have an expression-body
-csharp_style_expression_bodied_properties                       = true:none
-csharp_style_expression_bodied_indexers                         = true:none
-csharp_style_expression_bodied_accessors                        = true:none
-
 # Suggest more modern language features when available
 csharp_style_pattern_matching_over_is_with_cast_check           = true : suggestion
 csharp_style_pattern_matching_over_as_with_null_check           = true : suggestion
 csharp_style_inlined_variable_declaration                       = true : suggestion
-csharp_style_throw_expression                                   = true:suggestion
+csharp_style_throw_expression                                   = true : suggestion
 csharp_style_conditional_delegate_call                          = true : suggestion
 
 # Newline settings
@@ -91,15 +81,14 @@ csharp_new_line_before_catch                                    = false
 csharp_new_line_before_finally                                  = false
 csharp_new_line_before_members_in_object_initializers           = true
 csharp_new_line_before_members_in_anonymous_types               = true
-csharp_new_line_between_query_expression_clauses 		= false
+csharp_new_line_between_query_expression_clauses                = false
 
 #custom styles -------------------------------------------------------------------------------------------
 
 dotnet_naming_style.customPascalStyle.capitalization               = pascal_case
 dotnet_naming_style.customFullUppercaseStyle.capitalization        = all_upper
 dotnet_naming_style.customCamelCaseStyle.capitalization            = camel_case
-dotnet_naming_style.customCamelCaseStyle.prefix = 
-
+dotnet_naming_style.customCamelCaseStyle.required_prefix = 
 
 dotnet_naming_style.customFieldStyle.capitalization = camel_case
 dotnet_naming_style.customFieldStyle.required_prefix = 
@@ -111,29 +100,6 @@ dotnet_naming_symbols.all_methods.applicable_accessibilities    = *
 dotnet_naming_rule.all_methods_pascalcased.style = customPascalStyle
 dotnet_naming_rule.all_methods_pascalcased.severity = error
 
-#Variables Be PascalCased
-dotnet_naming_rule.all_variables_camel.symbols                  = all_variables
-dotnet_naming_symbols.all_variables.applicable_kinds            = local, parameter
-dotnet_naming_symbols.all_variables.applicable_accessibilities  = *
-dotnet_naming_rule.all_variables_camel.style = customCamelCaseStyle
-dotnet_naming_rule.all_variables_camel.severity = error
-
-
-#Properties Be camelCased
-dotnet_naming_rule.all_properties_pascalcased.symbols           = all_properties
-dotnet_naming_symbols.all_properties.applicable_kinds           = property
-dotnet_naming_symbols.all_properties.applicable_accessibilities = *
-dotnet_naming_rule.all_properties_pascalcased.style = customPascalStyle
-dotnet_naming_rule.all_properties_pascalcased.severity = error
-
-#Fields Be camelCased with no prefix (checked)
-dotnet_naming_rule.customFields.symbols           = custom_field
-dotnet_naming_rule.customfields.style = customFieldStyle
-dotnet_naming_rule.customfields.severity = error
-
-dotnet_naming_symbols.custom_field.applicable_kinds           = field
-dotnet_naming_symbols.custom_field.applicable_accessibilities = *
-
 #Constants be SHOUTEY (checked)
 dotnet_naming_rule.all_constants_upper.symbols                  = all_constants
 dotnet_naming_rule.all_constants_upper.style = customFullUppercaseStyle
@@ -143,10 +109,31 @@ dotnet_naming_symbols.all_constants.required_modifiers          = const
 dotnet_naming_symbols.all_constants.applicable_kinds            = field, local
 dotnet_naming_symbols.all_constants.applicable_accessibilities  = *
 
+# Variables Be camelCased
+dotnet_naming_rule.all_variables_camel.symbols                  = all_variables
+dotnet_naming_symbols.all_variables.applicable_kinds            = local, parameter
+dotnet_naming_symbols.all_variables.applicable_accessibilities  = *
+dotnet_naming_rule.all_variables_camel.style = customCamelCaseStyle
+dotnet_naming_rule.all_variables_camel.severity = error
+
+
+# Properties Be PascalCased
+dotnet_naming_rule.all_properties_pascalcased.symbols           = all_properties
+dotnet_naming_symbols.all_properties.applicable_kinds           = property
+dotnet_naming_symbols.all_properties.applicable_accessibilities = *
+dotnet_naming_rule.all_properties_pascalcased.style = customPascalStyle
+dotnet_naming_rule.all_properties_pascalcased.severity = error
+
+#Fields Be camelCased with no prefix (checked)
+dotnet_naming_rule.customfields.symbols           = custom_field
+dotnet_naming_rule.customfields.style = customFieldStyle
+dotnet_naming_rule.customfields.severity = error
+
+dotnet_naming_symbols.custom_field.applicable_kinds           = field
+dotnet_naming_symbols.custom_field.applicable_accessibilities = *
+
 # Interfaces Start with I and are Pascal Cased (checked)
 dotnet_naming_rule.customInterfaceRule.symbols = customInterfaceTypes
-dotnet_naming_rule.customInterfaceRule.applicable_kinds = interface
-dotnet_naming_rule.customInterfaceRule.applicable_accessibilities = *
 dotnet_naming_rule.customInterfaceRule.style = customInterfaceRule_style
 dotnet_naming_rule.customInterfaceRule.severity = error
 
@@ -157,18 +144,14 @@ dotnet_naming_style.customInterfaceRule_style.capitalization = pascal_case
 dotnet_naming_style.customInterfaceRule_style.required_prefix = I
 dotnet_naming_style.customInterfaceRule_style.required_suffix = 
 
-
 csharp_indent_labels = one_less_than_current
 csharp_using_directive_placement = outside_namespace:silent
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_prefer_braces = true:error
-csharp_style_namespace_declarations = block_scoped:silent
-csharp_style_expression_bodied_lambdas = true:silent
-csharp_style_expression_bodied_local_functions = false:silent
+csharp_style_namespace_declarations = file_scoped:error
 csharp_space_around_binary_operators = before_and_after
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent
-
 
 csharp_style_prefer_primary_constructors = true:suggestion
 csharp_prefer_system_threading_lock = true:suggestion
@@ -181,9 +164,53 @@ csharp_style_expression_bodied_accessors = true:silent
 csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 
-
-# IDE1006: Naming Styles
-dotnet_diagnostic.IDE1006.severity = error
 csharp_indent_case_contents = true
 csharp_indent_case_contents_when_block = true
 csharp_space_after_keywords_in_control_flow_statements = true
+
+# Analyser rules
+dotnet_diagnostic.IDE0161.severity = error
+dotnet_diagnostic.IDE0055.severity = error
+dotnet_diagnostic.IDE1006.severity = error
+
+dotnet_diagnostic.SA1505.severity = none
+dotnet_diagnostic.SA1500.severity = none 
+dotnet_diagnostic.SA1513.severity = none 
+dotnet_diagnostic.SA1600.severity = none 
+dotnet_diagnostic.SA1602.severity = none 
+dotnet_diagnostic.SA1010.severity = none 
+dotnet_diagnostic.SA1101.severity = none 
+dotnet_diagnostic.SA1413.severity = none 
+dotnet_diagnostic.SA1200.severity = none 
+dotnet_diagnostic.SA0001.severity = none 
+dotnet_diagnostic.SA1000.severity = none 
+dotnet_diagnostic.SA1008.severity = none 
+dotnet_diagnostic.SA1009.severity = none 
+dotnet_diagnostic.SA1310.severity = none 
+dotnet_diagnostic.SA1307.severity = none 
+dotnet_diagnostic.SA1516.severity = none 
+dotnet_diagnostic.SA1214.severity = none 
+dotnet_diagnostic.SA1508.severity = none 
+dotnet_diagnostic.SA1011.severity = none 
+dotnet_diagnostic.SA1504.severity = none 
+dotnet_diagnostic.SA1401.severity = none 
+dotnet_diagnostic.SA1633.severity = none 
+dotnet_diagnostic.SA1311.severity = none 
+dotnet_diagnostic.SA1313.severity = none 
+dotnet_diagnostic.SA1515.severity = none 
+dotnet_diagnostic.SA1124.severity = none 
+dotnet_diagnostic.SA1206.severity = none 
+dotnet_diagnostic.SA1615.severity = none 
+dotnet_diagnostic.SA1616.severity = none 
+dotnet_diagnostic.SA1614.severity = none 
+dotnet_diagnostic.SA1627.severity = none 
+dotnet_diagnostic.SA1629.severity = none 
+dotnet_diagnostic.SA1128.severity = none 
+dotnet_diagnostic.SA1501.severity = none 
+dotnet_diagnostic.SA1117.severity = error 
+dotnet_diagnostic.SA1507.severity = warning 
+dotnet_diagnostic.SA1025.severity = warning 
+dotnet_diagnostic.SA1122.severity = warning
+
+# Roslynator
+dotnet_diagnostic.RCS1163.severity = none 

@@ -1,16 +1,36 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using mollycoddle;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
 using Plisky.Plumbing;
 
-public class Program {
-    private static Action<string, OutputType> writeOutput = WriteOutputDefault;
-    private static bool warningMode = false;
+namespace mollycoddle;
+
+public static class Program {
     private static int exitCode = 0;
-    private static string timingMessage = "";
     private static long lastCheckpoint = 0;
+    private static string timingMessage = string.Empty;
+    private static bool warningMode = false;
+    private static Action<string, OutputType> writeOutput = WriteOutputDefault;
+
+    internal static bool IsHelpRequested(string[] args) {
+        string? firstArg = args.FirstOrDefault();
+
+        return args.Any(a => a is "--help" or "-h" or "-help") ||
+               firstArg is "?" or "/?" ||
+               string.Equals(firstArg, "/help", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static void ConfigureTrace(string debugSetting) {
+        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting), "The debugSetting can not be empty at this point");
+        Bilge.Default.ActiveTraceLevel = Bilge.SetConfigurationResolver(debugSetting)("default", Bilge.Default.ActiveTraceLevel);
+
+#if DEBUG
+        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
+#else
+        Bilge.AddHandler(new ConsoleHandler());
+#endif
+    }
 
     private static async Task<int> Main(string[] args) {
         var sw = new Stopwatch();
@@ -100,17 +120,17 @@ public class Program {
         b.Verbose.Log($"MolCommandLine : Disabled : {ma.Disabled}");
     }
 
-    private static void ConfigureTrace(string debugSetting) {
-        Bilge.Default.Assert.False(string.IsNullOrEmpty(debugSetting),
-            "The debugSetting can not be empty at this point");
-        Bilge.Default.ActiveTraceLevel =
-            Bilge.SetConfigurationResolver(debugSetting)("default", Bilge.Default.ActiveTraceLevel);
+    private static void WriteEndMessage(CheckResult cr, MollyMain mm, MollyOptions mo, string elapsedString) {
+        if (mo.Fix && mm.fixApplied) {
+            writeOutput("Fix applied for supported violations: Rerun MollyCoddle to validate.", OutputType.Info);
+        }
 
-#if DEBUG && true
-        Bilge.AddHandler(new TCPHandler("127.0.0.1", 9060, true));
-#else
-        Bilge.AddHandler(new ConsoleHandler());
-#endif
+        if (cr.DefectCount == 0) {
+            writeOutput($"No Violations, Mollycoddle Pass.  {elapsedString}", OutputType.EndSuccess);
+        } else {
+            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}",
+                warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+        }
     }
 
     private static void WriteGreetingMessage() {
@@ -129,28 +149,8 @@ public class Program {
         Console.WriteLine(clas.GenerateHelp(new MollyCommandLine(), "MollyCoddle"));
     }
 
-    internal static bool IsHelpRequested(string[] args) {
-        string? firstArg = args.FirstOrDefault();
-
-        return args.Any(a => a is "--help" or "-h" or "-help") ||
-               firstArg is "?" or "/?" ||
-               string.Equals(firstArg, "/help", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static void WriteOutputDefault(string v, OutputType ot) {
-        string pfx = "";
-        switch (ot) {
-            case OutputType.Violation: pfx = "💩  Violation: "; break;
-            case OutputType.Error: pfx = "⚠  Error: "; break;
-            case OutputType.Info: pfx = "Info: "; break;
-            case OutputType.EndSuccess: pfx = "😎  Completed."; break;
-            case OutputType.EndFailure: pfx = "😢  Completed."; break;
-        }
-        Console.WriteLine($"{pfx}{v}");
-    }
-
     private static void WriteOutputAzDo(string v, OutputType ot) {
-        string pfx = "";
+        string pfx = string.Empty;
         string errType = warningMode ? "warning" : "error";
 
         switch (ot) {
@@ -170,16 +170,15 @@ public class Program {
         Console.WriteLine($"{pfx}{v}");
     }
 
-    private static void WriteEndMessage(CheckResult cr, MollyMain mm, MollyOptions mo, string elapsedString) {
-        if (mo.Fix && mm.fixApplied) {
-            writeOutput("Fix applied for supported violations: Rerun MollyCoddle to validate.", OutputType.Info);
+    private static void WriteOutputDefault(string v, OutputType ot) {
+        string pfx = string.Empty;
+        switch (ot) {
+            case OutputType.Violation: pfx = "💩  Violation: "; break;
+            case OutputType.Error: pfx = "⚠  Error: "; break;
+            case OutputType.Info: pfx = "Info: "; break;
+            case OutputType.EndSuccess: pfx = "😎  Completed."; break;
+            case OutputType.EndFailure: pfx = "😢  Completed."; break;
         }
-
-        if (cr.DefectCount == 0) {
-            writeOutput($"No Violations, Mollycoddle Pass.  {elapsedString}", OutputType.EndSuccess);
-        } else {
-            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}",
-                warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
-        }
+        Console.WriteLine($"{pfx}{v}");
     }
 }

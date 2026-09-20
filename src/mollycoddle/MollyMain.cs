@@ -6,17 +6,17 @@ using Plisky.Diagnostics;
 using Plisky.Plumbing;
 
 internal class MollyMain {
-    protected Bilge b;
-    protected MollyOptions mo;
-    protected string? basePathToSave = null;
     public bool fixApplied = false;
-
-    public Action<string, OutputType> WriteOutput { get; set; } = (a, b) => { };
+    protected Bilge b;
+    protected string? basePathToSave = null;
+    protected MollyOptions mo;
 
     public MollyMain(MollyOptions options, Bilge bilgeInstance) {
         mo = options;
         b = bilgeInstance;
     }
+
+    public Action<string, OutputType> WriteOutput { get; set; } = (a, b) => { };
 
     internal async Task<CheckResult> DoMollly() {
         var result = new CheckResult();
@@ -44,8 +44,8 @@ internal class MollyMain {
             molly.ImportRules(mrf.LoadRulesFromFile(mo.RulesFile));
         } catch (InvalidOperationException iox) {
             b.Error.ReportRecord(new ErrorDescription((short)ErrorModule.Main, (short)ErrorCode.ImportMollyRules), $"Error Context: {iox.Message}");
-            b.Error.Log($"Exception occurred reading rules files |{iox.Message}|");
-            WriteOutput($"Error - Unable To Read RulesFiles", OutputType.Error);
+            b.Error.Log($"Exception occurred reading rules files: {mo.RulesFile}. |{iox.Message}|");
+            WriteOutput($"Error - Unable To Read RulesFiles: {mo.RulesFile}", OutputType.Error);
             Exception? eox = iox;
             while (eox != null) {
                 WriteOutput($"RulesFiles::Error: {eox.Message}", OutputType.Error);
@@ -62,7 +62,7 @@ internal class MollyMain {
             var defects = molly.ApplyMollyFix();
             if (defects == null) {
                 b.Verbose.Log("No defects were found that could be fixed.");
-            } else if (defects != null && defects.Count > 0) {
+            } else if (defects.Count > 0) {
                 foreach (var def in defects) {
                     result.AddDefect(def.Key, def.Value);
                 }
@@ -87,24 +87,12 @@ internal class MollyMain {
         return result;
     }
 
-    private void ValidateMollyOptions() {
-        if (!ValidateDirectory(mo.DirectoryToTarget)) {
-            WriteOutput($"InvalidCommand:  -Dir Parameter Validation >  Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
-            throw new DirectoryNotFoundException($"Directory not found [{mo.DirectoryToTarget}]");
-        }
-
-        if (!ValidateRulesFile(mo.RulesFile)) {
-            WriteOutput($"InvalidCommand: -rulesfile parameter validation > RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
-            throw new FileNotFoundException($"Rules file not found [{mo.RulesFile}]");
-        }
+    private static bool ValidateDirectory(string pathToCheck) {
+        return !string.IsNullOrWhiteSpace(pathToCheck) && Directory.Exists(pathToCheck);
     }
 
     private static bool ValidateRulesFile(string rulesFile) {
         return !string.IsNullOrWhiteSpace(rulesFile);
-    }
-
-    private static bool ValidateDirectory(string pathToCheck) {
-        return !string.IsNullOrWhiteSpace(pathToCheck) && Directory.Exists(pathToCheck);
     }
 
     private async Task HandleMcRuleSources(MollyOptions mo) {
@@ -114,14 +102,9 @@ internal class MollyMain {
 
         basePathToSave = Path.Combine(mo.TempPath, "mccache");
 
-        if (Directory.Exists(basePathToSave)) {
-            b.Verbose.Log($"Removing existing cache directory [{basePathToSave}]");
-            try {
-                Directory.Delete(basePathToSave, true);
-                Directory.CreateDirectory(basePathToSave);
-            } catch (IOException) {
-                b.Error.Log($"Unable to delete existing cache directory [{basePathToSave}]. Suppressing Error.");
-            }
+        if (!Directory.Exists(basePathToSave)) {
+            b.Verbose.Log($"Creating cache directory [{basePathToSave}]");
+            Directory.CreateDirectory(basePathToSave);
         }
 
         fileManager.BasePathToSave = basePathToSave;
@@ -129,6 +112,18 @@ internal class MollyMain {
 
         if (!string.IsNullOrWhiteSpace(mo.PrimaryFilePath)) {
             mo.PrimaryFilePath = await fileManager.ProcessNexusSupport(mo.PrimaryFilePath, ProcessKind.PrimaryFile);
+        }
+    }
+
+    private void ValidateMollyOptions() {
+        if (!ValidateDirectory(mo.DirectoryToTarget)) {
+            WriteOutput($"InvalidCommand:  -Dir Parameter Validation >  Directory Was Not Correct (Does this directory exist? [{mo.DirectoryToTarget}])", OutputType.Error);
+            throw new DirectoryNotFoundException($"Directory not found [{mo.DirectoryToTarget}]");
+        }
+
+        if (!ValidateRulesFile(mo.RulesFile)) {
+            WriteOutput($"InvalidCommand: -rulesfile parameter validation > RulesFile was not correct (Does this rules file exist? [{mo.RulesFile}])", OutputType.Error);
+            throw new FileNotFoundException($"Rules file not found [{mo.RulesFile}]");
         }
     }
 }

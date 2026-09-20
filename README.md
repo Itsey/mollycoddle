@@ -43,3 +43,7 @@ This includes information relating to the rules and how to run it as part of a p
 ### Developer Notes.
 
 Attempted to migrate to the Microsoft Globbing implementation but it does not support windows paths, or filters or directories.  Ultimately aborted this and rolled back to the existing globbing implementation. 
+
+### Good Little Dev Notes
+
+goodlittledev the mollycoddle version is `latest`

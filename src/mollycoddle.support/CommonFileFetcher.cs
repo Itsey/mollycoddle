@@ -4,8 +4,8 @@ namespace mollycoddle;
 
 public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
     private readonly Bilge b = bilge;
-    private readonly MollyOptions mo = options;
     private readonly List<PrimaryCopyFile> commonFileMappings = [];
+    private readonly MollyOptions mo = options;
 
     public int FetchCommonFiles() {
         b.Info.Flow();
@@ -38,12 +38,11 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
             string destPattern = mapping.PatternForSourceFile
                 .Replace("%ROOT%", targetDir)
                 .Replace(MollyOptions.PRIMARYPATHLITERAL, commonPath);
-            //TODO: PrimaryPathLiteral replacement should be with ProjectStructure
-            //TODO: Add handling for when destPattern contains wildcards or other complex patterns
+
             string? destDir = Path.GetDirectoryName(destPattern);
             string? destFileName = Path.GetFileName(destPattern);
             if (string.IsNullOrWhiteSpace(destFileName)) {
-                destFileName = commonFileName; //If the pattern provided no filename, fallback to derive from source file name
+                destFileName = commonFileName; // If the pattern provided no filename, fallback to derive from source file name
             }
 
             string? cachedFile = Directory.GetFiles(commonPath, commonFileName, SearchOption.AllDirectories).FirstOrDefault();
@@ -63,6 +62,29 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
             errorCount += CopyCommonFiles(cachedFile, destPath, destFileName);
         }
         b.Info.Log($"Common files fetch completed with {errorCount} errors.");
+        return errorCount;
+    }
+
+    private static void ValidateParameters(string? commonRoot, string rulesFile) {
+        // TODO: Consider using Validation in FileStuctureChecker
+        if (string.IsNullOrWhiteSpace(commonRoot) || !Directory.Exists(commonRoot)) {
+            MollyError.Throw(ErrorModule.MollyOptions, ErrorCode.ProgramCommandLineInvalidCommonDirectory, "Primary root (base URL) must be specified for get command.");
+        }
+        if (string.IsNullOrWhiteSpace(rulesFile) || !File.Exists(rulesFile)) {
+            MollyError.Throw(ErrorModule.RulesFiles, ErrorCode.ProgramCommandLineRulesFileMissing, "Rules file must be specified for get command.");
+        }
+    }
+
+    private int CopyCommonFiles(string cachedFile, string destPath, string commonFileName) {
+        b.Info.Flow();
+        int errorCount = 0;
+        try {
+            File.Copy(cachedFile, destPath, overwrite: true);
+            b.Info.Log($"Copied '{commonFileName}' to '{destPath}'.");
+        } catch (Exception ex) {
+            errorCount++;
+            b.Error.Log($"Failed to copy '{commonFileName}' to '{destPath}': {ex.Message}");
+        }
         return errorCount;
     }
 
@@ -102,28 +124,5 @@ public class CommonFilesFetcher(MollyOptions options, Bilge bilge) {
                 }
             }
         }
-    }
-
-    private static void ValidateParameters(string? commonRoot, string rulesFile) {
-        // TODO: Consider using Validation in FileStuctureChecker
-        if (string.IsNullOrWhiteSpace(commonRoot) || !Directory.Exists(commonRoot)) {
-            MollyError.Throw(ErrorModule.MollyOptions, ErrorCode.ProgramCommandLineInvalidCommonDirectory, "Primary root (base URL) must be specified for get command.");
-        }
-        if (string.IsNullOrWhiteSpace(rulesFile) || !File.Exists(rulesFile)) {
-            MollyError.Throw(ErrorModule.RulesFiles, ErrorCode.ProgramCommandLineRulesFileMissing, "Rules file must be specified for get command.");
-        }
-    }
-
-    private int CopyCommonFiles(string cachedFile, string destPath, string commonFileName) {
-        b.Info.Flow();
-        int errorCount = 0;
-        try {
-            File.Copy(cachedFile, destPath, overwrite: true);
-            b.Info.Log($"Copied '{commonFileName}' to '{destPath}'.");
-        } catch (Exception ex) {
-            errorCount++;
-            b.Error.Log($"Failed to copy '{commonFileName}' to '{destPath}': {ex.Message}");
-        }
-        return errorCount;
     }
 }

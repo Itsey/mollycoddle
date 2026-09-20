@@ -5,13 +5,13 @@ using Plisky.Diagnostics;
 
 public class CheckResult {
     protected Bilge b = new Bilge("molly-results");
-    public int ErrorCode { get; set; }
 
     public CheckResult() {
         ViolationsFound = new List<Violation>();
     }
 
     public int DefectCount { get; private set; }
+    public int ErrorCode { get; set; }
     public List<Violation> ViolationsFound { get; set; }
 
     public void AddDefect(Violation violation) {

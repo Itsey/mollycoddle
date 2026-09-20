@@ -45,8 +45,8 @@ public class ProjectStructure {
     /// <summary>
     /// Gets a file contents by reading it from the disk, returns null if the file isnt found.
     /// </summary>
-    /// <param name="filename">The filename to read the contents from</param>
-    /// <returns>The contents of the file, or null if the file is not found</returns>
+    /// <param name="filename">The filename to read the contents from.</param>
+    /// <returns>The contents of the file, or null if the file is not found.</returns>
     public virtual string? GetFileContents(string filename) {
         // Method is used so that the mock project structure can remove the dependency on the file system.
         if (!DoesFileExist(filename)) { return null; }

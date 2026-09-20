@@ -32,6 +32,12 @@
                     "Control": "MustNotExist",
                     "PatternMatch": "**/*- Copy.*",
                     "ValidatorName": "FileValidationChecks"
+                },
+                {
+                    "AdditionalData": null,
+                    "Control": "MustNotExist",
+                    "PatternMatch": "**/*.csproj.bak",
+                    "ValidatorName": "FileValidationChecks"
                 }
             ]
         }

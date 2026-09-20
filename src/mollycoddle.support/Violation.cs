@@ -15,12 +15,12 @@ public class Violation {
     }
 
     /// <summary>
-    /// Additional supporting information relating to the violation
+    /// Gets additional supporting information relating to the violation.
     /// </summary>
     public string Additional { get; internal set; }
 
     /// <summary>
-    /// The reference rule name.
+    /// Gets or sets the reference rule name.
     /// </summary>
     public string RuleName { get; set; }
 }

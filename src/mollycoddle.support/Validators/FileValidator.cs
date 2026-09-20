@@ -16,9 +16,9 @@ public class FileValidator : ValidatorBase {
     public const string VALIDATORNAME = "FileValidationChecks";
 
     private List<string> completeBypasses = new List<string>();
-    private List<PrimaryCopyFile> primaryMatchers = new List<PrimaryCopyFile>();
     private List<string> mustExistPaths = new List<string>();
     private List<MatchWithSecondaryMatches> precisePositions = new List<MatchWithSecondaryMatches>();
+    private List<PrimaryCopyFile> primaryMatchers = new List<PrimaryCopyFile>();
     private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();
 
     public FileValidator(string owningRuleName) : base(owningRuleName) {
