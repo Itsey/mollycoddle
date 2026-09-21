@@ -19,6 +19,10 @@ stages:
         displayName: 'Mollycoddle CCD'
         dependsOn: [  ]
         steps:
+          - checkout: self
+            fetchDepth: 0
+            persistCredentials: true
+
           - task: CmdLine@2
             displayName: 'Run: ArrangeStep'
             inputs:
@@ -48,6 +52,6 @@ stages:
           - task: CmdLine@2
             displayName: 'Run: ReleaseStep'
             inputs:
-              script: '.\src\build.cmd ReleaseStep --skip ArrangeStep ConstructStep ExamineStep PackageStep --root .\src\ --PreRelease ${{ parameters.PreRelease }}  --FullVersionNumber ${ConstructStep.FullVersionNumber}'
+              script: '.\src\build.cmd ReleaseStep --skip ArrangeStep ConstructStep ExamineStep PackageStep --root .\src\ --PreRelease ${{ parameters.PreRelease }} --FullVersionNumber $(ConstructStep.FullVersionNumber)'
 
           

@@ -50,6 +50,8 @@ public partial class Build : FalloutBuild {
           if (!PreRelease) {
               UpdatePreReleaseVersionNumber(dryRunMode, versioningType, vc, mmPathBase);
           }
+
+          Console.WriteLine($"##vso[task.setvariable variable=FullVersionNumber;isOutput=true]{FullVersionNumber}");
       });
 
     public Target ConstructStep => _ => _
