@@ -10,11 +10,11 @@
     <description>Plisky Mollycoddle, source structure linting tool.</description>
     <releaseNotes>
       XXX-VERSION-XXX        
-        Packaged to NugetTool using nuke.
+        Packaged to NugetTool using fallout.
         
       0.0.0
         First version of a nuget tool release.
-        Basic support for rulesets and some default rules..
+        Basic support for rulesets and some default rules.
     </releaseNotes>
     <readme>.\readme.md</readme>
     <tags>lint linting quality ci build </tags>    

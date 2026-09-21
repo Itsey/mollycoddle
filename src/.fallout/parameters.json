@@ -1,0 +1,5 @@
+{
+  "$schema": "./build.schema.json",
+  "Solution": "mollycoddle.sln",
+  "BuildProjectFile": "mollycoddle.build/mollycoddle.build.csproj"
+}

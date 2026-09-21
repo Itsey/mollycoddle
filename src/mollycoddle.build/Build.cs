@@ -1,19 +1,19 @@
 using System;
 using System.IO;
 using System.Linq;
-using Nuke.Common;
-using Nuke.Common.Git;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
-using Nuke.Common.Tools.PowerShell;
-using Nuke.Common.Utilities.Collections;
+using Fallout.Common;
+using Fallout.Common.Git;
+using Fallout.Common.IO;
+using Fallout.Common.Tooling;
+using Fallout.Common.Tools.PowerShell;
+using Fallout.Common.Utilities.Collections;
+using Fallout.Solutions;
 using Plisky.Diagnostics;
 using Plisky.Diagnostics.Listeners;
 using Serilog;
 
-public partial class Build : NukeBuild {
-    public Bilge b = new("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
+public partial class Build : FalloutBuild {
+    public Bilge b = new("Fallout", tl: System.Diagnostics.SourceLevels.Verbose);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     private readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
@@ -30,7 +30,7 @@ public partial class Build : NukeBuild {
     [Solution]
     private readonly Solution Solution;
 
-    private AbsolutePath ArtifactsDirectory = Path.Combine(Path.GetTempPath(), "_build\\mcbld\\");
+    private readonly AbsolutePath ArtifactsDirectory = Path.Combine(Path.GetTempPath(), "_build\\mcbld\\");
 
     [Parameter("Full version number")]
     private string FullVersionNumber = string.Empty;
@@ -54,7 +54,7 @@ public partial class Build : NukeBuild {
                   return System.Diagnostics.SourceLevels.Verbose;
               });
 
-              b = new Bilge("Nuke", tl: System.Diagnostics.SourceLevels.Verbose);
+              b = new Bilge("Fallout", tl: System.Diagnostics.SourceLevels.Verbose);
 
               Bilge.Alert.Online("Mollycoddle-Build");
               b.Info.Log("Mollycoddle Build Process Initialised, preparing Initialisation section.");
@@ -67,7 +67,7 @@ public partial class Build : NukeBuild {
                   MollyRulesToken = "%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/molly/XXVERSIONNAMEXX/defaultrules.mollyset",
                   VersioningPersistanceTokenPre = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly-pre.vstore",
                   VersioningPersistanceTokenRelease = @"%NEXUSCONFIG%[R::plisky[L::https://pliskynexus.yellowwater-365987e0.uksouth.azurecontainerapps.io/repository/plisky/vstore/molly.vstore",
-                  MollyRulesVersion = "default",
+                  MollyRulesVersion = "latest",
                   ArtifactsDirectory = ArtifactsDirectory,
                   DependenciesDirectory = Solution.Projects.First(x => x.Name == "_Dependencies").Directory,
               };

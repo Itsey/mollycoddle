@@ -1,0 +1,335 @@
+{
+  "version": 1,
+  "falloutVersion": "10.4.0.15",
+  "targets": [
+    {
+      "name": "ApplyGitTag",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ReleaseStep"
+      ],
+      "triggeredBy": [
+        "ReleaseStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "ApplyVersion",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ConstructStep"
+      ],
+      "triggeredBy": [
+        "ConstructStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "ArrangeStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [],
+      "triggeredBy": [],
+      "triggers": [
+        "Clean",
+        "MollyCheck"
+      ]
+    },
+    {
+      "name": "Clean",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ArrangeStep",
+        "Initialise"
+      ],
+      "triggeredBy": [
+        "ArrangeStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "Compile",
+      "description": null,
+      "declaredIn": "Build",
+      "default": true,
+      "listed": true,
+      "dependsOn": [
+        "Restore"
+      ],
+      "after": [
+        "ApplyVersion",
+        "QueryNextVersion",
+        "Restore",
+        "VersionQuickStep"
+      ],
+      "triggeredBy": [
+        "ConstructStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "ConstructStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "ArrangeStep",
+        "Initialise"
+      ],
+      "after": [
+        "ArrangeStep",
+        "ArrangeStep",
+        "Clean",
+        "MollyCheck"
+      ],
+      "triggeredBy": [],
+      "triggers": [
+        "ApplyVersion",
+        "Compile"
+      ]
+    },
+    {
+      "name": "ExamineStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "ConstructStep",
+        "Initialise"
+      ],
+      "after": [
+        "Compile",
+        "ConstructStep",
+        "ConstructStep",
+        "Initialise"
+      ],
+      "triggeredBy": [],
+      "triggers": [
+        "UnitTest"
+      ]
+    },
+    {
+      "name": "Initialise",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [],
+      "after": [],
+      "triggeredBy": [],
+      "triggers": [
+        "Wrapup"
+      ]
+    },
+    {
+      "name": "IntegrationTest",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [],
+      "after": [],
+      "triggeredBy": [
+        "TestStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "MollyCheck",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise",
+        "NexusLive"
+      ],
+      "after": [
+        "ArrangeStep",
+        "Clean"
+      ],
+      "triggeredBy": [
+        "ArrangeStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "NexusLive",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "Initialise"
+      ],
+      "triggeredBy": [],
+      "triggers": []
+    },
+    {
+      "name": "PackageStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "ExamineStep",
+        "Initialise"
+      ],
+      "after": [
+        "ExamineStep",
+        "ExamineStep",
+        "UnitTest"
+      ],
+      "triggeredBy": [],
+      "triggers": []
+    },
+    {
+      "name": "QueryNextVersion",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ConstructStep"
+      ],
+      "triggeredBy": [],
+      "triggers": []
+    },
+    {
+      "name": "ReleaseStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise",
+        "PackageStep"
+      ],
+      "after": [
+        "PackageStep",
+        "PackageStep"
+      ],
+      "triggeredBy": [],
+      "triggers": [
+        "ApplyGitTag"
+      ]
+    },
+    {
+      "name": "Restore",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [],
+      "after": [
+        "ConstructStep"
+      ],
+      "triggeredBy": [],
+      "triggers": []
+    },
+    {
+      "name": "TestStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ConstructStep",
+        "ReleaseStep"
+      ],
+      "triggeredBy": [],
+      "triggers": [
+        "IntegrationTest"
+      ]
+    },
+    {
+      "name": "UnitTest",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [],
+      "after": [
+        "ExamineStep"
+      ],
+      "triggeredBy": [
+        "ExamineStep"
+      ],
+      "triggers": []
+    },
+    {
+      "name": "VersionQuickStep",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ConstructStep"
+      ],
+      "triggeredBy": [],
+      "triggers": []
+    },
+    {
+      "name": "Wrapup",
+      "description": null,
+      "declaredIn": "Build",
+      "default": false,
+      "listed": true,
+      "dependsOn": [
+        "Initialise"
+      ],
+      "after": [
+        "ApplyGitTag",
+        "ArrangeStep",
+        "ConstructStep",
+        "ExamineStep",
+        "Initialise",
+        "Initialise",
+        "PackageStep",
+        "ReleaseStep",
+        "TestStep"
+      ],
+      "triggeredBy": [
+        "Initialise"
+      ],
+      "triggers": []
+    }
+  ]
+}

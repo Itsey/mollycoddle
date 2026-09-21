@@ -1,9 +1,9 @@
-﻿using System;
-using Nuke.Common;
-using Nuke.Common.Tools.NuGet;
+using System;
+using Fallout.Common;
+using Fallout.Common.Tools.NuGet;
 using Serilog;
 
-public partial class Build : NukeBuild {
+public partial class Build : FalloutBuild {
 
     // Well known step for releasing into the selected environment.  Arrange Construct Examine Package [Release] Test
     public Target ReleaseStep => _ => _

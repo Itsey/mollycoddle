@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using Nuke.Common;
-using Nuke.Common.Tools.DotNet;
+using System.Linq;
+using Fallout.Common;
+using Fallout.Common.Tools.DotNet;
 using Serilog;
 
-public partial class Build : NukeBuild {
+public partial class Build : FalloutBuild {
 
     // TestStep is the well known post release integration test step. Arrange Construct Examine Package Release [Test]
     public Target TestStep => _ => _

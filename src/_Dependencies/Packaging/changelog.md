@@ -1,6 +1,8 @@
 Plisky.MollyCoddle Change Log. 
 
 VXXX-VERSION3-XXX
+
+V1.0.3
   * Added multi-targetting for net 8,9,10.
   * 🐞 Fix for Issue raised on Github.  Added retry code on rule read and cache update, and addittionally cache only updates on changed file.
 

@@ -1,4 +1,4 @@
-﻿using Nuke.Common.IO;
+using Fallout.Common.IO;
 
 public class LocalBuildConfig {
     public AbsolutePath ArtifactsDirectory { get; set; }

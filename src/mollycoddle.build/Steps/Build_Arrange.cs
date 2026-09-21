@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Nuke.Common;
-using Nuke.Common.IO;
-using Nuke.Common.Tools.DotNet;
-using Plisky.Nuke.Fusion;
+using Fallout.Common;
+using Fallout.Common.IO;
+using Fallout.Common.Tools.DotNet;
+using Plisky.Fallout.Fusion;
 using Serilog;
 
-public partial class Build : NukeBuild {
+public partial class Build : FalloutBuild {
 
     // ArrangeStep = Well Known Initial Step for correctness and Linting. [Arrange] Construct Examine Package Release Test
     public Target ArrangeStep => _ => _

@@ -1,10 +1,10 @@
-﻿using System;
-using Nuke.Common;
-using Nuke.Common.Tools.DotNet;
-using Plisky.Nuke.Fusion;
+using System;
+using Fallout.Common;
+using Fallout.Common.Tools.DotNet;
+using Plisky.Fallout.Fusion;
 using Serilog;
 
-public partial class Build : NukeBuild {
+public partial class Build : FalloutBuild {
     // Standard entrypoint for compiling the app.  Arrange [Construct] Examine Package Release Test
 
     public Target ApplyVersion => _ => _
@@ -136,7 +136,7 @@ public partial class Build : NukeBuild {
        .Executes(() => {
        });
 
-    private void UpdatePreReleaseVersionNumber(bool dryRunMode, string versioningType, VersonifyTasks vc, Nuke.Common.IO.AbsolutePath mmPathBase) {
+    private void UpdatePreReleaseVersionNumber(bool dryRunMode, string versioningType, VersonifyTasks vc, Fallout.Common.IO.AbsolutePath mmPathBase) {
         Log.Information($"[Versioning] {versioningType} Applying release version number to pre-release data. ({vc.VersionLiteral}) ");
 
         // Once the release version changes we need to update the pre-release version numbers to match the released version otherwise it will still
