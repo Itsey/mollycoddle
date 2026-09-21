@@ -10,7 +10,7 @@
                         "%ROOT%\\src",
                         "%ROOT%\\build",
                         "%ROOT%\\test",
-                        "%ROOT%\\doc",
+                        "%ROOT%\\docs",
                         "%ROOT%\\res",
                         "%ROOT%\\src*",
                         "%ROOT%\\data",

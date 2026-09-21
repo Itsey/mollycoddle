@@ -78,8 +78,9 @@ public static class Program {
         b = new Bilge("mollycoddle");
         _ = Bilge.Alert.Online("mollycoddle");
         WriteDebuggingInfoOnStartup(args, ma, b);
-        var mm = new MollyMain(mo, b);
-        mm.WriteOutput = writeOutput;
+        var mm = new MollyMain(mo, b) {
+            WriteOutput = writeOutput
+        };
 
         try {
             sw.Start();
@@ -128,8 +129,7 @@ public static class Program {
         if (cr.DefectCount == 0) {
             writeOutput($"No Violations, Mollycoddle Pass.  {elapsedString}", OutputType.EndSuccess);
         } else {
-            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}",
-                warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
+            writeOutput($"Total Violations {cr.DefectCount}.  {elapsedString}", warningMode ? OutputType.EndSuccess : OutputType.EndFailure);
         }
     }
 

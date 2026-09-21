@@ -1,11 +1,11 @@
-namespace mollycoddle.test;
-
 using System;
 using System.Linq;
 using Plisky.Diagnostics;
 using Plisky.Test;
 using Shouldly;
 using Xunit;
+
+namespace mollycoddle.test;
 
 public class NugetPackageCheckTests {
     private readonly Bilge b = new();
@@ -144,17 +144,18 @@ public class NugetPackageCheckTests {
     [InlineData("xunit", 1)]
     [InlineData("xunit[2.4.1]", 1)]
     [InlineData("xunit[2.3.1]", 0)]
-    [InlineData("xunit[0.0.0-2.4.0]", 0)]   // Must not be between...
+    [InlineData("xunit[0.0.0-2.4.0]", 0)] // Must not be between...
     [InlineData("xunit[0.0.0-2.4.2]", 1)]
     [InlineData("xunit[2.0-3.0]", 1)]
     [InlineData("xunit[1.0-2.0]", 0)]
     [InlineData("xunit[>0.0.0]", 1)]
-    [InlineData("xunit[>2.4.0]", 1)]  // Can not be greater than
+    [InlineData("xunit[>2.4.0]", 1)] // Can not be greater than
     [InlineData("xunit[>2.4.1]", 0)]
-    [InlineData("xunit[<3.0.0]", 1)]  // Can not be less than
+    [InlineData("xunit[<3.0.0]", 1)] // Can not be less than
     [InlineData("xunit[<2.4.1]", 0)]
     [InlineData("xunit[<2.4.2]", 1)]
     [InlineData("xunit[<2.4.0]", 0)]
+    [InlineData("xunit[<1.5.2]", 0)] // LFY-83 & Issue #2
     [InlineData("moq[4.18.4-4.20.69]", 0)]
     [InlineData("moq[>4.18.4.0]", 0)]
     public void NugetVersion_HasBannedVersion(string bannedString, int expectedDefectCount) {

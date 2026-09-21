@@ -30,7 +30,7 @@ public class RegexLineValidator : ValidatorBase {
         get { return endStringValue; }
         set {
             endStringValue = value;
-            isActive = (value != null);
+            isActive = value != null;
         }
     }
 
@@ -46,7 +46,7 @@ public class RegexLineValidator : ValidatorBase {
         get { return startStringValue; }
         set {
             startStringValue = value;
-            isActive = (value == null);
+            isActive = value == null;
         }
     }
 

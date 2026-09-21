@@ -7,7 +7,7 @@
             "Validators": [
                 {
                     "AdditionalData": [
-                        "fluent.assertions[8.0.0-4.20.68]"
+                        "fluentassertions[>7.9.9]"
                     ],
                     "Control": "ProhibitedPackagesList",
                     "PatternMatch": "**\\*.csproj",

@@ -8,26 +8,22 @@ using Plisky.Diagnostics;
 
 namespace mollycoddle;
 
-public class NexusSupport {
+public class NexusSupport(MollyOptions mox) {
     public const string ALT_INDEX_FILENAME = "mccache.index";
     public const string INDEX_FILENAME = "index.json";
     public const string NEXUS_PREFIX = "[NEXUS]";
-    protected const int MAXCONCURRENTDOWNLOADS = 16;  // Note AI suggestion of average for small downloads.
+    protected const int MAXCONCURRENTDOWNLOADS = 16; // Note AI suggestion of average for small downloads.
     protected const int MAXRETRIES = 2;
     protected const int RETRYDELAYMS = 1000;
     protected const int SHARINGVIOLATIONHRESULT = unchecked((int)0x80070020);
 
-    protected readonly MollyOptions mo;
-
+    protected readonly MollyOptions mo = mox;
     protected Bilge b = new("molly-nexus");
-
     private static readonly HttpClient client = new();
 
-    private static readonly string[] knownNexusChunkMarkers = new[] { "[U::", "[P::", "[L::", "[R::", "[G::" };
-
-    public NexusSupport(MollyOptions mox) {
-        mo = mox;
-    }
+    private static readonly string[] knownNexusChunkMarkers = new[] {
+        "[U::", "[P::", "[L::", "[R::", "[G::"
+    };
 
     public string? BasePathToSave { get; set; }
 
@@ -250,7 +246,7 @@ public class NexusSupport {
         response.EnsureSuccessStatusCode();
 
         byte[] fileBytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
-        // await File.WriteAllBytesAsync(filename, fileBytes);
+
         saveFile(fileBytes, fileName);
     }
 
@@ -454,7 +450,7 @@ public class NexusSupport {
     public async Task<string> ProcessNexusSupport(string nexusFile, ProcessKind fileType) {
         b.Info.Flow($"{nexusFile}");
 
-        Action<byte[], string, string> saveFileAction = (fileContents, fileName, identifier) => { ActualSaver(fileContents, fileName, identifier); };
+        Action<byte[], string, string> saveFileAction = (fileContents, fileName, identifier) => ActualSaver(fileContents, fileName, identifier);
 
         string result = nexusFile;
         var ns = GetNexusSettings(nexusFile);
@@ -471,13 +467,7 @@ public class NexusSupport {
             throw new InvalidOperationException("BasePath must be set before the file saves are processed.");
         }
 
-        if (fileType == ProcessKind.RulesFile) {
-            result = Path.Combine(BasePathToSave, version, filename);
-        } else {
-            result = Path.Combine(BasePathToSave, version);
-        }
-
-        return result;
+        return fileType == ProcessKind.RulesFile ? Path.Combine(BasePathToSave, version, filename) : Path.Combine(BasePathToSave, version);
     }
 
     public virtual void SaveIndex(string folderPath, Dictionary<string, string> index) {
