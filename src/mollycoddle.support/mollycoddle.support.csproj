@@ -11,7 +11,7 @@
     <FileVersion>0.0.0.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="GitignoreParserNet" Version="0.2.0.14" />
+    <PackageReference Include="GitignoreParserNet" Version="0.2.0.15" />
     <PackageReference Include="Minimatch" Version="2.0.0" />
     <PackageReference Include="Plisky.Diagnostics" Version="3.2.5" />
     <PackageReference Include="Roslynator.Analyzers" Version="5.0.0">
