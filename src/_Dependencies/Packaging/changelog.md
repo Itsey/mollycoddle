@@ -2,8 +2,8 @@ Plisky.MollyCoddle Change Log.
 
 VXXX-VERSION3-XXX
 
-* 🐞 Issue#2 - Incorrect version comparison meant that checking for versions of nuget packages was not reliable.  A bug in the underlying version comparison meant that v1.1.0 would appear greater than 2.0.1.  This is a behaviour change so potentially
-* 🐞 Paging added to the Nexus capabilities and cache altered so that it is now not cleared on start-up and uses an index to determine whether or not to download files.  Aim at reducing chances of MC clashing when being run in parallel (e.g. on build machines).
+* 🐞 Issue#2 - Incorrect version comparison meant that checking for versions of nuget packages was not reliable.  A bug in the underlying version comparison meant that v1.1.0 would appear greater than 2.0.1.  This is a behaviour change so potentially breaking for some users.
+* 🐞 Paging added to the Nexus capabilities and cache altered so that it is now not cleared on start-up and uses an index to determine whether or not to download files.  Aim at reducing chances of MollyCoddle clashing when being run in parallel (e.g. on build machines).
 
 V1.0.3
   * Added multi-targeting for net 8,9,10.
