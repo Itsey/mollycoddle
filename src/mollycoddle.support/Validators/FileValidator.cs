@@ -8,21 +8,18 @@ using System.Diagnostics;
 /// know how to do the validations just what the validations must be.
 /// </summary>
 [DebuggerDisplay("Validator For {TriggeringRule}")]
-public class FileValidator : ValidatorBase {
+public class FileValidator(string owningRuleName) : ValidatorBase(owningRuleName) {
 
     /// <summary>
     /// This is the name of the validator, it must be specified exactly in the rules files.  It does not use nameof to prevent accidental refactoring.
     /// </summary>
     public const string VALIDATORNAME = "FileValidationChecks";
 
-    private List<string> completeBypasses = new List<string>();
-    private List<string> mustExistPaths = new List<string>();
-    private List<MatchWithSecondaryMatches> precisePositions = new List<MatchWithSecondaryMatches>();
-    private List<PrimaryCopyFile> primaryMatchers = new List<PrimaryCopyFile>();
-    private List<MatchWithSecondaryMatches> prohibittions = new List<MatchWithSecondaryMatches>();
-
-    public FileValidator(string owningRuleName) : base(owningRuleName) {
-    }
+    private readonly List<string> completeBypasses = [];
+    private readonly List<string> mustExistPaths = [];
+    private readonly List<MatchWithSecondaryMatches> precisePositions = [];
+    private readonly List<PrimaryCopyFile> primaryMatchers = [];
+    private readonly List<MatchWithSecondaryMatches> prohibittions = [];
 
     /// <summary>
     /// Adds a bypass that prevents any rules checking for this match

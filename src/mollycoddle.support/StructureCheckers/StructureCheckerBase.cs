@@ -3,19 +3,14 @@
 using Minimatch;
 using Plisky.Diagnostics;
 
-public abstract class StructureCheckerBase {
+public abstract class StructureCheckerBase(ProjectStructure ps, MollyOptions mopts) {
     protected Bilge b = new("molly-structurecheck");
-    protected List<Func<string, bool>> bypassMatch = new();
-    protected MollyOptions mo;
+    protected List<Func<string, bool>> bypassMatch = [];
+    protected MollyOptions mo = mopts;
     protected Options o = new() { AllowWindowsPaths = true, IgnoreCase = true };
-    protected List<Tuple<string, Func<string, bool>>> prohibitors = new();
-    protected ProjectStructure ps;
-    protected List<ValidatorBase> validators = new();
-
-    public StructureCheckerBase(ProjectStructure ps, MollyOptions mopts) {
-        this.ps = ps;
-        mo = mopts;
-    }
+    protected List<Tuple<string, Func<string, bool>>> prohibitors = [];
+    protected ProjectStructure ps = ps;
+    protected List<ValidatorBase> validators = [];
 
     public void AddFullBypass(string v) {
         b.Verbose.Log($"Master Bypass {v}");

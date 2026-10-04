@@ -2,17 +2,10 @@
 
 namespace mollycoddle;
 
-public class NugetPackageEntry {
+public class NugetPackageEntry(string packageIdentifierValue, string packageVersionValue) {
+    public string PackageIdentifier { get; set; } = packageIdentifierValue;
 
-    public NugetPackageEntry(string packageIdentifierValue, string packageVersionValue) {
-        PackageIdentifier = packageIdentifierValue;
-        RawVersion = packageVersionValue;
-        Version = VersionNumber.Parse(packageVersionValue);
-    }
+    public string RawVersion { get; set; } = packageVersionValue;
 
-    public string PackageIdentifier { get; set; }
-
-    public string RawVersion { get; set; }
-
-    public VersionNumber Version { get; set; }
+    public VersionNumber Version { get; set; } = VersionNumber.Parse(packageVersionValue);
 }

@@ -11,7 +11,7 @@ public class MollyOptions {
     }
 
     /// <summary>
-    /// Gets or sets a value indicating if links are written out alongside the list of violations
+    /// Gets or sets a value indicating whether links are written out alongside the list of violations
     /// </summary>
     public bool AddHelpText { get; set; }
 

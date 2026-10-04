@@ -4,8 +4,8 @@ public class NugetValidationCheck {
 
     public NugetValidationCheck() {
         Pattern = string.Empty;
-        ProhibitedPackages = new PackageReference[0];
-        MustIncludePackages = new PackageReference[0];
+        ProhibitedPackages = [];
+        MustIncludePackages = [];
     }
 
     public PackageReference[] MustIncludePackages { get; internal set; }

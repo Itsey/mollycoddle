@@ -1,15 +1,15 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿namespace mollycoddle;
 
 using System.Security.Cryptography;
 using Plisky.Diagnostics;
 
 public class ProjectStructure {
-    private Bilge b = new Bilge("molly-projectstructure");
+    private readonly Bilge b = new("molly-projectstructure");
 
     public ProjectStructure() {
         Root = string.Empty;
-        AllFolders = new List<string>();
-        AllFiles = new List<string>();
+        AllFolders = [];
+        AllFiles = [];
     }
 
     public List<string> AllFiles { get; set; }

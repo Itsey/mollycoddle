@@ -32,7 +32,7 @@ public class CheckEntityBase(string triggeringRule) {
     public string OwningRuleIdentity { get; set; } = triggeringRule;
 
     /// <summary>
-    /// Gets or sets a value for passed. It is used for rules where it must actively pass in order to determine if its in violaton or not. Defaults to true.
+    /// Gets or sets a value indicating whether a value is passed. It is used for rules where it must actively pass in order to determine if its in violaton or not. Defaults to true.
     /// </summary>
     public bool Passed { get; set; } = true;
 

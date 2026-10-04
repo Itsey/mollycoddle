@@ -1,11 +1,8 @@
 ﻿namespace mollycoddle;
 
-public class RegexStructureChecker : StructureCheckerBase {
-    protected List<RegexLineCheckEntity> actions = new();
-    protected List<RegexLineCheckEntity> violatedActions = new();
-
-    public RegexStructureChecker(ProjectStructure ps, MollyOptions mopts) : base(ps, mopts) {
-    }
+public class RegexStructureChecker(ProjectStructure ps, MollyOptions mopts) : StructureCheckerBase(ps, mopts) {
+    protected List<RegexLineCheckEntity> actions = [];
+    protected List<RegexLineCheckEntity> violatedActions = [];
 
     protected override CheckResult ActualExecuteChecks(CheckResult result) {
         b.Verbose.Flow();

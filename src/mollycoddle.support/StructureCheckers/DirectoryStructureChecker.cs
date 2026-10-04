@@ -5,12 +5,9 @@ using System.Collections.Generic;
 /// <summary>
 /// The job here is to actually check the directory structure for failures.
 /// </summary>
-public class DirectoryStructureChecker : StructureCheckerBase {
+public class DirectoryStructureChecker(ProjectStructure ps, MollyOptions mo) : StructureCheckerBase(ps, mo) {
     public int violationsCountTotal;
-    private readonly Dictionary<string, CheckEntityBase> directoriesThatMustExist = new();
-
-    public DirectoryStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
-    }
+    private readonly Dictionary<string, CheckEntityBase> directoriesThatMustExist = [];
 
     protected override CheckResult ActualExecuteChecks(CheckResult result) {
         b.Info.Flow();
@@ -25,8 +22,8 @@ public class DirectoryStructureChecker : StructureCheckerBase {
                 continue;
             }
 
-            if (directoriesThatMustExist.ContainsKey(folderName)) {
-                directoriesThatMustExist[folderName].Passed = true;
+            if (directoriesThatMustExist.TryGetValue(folderName, out var checkEntity)) {
+                checkEntity.Passed = true;
             }
 
             foreach (var isPathProhibited in prohibitors) {

@@ -6,32 +6,31 @@ using System.IO;
 using GitignoreParserNet;
 using Minimatch;
 
-public class FileStructureChecker : StructureCheckerBase {
+public class FileStructureChecker(ProjectStructure ps, MollyOptions mo) : StructureCheckerBase(ps, mo) {
     public int violationCountTotal;
-    protected List<MinmatchActionCheckEntity> actions = new List<MinmatchActionCheckEntity>();
-    protected List<MinmatchActionCheckEntity> violatedActions = new List<MinmatchActionCheckEntity>();
+    protected List<MinmatchActionCheckEntity> actions = [];
+    protected List<MinmatchActionCheckEntity> violatedActions = [];
 
     // Cache for gitignore matchers by path
-    private readonly Dictionary<string, Func<string, bool>> gitignoreMatchers = new();
-
-    public FileStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
-    }
+    private readonly Dictionary<string, Func<string, bool>> gitignoreMatchers = [];
 
     public virtual void AssignCompareWithCommonAction(string patternToMatch, string pathToCommon, string ruleName) {
         patternToMatch = ValidateActualPath(patternToMatch);
         string pm = ValidateCommonPath(pathToCommon);
 
-        var fca = new MinmatchActionCheckEntity(ruleName);
-        fca.PerformCheck = GetContentsCheckerAction(pm);
-        fca.DoesMatch = new Minimatcher(patternToMatch, o);
+        var fca = new MinmatchActionCheckEntity(ruleName) {
+            PerformCheck = GetContentsCheckerAction(pm),
+            DoesMatch = new Minimatcher(patternToMatch, o)
+        };
 
         actions.Add(fca);
     }
 
     public void AssignFileMustNotContainAction(string violationRuleName, string patternForFile, string textToFind) {
-        var fca = new MinmatchActionCheckEntity(violationRuleName);
-        fca.PerformCheck = GetFileContentsMustChecker(textToFind, false);
-        fca.DoesMatch = new Minimatcher(patternForFile, o);
+        var fca = new MinmatchActionCheckEntity(violationRuleName) {
+            PerformCheck = GetFileContentsMustChecker(textToFind, false),
+            DoesMatch = new Minimatcher(patternForFile, o)
+        };
         actions.Add(fca);
     }
 
@@ -41,15 +40,17 @@ public class FileStructureChecker : StructureCheckerBase {
     /// <param name="ruleName">The name of the owning rule</param>
     /// <param name="patternForFiles">A primary / secondary combo describing the rules</param>
     public void AssignIfItExistsItMustBeHereAction(string ruleName, MatchWithSecondaryMatches patternForFiles) {
-        var fca = new MinmatchActionCheckEntity(ruleName);
-        fca.PerformCheck = GetMustMatchOneOfTheseChecker(patternForFiles.SecondaryList);
-        fca.DoesMatch = new Minimatcher(patternForFiles.PrimaryPattern, o);
+        var fca = new MinmatchActionCheckEntity(ruleName) {
+            PerformCheck = GetMustMatchOneOfTheseChecker(patternForFiles.SecondaryList),
+            DoesMatch = new Minimatcher(patternForFiles.PrimaryPattern, o)
+        };
         actions.Add(fca);
     }
 
     public void AssignMustExistAction(string ruleName, string patternForFile) {
-        var fca = new MinmatchActionCheckEntity(ruleName);
-        fca.DiagnosticDescriptor = $"FSC - Must Exist - {patternForFile}";
+        var fca = new MinmatchActionCheckEntity(ruleName) {
+            DiagnosticDescriptor = $"FSC - Must Exist - {patternForFile}"
+        };
         // Must Exist defaults to having not passed.  It passes if the file is then found.
         patternForFile = ValidateActualPath(patternForFile);
         fca.Passed = false;
@@ -194,7 +195,7 @@ public class FileStructureChecker : StructureCheckerBase {
         string? gitignorePath = null;
 
         if (exceptionList != null) {
-            possiblePatterns = new List<Minimatcher>();
+            possiblePatterns = [];
             foreach (string l in exceptionList) {
                 if (l.Equals("%ROOT%\\.gitignore", StringComparison.OrdinalIgnoreCase)) {
                     gitignorePath = ValidateActualPath(l);
