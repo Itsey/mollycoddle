@@ -9,8 +9,8 @@ using Minimatch;
 /// </summary>
 public class NugetPackageStructureChecker : StructureCheckerBase {
     public int violationCountTotal;
-    protected List<MinmatchActionCheckEntity> actions = new();
-    protected List<MinmatchActionCheckEntity> violatedActions = new();
+    protected List<MinmatchActionCheckEntity> actions = [];
+    protected List<MinmatchActionCheckEntity> violatedActions = [];
 
     public NugetPackageStructureChecker(ProjectStructure ps, MollyOptions mo) : base(ps, mo) {
         this.ps = ps;
@@ -110,7 +110,7 @@ public class NugetPackageStructureChecker : StructureCheckerBase {
             string? fileContents = ps.GetFileContents(filenameToCheck);
             IEnumerable<NugetPackageEntry> nugetPackageReferences;
             if (fileContents == null) {
-                nugetPackageReferences = new NugetPackageEntry[0];
+                nugetPackageReferences = [];
             } else {
                 nugetPackageReferences = ReadNugetPackageFromSDKProjectContents(fileContents);
             }
@@ -130,11 +130,13 @@ public class NugetPackageStructureChecker : StructureCheckerBase {
                                 return;
 
                             case PackageVersionMatchType.RangeProhibited:
+                                ArgumentNullException.ThrowIfNull(bannedPackage.LowVersionNumber);
+                                ArgumentNullException.ThrowIfNull(bannedPackage.HighVersionNumber);
                                 if ((nugetPackage.Version >= bannedPackage.LowVersionNumber) && (nugetPackage.Version <= bannedPackage.HighVersionNumber)) {
                                     b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} version {nugetPackage.Version} is within banned range {bannedPackage.LowVersionNumber}-{bannedPackage.HighVersionNumber}");
                                     resultant.IsInViolation = true;
                                     resultant.ViolationMessageFormat = $"{filenameToCheck} contains banned package version, less than minimum. ({{0}}) within banned range {bannedPackage.LowVersionNumber}-{bannedPackage.HighVersionNumber}";
-                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version})";
                                     return;
                                 }
                                 break;
@@ -144,27 +146,29 @@ public class NugetPackageStructureChecker : StructureCheckerBase {
                                     b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} matched banned version number {bannedPackage.LowVersionNumber}");
                                     resultant.IsInViolation = true;
                                     resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, less than minimum. ({0})";
-                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version})";
                                     return;
                                 }
                                 break;
 
                             case PackageVersionMatchType.NotLessThan:
+                                ArgumentNullException.ThrowIfNull(bannedPackage.LowVersionNumber);
                                 if (nugetPackage.Version < bannedPackage.LowVersionNumber) {
                                     b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} is less than minimum verison {bannedPackage.LowVersionNumber}");
                                     resultant.IsInViolation = true;
                                     resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, less than minimum. ({0})";
-                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version})";
                                     return;
                                 }
                                 break;
 
                             case PackageVersionMatchType.NotMoreThan:
+                                ArgumentNullException.ThrowIfNull(bannedPackage.HighVersionNumber);
                                 if (nugetPackage.Version > bannedPackage.HighVersionNumber) {
                                     b.Verbose.Log($"PackageVersion Failure, package {nugetPackage.PackageIdentifier} is greater than maximum version {bannedPackage.HighVersionNumber}");
                                     resultant.IsInViolation = true;
                                     resultant.ViolationMessageFormat = $"{filenameToCheck}" + " contains banned package version, greater than maximum. ({0})";
-                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version.ToString()})";
+                                    resultant.AdditionalInfo = $"{nugetPackage.PackageIdentifier}({nugetPackage.Version})";
                                     return;
                                 }
                                 break;
@@ -189,7 +193,7 @@ public class NugetPackageStructureChecker : StructureCheckerBase {
             string? s = ps.GetFileContents(filenameToCheck);
             IEnumerable<NugetPackageEntry> packagesToCheck;
             if (s == null) {
-                packagesToCheck = new NugetPackageEntry[0];
+                packagesToCheck = [];
             } else {
                 packagesToCheck = ReadNugetPackageFromSDKProjectContents(s);
             }

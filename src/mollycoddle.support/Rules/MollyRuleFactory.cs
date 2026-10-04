@@ -59,20 +59,14 @@ public class MollyRuleFactory {
     /// </summary>
     /// <param name="ruleName">The name of the rule for violation reporting purposes.</param>
     /// <param name="nextRuleStep">The step which contains the configuration required.</param>
+    /// <returns>ValidatorBase</returns>
     public ValidatorBase LoadValidatorStep(string ruleName, MollyRuleStepStorage nextRuleStep) {
-        switch (nextRuleStep.ValidatorName) {
-            case DirectoryValidator.VALIDATORNAME:
-                return CreateDirectoryValidator(ruleName, nextRuleStep);
-
-            case FileValidator.VALIDATORNAME:
-                return CreateFileValidatorFromConfiguration(ruleName, nextRuleStep);
-
-            case NugetPackageValidator.VALIDATORNAME:
-                return CreateNugetValidatorFromConfiguration(ruleName, nextRuleStep);
-
-            default:
-                throw new InvalidOperationException($"The validator [{nextRuleStep.ValidatorName}] was not recognised from the MollyRule file.");
-        }
+        return nextRuleStep.ValidatorName switch {
+            DirectoryValidator.VALIDATORNAME => CreateDirectoryValidator(ruleName, nextRuleStep),
+            FileValidator.VALIDATORNAME => CreateFileValidatorFromConfiguration(ruleName, nextRuleStep),
+            NugetPackageValidator.VALIDATORNAME => CreateNugetValidatorFromConfiguration(ruleName, nextRuleStep),
+            _ => throw new InvalidOperationException($"The validator [{nextRuleStep.ValidatorName}] was not recognised from the MollyRule file."),
+        };
     }
 
     public ValidatorBase LoadValidatorStep(string ruleName, string jsonContent) {

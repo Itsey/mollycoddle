@@ -5,19 +5,16 @@ using Plisky.Diagnostics;
 /// <summary>
 /// A base class for a validator.
 /// </summary>
-public abstract class ValidatorBase {
-    protected Bilge b = new Bilge("mc-validators-base");
+/// <remarks>
+/// Initializes a new instance of the <see cref="ValidatorBase"/> class.
+/// Creates a ValidatorBase Object
+/// </remarks>
+/// <param name="trigger"></param>
+public abstract class ValidatorBase(string trigger) {
+    protected Bilge b = new("mc-validators-base");
 
     /// <summary>
-    /// Creates a ValidatorBase Object
+    /// Gets or sets the reference identifier of the rule that is being implemented by this validator.
     /// </summary>
-    /// <param name="trigger"></param>
-    public ValidatorBase(string trigger) {
-        TriggeringRule = trigger;
-    }
-
-    /// <summary>
-    /// The reference identifier of the rule that is being implemented by this validator.
-    /// </summary>
-    public string TriggeringRule { get; set; }
+    public string TriggeringRule { get; set; } = trigger;
 }

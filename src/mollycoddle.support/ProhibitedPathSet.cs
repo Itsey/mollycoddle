@@ -3,20 +3,15 @@
 /// <summary>
 /// Holds a match pattern and a set of secondary patterns, for example a match and a list of exceptions.
 /// </summary>
-public class MatchWithSecondaryMatches {
-
-    public MatchWithSecondaryMatches(string ptn) {
-        SecondaryList = new string[0];
-        PrimaryPattern = ptn;
-    }
+public class MatchWithSecondaryMatches(string ptn) {
 
     /// <summary>
-    /// The primary matching pattern
+    /// Gets or sets the primary matching pattern
     /// </summary>
-    public string PrimaryPattern { get; set; }
+    public string PrimaryPattern { get; set; } = ptn;
 
     /// <summary>
-    /// One or more secondary patterns
+    /// Gets or sets one or more secondary patterns
     /// </summary>
-    public string[] SecondaryList { get; set; }
+    public string[] SecondaryList { get; set; } = [];
 }

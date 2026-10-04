@@ -11,42 +11,42 @@ public class MollyOptions {
     }
 
     /// <summary>
-    /// Decides if links are written out alongside the list of violations
+    /// Gets or sets a value indicating if links are written out alongside the list of violations
     /// </summary>
     public bool AddHelpText { get; set; }
 
     /// <summary>
-    /// Specifies the level of trace to be enabled as a Plisky.Diagnostics debug string.
+    /// Gets or sets the level of trace to be enabled as a Plisky.Diagnostics debug string.
     /// </summary>
     public string DebugSetting { get; set; }
 
     /// <summary>
-    /// The directory against which the analysis is run.
+    /// Gets or sets the directory against which the analysis is run.
     /// </summary>
     public string DirectoryToTarget { get; set; }
 
     /// <summary>
-    /// Determines whether debugging should be enabled.
+    /// Gets or sets a value indicating whether debugging should be enabled.
     /// </summary>
     public bool EnableDebug { get; set; }
 
     /// <summary>
-    /// If set, a fix operation will be applied to attempt to resolve violations.
+    /// Gets or sets a value indicating whether if set, a fix operation will be applied to attempt to resolve violations.
     /// </summary>
     public bool Fix { get; set; } = false;
 
     /// <summary>
-    /// The Path to the common files for any primary file comparisons that need to be made
+    /// Gets or sets the Path to the common files for any primary file comparisons that need to be made
     /// </summary>
     public string? PrimaryFilePath { get; set; }
 
     /// <summary>
-    /// The rules file that is to be loaded, either a rules set or a single rules file.
+    /// Gets or sets the rules file that is to be loaded, either a rules set or a single rules file.
     /// </summary>
     public string RulesFile { get; set; }
 
     /// <summary>
-    /// Working path for caching files etc, used when a non disk based rules and primary source is used.
+    /// Gets or sets working path for caching files etc, used when a non disk based rules and primary source is used.
     /// </summary>
     public string TempPath { get; set; }
 }
