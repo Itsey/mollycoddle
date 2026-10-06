@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <OutputType>exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="4.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <ProjectReference Include="..\mollycoddle\mollycoddle.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Target Name="CopyCliArtifacts" AfterTargets="Build">
+    <ItemGroup>
+      <CliArtifact Include="..\mollycoddle\bin\$(Configuration)\$(TargetFramework)\**\*" />
+    </ItemGroup>
+    <Error Condition="!Exists('..\mollycoddle\bin\$(Configuration)\$(TargetFramework)\mollycoddle.dll')" Text="The Mollycoddle CLI was not built for $(Configuration)/$(TargetFramework)." />
+    <RemoveDir Directories="$(TargetDir)cli" />
+    <Copy SourceFiles="@(CliArtifact)" DestinationFiles="@(CliArtifact->'$(TargetDir)cli\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
