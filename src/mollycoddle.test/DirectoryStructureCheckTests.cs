@@ -7,6 +7,26 @@ public class DirectoryStructureCheckTests {
 
     [Build(BuildType.Any)]
     [Integration]
+    [Theory(Skip = "LFY-55 known bug")]
+    [InlineData(@"C:\Files\Code\git\PliskyDiagnostics")]
+    [InlineData("/mnt/c/Files/Code/git/PliskyDiagnostics")]
+    public void BugRepro_MustExist_SrcWithLinuxSeparators_Works(string root) {
+        var mps = MockProjectStructure.Get().WithRoot(root);
+        mps.WithRootedFolder("src");
+
+        var sut = new DirectoryStructureChecker(mps, new MollyOptions());
+        var dv = new DirectoryValidator(MockProjectStructure.DUMMYRULENAME);
+        dv.MustExist("%ROOT%/src");
+        dv.AddProhibitedPattern("%ROOT%/src/src");
+
+        sut.AddRuleRequirement(dv);
+        var cr = sut.Check();
+
+        Assert.Equal(0, cr.DefectCount);
+    }
+
+    [Build(BuildType.Any)]
+    [Integration]
     [Fact]
     public void BugRepro_MustExist_Src_Works() {
         string root = @"C:\Files\Code\git\PliskyDiagnostics";
