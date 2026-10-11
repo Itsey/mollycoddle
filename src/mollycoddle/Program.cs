@@ -54,7 +54,18 @@ public static class Program {
             return 0;
         }
 
-        var ma = clas.ProcessArguments<MollyCommandLine>(args);
+        MollyCommandLine ma;
+        try {
+            ma = clas.ProcessArguments<MollyCommandLine>(args);
+        } catch (TargetInvocationException ex) when (ex.InnerException is ArgumentException) {
+            b = new Bilge("mollycoddle");
+            string message = $"Invalid command-line argument: {ex.InnerException.Message}";
+            b.Error.Report((short)ErrorModule.MollyCommandLine, (short)ErrorCode.ProgramCommandLineInvalidTargetDirectory, message);
+            writeOutput(message, OutputType.Error);
+            WriteHelp(clas);
+            exitCode = -3;
+            goto TheEndIsNigh;
+        }
         warningMode = ma.WarningMode;
 
         if (string.Equals(ma.OutputFormat, "azdo", StringComparison.OrdinalIgnoreCase)) {
@@ -64,7 +75,7 @@ public static class Program {
         WriteGreetingMessage();
 
         if (ma.Disabled) {
-            writeOutput($"MollyCoddle is disabled, returning success.", OutputType.Verbose);
+            writeOutput("MollyCoddle is disabled, returning success.", OutputType.Verbose);
             exitCode = 0;
             goto TheEndIsNigh;
         }

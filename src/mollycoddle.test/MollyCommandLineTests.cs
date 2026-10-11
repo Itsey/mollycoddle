@@ -6,6 +6,17 @@ using Shouldly;
 using Xunit;
 
 public class MollyCommandLineTests {
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void EmptyDirectoryArgument_IdentifiesCommandLineParameter(string directory) {
+        var sut = new MollyCommandLine();
+
+        var exception = Should.Throw<ArgumentException>(() => sut.DirectoryToTarget = directory);
+
+        exception.Message.ShouldContain("The -dir argument must specify a non-empty directory.");
+    }
+
     [Fact]
     public void GetOptions_ExpandsEnvironmentVariablesAndVersionMarkers() {
         string tempRoot = Path.Combine(Path.GetTempPath(), $"mc-mdl-{Guid.NewGuid():N}");

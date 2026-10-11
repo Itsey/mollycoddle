@@ -23,6 +23,9 @@ public class MollyCommandLine {
             return actualDirectory;
         }
         set {
+            if (string.IsNullOrWhiteSpace(value)) {
+                throw new ArgumentException("The -dir argument must specify a non-empty directory.");
+            }
             actualDirectory = Path.GetFullPath(value);
         }
     }

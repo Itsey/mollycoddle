@@ -5,19 +5,27 @@ namespace mollycoddle.ITest;
 
 public class CommandLineTests {
 
-    //TODO: LFY-92. This test covers the current (buggy) behaviour for regression.
-    // This test should be removed or updated as part of the bug fix.
-    [Fact]
-    public async Task Empty_directory_argument_fails_before_execution_error_handling() {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Empty_directory_argument_reports_error_and_help_without_scanning(bool warningMode) {
         using var workspace = new TestWorkspace();
 
-        var result = await MollycoddleTestHelper.ExecuteAsync(
-            workspace.Repository, ["-dir=", $"-temppath={workspace.CacheDirectory}"]);
+        var arguments = new List<string> {
+            "-dir=",
+            $"-temppath={workspace.CacheDirectory}"
+        };
+        if (warningMode) {
+            arguments.Add("-warnonly");
+        }
 
-        // Windows reports an unhandled CLR exception using HRESULT 0xE0434352.
-        result.ExitCode.ShouldBe(unchecked((int)0xE0434352), result.Diagnostics);
-        result.StdErr.ShouldContain("System.ArgumentException", Case.Sensitive, result.Diagnostics);
-        result.StdErr.ShouldContain("The path is empty.", Case.Sensitive, result.Diagnostics);
+        var result = await MollycoddleTestHelper.ExecuteAsync(workspace.Repository, [.. arguments]);
+
+        result.ExitCode.ShouldBe(-3, result.Diagnostics);
+        result.StdErr.ShouldBeEmpty(result.Diagnostics);
+        result.StdOut.ShouldContain("Invalid command-line argument:", Case.Sensitive, result.Diagnostics);
+        result.StdOut.ShouldContain("-dir", Case.Sensitive, result.Diagnostics);
+        result.StdOut.ShouldContain("MollyCoddle, for when", Case.Sensitive, result.Diagnostics);
         result.StdOut.ShouldNotContain("No Violations, Mollycoddle Pass.", Case.Sensitive, result.Diagnostics);
         Directory.GetFileSystemEntries(workspace.CacheDirectory).ShouldBeEmpty();
     }
